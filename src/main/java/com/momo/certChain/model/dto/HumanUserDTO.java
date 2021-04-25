@@ -7,6 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class HumanUserDTO extends UserDTO {
+    private String prenom;
+    private String nom;
 
     private InstitutionDTO institution;
 

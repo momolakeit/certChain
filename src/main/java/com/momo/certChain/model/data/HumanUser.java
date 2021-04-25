@@ -10,6 +10,8 @@ import javax.persistence.ManyToOne;
 @Getter
 @Setter
 public class HumanUser extends User {
+    private String prenom;
+    private String nom;
     @ManyToOne
     private Institution institution;
 }
