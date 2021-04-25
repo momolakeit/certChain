@@ -2,6 +2,7 @@ package com.momo.certChain.services.blockChain;
 
 import com.momo.certChain.SavingDiploma_sol_SavingDiploma;
 import com.momo.certChain.services.blockChain.contract.SavingDiploma;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
@@ -13,11 +14,13 @@ import java.math.BigInteger;
 
 @Service
 public class ContractService {
-    Web3j web3j = Web3j.build(new HttpService("http://localhost:7545"));
+
+    @Value("${blockchain.ethereum.inputUrl}")
+    private String ethURL ;
+    Web3j web3j = Web3j.build(new HttpService(ethURL));
 
     public void uploadContract(String certificateJson) throws Exception {
-        SavingDiploma savingDiploma = SavingDiploma.deploy(web3j, getCredentialsFromPrivateKey(), ManagedTransaction.GAS_PRICE, Contract.GAS_LIMIT).send();
-        savingDiploma.addCertificate(BigInteger.valueOf(665556565565611565L),certificateJson).send();
+        SavingDiploma.deploy(web3j, getCredentialsFromPrivateKey(), BigInteger.valueOf(4100000000L), Contract.GAS_LIMIT).send();
     }
 
     public String getCertificate(BigInteger certId, String address) throws Exception {
@@ -35,6 +38,6 @@ public class ContractService {
         return SavingDiploma.load(address,web3j,getCredentialsFromPrivateKey(), ManagedTransaction.GAS_PRICE, Contract.GAS_LIMIT);
     }
     private Credentials getCredentialsFromPrivateKey() {
-        return Credentials.create("039b0a9d87bbe82c4fc0e234615d6ddda5e24f44c129267ef67906557e53a4bd");
+        return Credentials.create("eb9c0408f00aa45ef323f847bd293c62d3c1d789e76c8e2575b206dc95ca020a");
     }
 }

@@ -9,8 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class CertChainApplication {
 
 	public static void main(String[] args) throws Exception {
-		ContractService contractService = new ContractService();
-		contractService.uploadContract("wesh");
 		SpringApplication.run(CertChainApplication.class, args);
 	}
 
