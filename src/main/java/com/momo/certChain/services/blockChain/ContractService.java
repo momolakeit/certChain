@@ -1,6 +1,5 @@
 package com.momo.certChain.services.blockChain;
 
-import com.momo.certChain.SavingDiploma_sol_SavingDiploma;
 import com.momo.certChain.services.blockChain.contract.SavingDiploma;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

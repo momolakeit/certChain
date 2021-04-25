@@ -2,11 +2,23 @@ package com.momo.certChain.model.data;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import java.util.Date;
 
 @Entity
 @Getter
 @Setter
 public class Certification {
+    @Id
+    @GeneratedValue(generator="system-uuid")
+    @GenericGenerator(name="system-uuid", strategy = "uuid")
+    private String id;
+
+    private String program;
+
+    private Date dateOfIssuing;
 }
