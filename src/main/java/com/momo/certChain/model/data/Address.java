@@ -25,5 +25,5 @@ public class Address {
 
     private String postalCode;
 
-    private String Country;
+    private String country;
 }
