@@ -2,6 +2,7 @@ package com.momo.certChain;
 
 import com.momo.certChain.model.data.Address;
 import com.momo.certChain.model.data.Institution;
+import com.momo.certChain.model.data.Student;
 import com.momo.certChain.model.data.User;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
