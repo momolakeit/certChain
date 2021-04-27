@@ -7,5 +7,5 @@ import javax.persistence.Entity;
 @Entity
 @Getter
 @Setter
-public class Employees extends HumanUser {
+public class Employee extends HumanUser {
 }

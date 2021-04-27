@@ -1,9 +1,6 @@
 package com.momo.certChain;
 
-import com.momo.certChain.model.data.Address;
-import com.momo.certChain.model.data.Institution;
-import com.momo.certChain.model.data.Student;
-import com.momo.certChain.model.data.User;
+import com.momo.certChain.model.data.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -22,7 +19,9 @@ public class TestUtils {
 
     private static final String password = "password";
 
-    private static final String institutionName = "password";
+    private static final String institutionName = "MomoU";
+
+    private static final String id = "123456";
 
     public static void assertAddress(Address returnVal){
         Address address = createAddress();
@@ -36,6 +35,10 @@ public class TestUtils {
         User user = initBasicUser(new User());
         assertEquals(user.getPassword(),returnVal.getPassword());
         assertEquals(user.getUsername(),returnVal.getUsername());
+    }
+
+    public static void assertInstitution(Institution returnVal) {
+        assertEquals(institutionName,returnVal.getName());
     }
 
     public static Address createAddress() {
@@ -53,6 +56,11 @@ public class TestUtils {
         student.setInstitution(createInstitution());
         return student;
     }
+    public static Employee createEmploye(){
+        Employee employee = (Employee) initBasicUser(new Employee());
+        employee.setInstitution(createInstitution());
+        return employee;
+    }
 
     public static Institution createInstitution() {
         Institution institution = (Institution) initBasicUser(new Institution());
@@ -64,6 +72,7 @@ public class TestUtils {
         user.setAddress(createAddress());
         user.setUsername(username);
         user.setPassword(password);
+        user.setId(id);
         return user;
     }
 
