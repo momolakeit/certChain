@@ -48,6 +48,12 @@ public class TestUtils {
         return address;
     }
 
+    public static Student createStudent(){
+        Student student = (Student) initBasicUser(new Student());
+        student.setInstitution(createInstitution());
+        return student;
+    }
+
     public static Institution createInstitution() {
         Institution institution = (Institution) initBasicUser(new Institution());
         institution.setName(institutionName);
