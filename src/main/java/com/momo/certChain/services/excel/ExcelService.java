@@ -25,7 +25,7 @@ import java.util.List;
 public class ExcelService {
 
     public List<Student> readStudentsFromExcel(byte[] bytes) throws IOException {
-        List<Student> studentList = new ArrayList<Student>();
+        List<Student> studentList = new ArrayList<>();
         Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(bytes));
         Sheet sheet = workbook.getSheetAt(0);
         int rowCounter = 0;
