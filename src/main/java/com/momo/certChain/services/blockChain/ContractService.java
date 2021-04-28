@@ -1,5 +1,7 @@
 package com.momo.certChain.services.blockChain;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.momo.certChain.model.data.Student;
 import com.momo.certChain.services.blockChain.contract.SavingDiploma;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,19 +18,27 @@ public class ContractService {
 
     @Value("${blockchain.ethereum.inputUrl}")
     private String ethURL ;
+
+    private ObjectMapper objectMapper;
+
+    public ContractService(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     Web3j web3j = Web3j.build(new HttpService(ethURL));
 
     public void uploadContract(String certificateJson) throws Exception {
         SavingDiploma.deploy(web3j, getCredentialsFromPrivateKey(), BigInteger.valueOf(4100000000L), Contract.GAS_LIMIT).send();
     }
 
-    public String getCertificate(BigInteger certId, String address) throws Exception {
+    public String getCertificate(String uuid, String address) throws Exception {
         SavingDiploma savingDiploma = getUploadedContract(address);
-        return savingDiploma.get(certId).send();
+        return savingDiploma.get(uuid).send();
     }
-    public void uploadCertificate(String certificateJson,String address, BigInteger randomNumber) throws Exception {
+    public void uploadCertificate(Student student,String address) throws Exception {
+        String certificateJson = objectMapper.writeValueAsString(student.getCertifications());
         SavingDiploma savingDiploma = getUploadedContract(address);
-        savingDiploma.addCertificate(randomNumber,certificateJson).send();
+        savingDiploma.addCertificate(student.getCertifications().getId(),certificateJson).send();
 
     }
 

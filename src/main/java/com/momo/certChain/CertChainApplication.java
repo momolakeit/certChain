@@ -1,7 +1,5 @@
 package com.momo.certChain;
 
-import com.momo.certChain.services.blockChain.ContractService;
-import com.momo.certChain.services.blockChain.contract.SavingDiploma;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
