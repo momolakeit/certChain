@@ -41,6 +41,7 @@ class ExcelServiceTest {
             assertNotNull(student.getAddress().getProvince());
             assertNotNull(student.getPrenom());
             assertNotNull(student.getNom());
+            assertNotNull(student.getCertifications().getProgram());
         });
 
     }

@@ -10,6 +10,5 @@ import java.util.List;
 @Getter
 @Setter
 public class StudentDTO extends HumanUserDTO {
-    @OneToMany
-    private List<CertificationDTO> certifications;
+    private CertificationDTO certifications;
 }

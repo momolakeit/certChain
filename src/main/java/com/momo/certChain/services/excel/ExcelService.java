@@ -1,6 +1,7 @@
 package com.momo.certChain.services.excel;
 
 import com.momo.certChain.model.data.Address;
+import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Student;
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -20,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/***Ordre du data : prenom nom username street city province postalCode country ***/
+/***Ordre du data : prenom nom username street city province postalCode country program ***/
 @Service
 public class ExcelService {
 
@@ -43,6 +44,7 @@ public class ExcelService {
     private Student studentFromRow(Row row) {
         Student student = new Student();
         Address address = new Address();
+        Certification certification = new Certification();
         student.setPrenom(cellToString(row.getCell(0)));
         student.setNom(cellToString(row.getCell(1)));
         student.setUsername(cellToString(row.getCell(2)));
@@ -51,7 +53,9 @@ public class ExcelService {
         address.setProvince(cellToString(row.getCell(5)));
         address.setPostalCode(cellToString(row.getCell(6)));
         address.setCountry(cellToString(row.getCell(7)));
+        certification.setProgram(cellToString(row.getCell(8)));
         student.setAddress(address);
+        student.setCertifications(certification);
         return student;
     }
 
