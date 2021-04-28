@@ -1,6 +1,7 @@
 package com.momo.certChain.services.blockChain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Student;
 import com.momo.certChain.services.blockChain.contract.SavingDiploma;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,9 +37,10 @@ public class ContractService {
         return savingDiploma.get(uuid).send();
     }
     public void uploadCertificate(Student student,String address) throws Exception {
+        Certification certification = student.getCertifications().get(student.getCertifications().size()-1);
         String certificateJson = objectMapper.writeValueAsString(student.getCertifications());
         SavingDiploma savingDiploma = getUploadedContract(address);
-        savingDiploma.addCertificate(student.getCertifications().getId(),certificateJson).send();
+        savingDiploma.addCertificate(certification.getId(),certificateJson).send();
 
     }
 

@@ -14,19 +14,20 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SavingDiplomaTest {
 
     String certificate = "certificate";
+    private final String randString = "randString";
 
     @Test
     public void savingDiplomaTest (Web3j web3j, TransactionManager transactionManager, ContractGasProvider gasProvider) throws Exception {
         SavingDiploma savingDiploma = SavingDiploma.deploy(web3j,transactionManager,gasProvider).send();
-        savingDiploma.addCertificate(BigInteger.TEN,certificate).send();
-        String value =savingDiploma.get(BigInteger.TEN).send();
+        savingDiploma.addCertificate(randString,certificate).send();
+        String value =savingDiploma.get(randString).send();
         assertEquals(certificate,value);
     }
     @Test
     public void savingDiplomaTestWrongIdReturnEmptyString (Web3j web3j, TransactionManager transactionManager, ContractGasProvider gasProvider) throws Exception {
         SavingDiploma savingDiploma = SavingDiploma.deploy(web3j,transactionManager,gasProvider).send();
-        savingDiploma.addCertificate(BigInteger.TEN,certificate).send();
-        String value =savingDiploma.get(BigInteger.ONE).send();
+        savingDiploma.addCertificate(randString,certificate).send();
+        String value =savingDiploma.get("notRandomom").send();
         assertEquals("",value);
     }
 

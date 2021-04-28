@@ -10,5 +10,5 @@ import java.util.List;
 @Getter
 @Setter
 public class StudentDTO extends HumanUserDTO {
-    private CertificationDTO certifications;
+    private List<CertificationDTO> certifications;
 }

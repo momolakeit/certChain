@@ -3,6 +3,7 @@ package com.momo.certChain.services.excel;
 import com.momo.certChain.model.data.Address;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Student;
+import com.momo.certChain.utils.ListUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +47,7 @@ public class ExcelService {
         address.setCountry(cellToString(row.getCell(7)));
         certification.setProgram(cellToString(row.getCell(8)));
         student.setAddress(address);
-        student.setCertifications(certification);
+        student.setCertifications(ListUtils.ajouterObjectAListe(certification,student.getCertifications()));
         return student;
     }
 

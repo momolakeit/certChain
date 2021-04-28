@@ -11,6 +11,6 @@ import java.util.List;
 @Getter
 @Setter
 public class Student extends HumanUser {
-    @OneToOne
-    private Certification certifications;
+    @OneToMany
+    private List<Certification> certifications;
 }

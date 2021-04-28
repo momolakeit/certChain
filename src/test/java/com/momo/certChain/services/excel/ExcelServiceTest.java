@@ -1,6 +1,7 @@
 package com.momo.certChain.services.excel;
 
 import com.momo.certChain.TestUtils;
+import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Student;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,7 @@ class ExcelServiceTest {
         List<Student> students = excelService.readStudentsFromExcel(bytes);
         assertEquals(500,students.size());
         students.forEach(student -> {
+            Certification certification = student.getCertifications().stream().findFirst().orElse(null);
             assertNotNull(student.getAddress().getCity());
             assertNotNull(student.getAddress().getPostalCode());
             assertNotNull(student.getAddress().getCountry());
@@ -41,7 +43,7 @@ class ExcelServiceTest {
             assertNotNull(student.getAddress().getProvince());
             assertNotNull(student.getPrenom());
             assertNotNull(student.getNom());
-            assertNotNull(student.getCertifications().getProgram());
+            assertNotNull(certification.getProgram());
         });
 
     }
