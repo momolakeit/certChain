@@ -4,30 +4,22 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
-import java.util.Date;
-import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 @Entity
 @Getter
 @Setter
-public class Certification {
+public class Signature {
     @Id
     @GeneratedValue(generator="system-uuid")
     @GenericGenerator(name="system-uuid", strategy = "uuid")
     private String id;
 
-    private String program;
-
-    private Date dateOfIssuing;
-
     @OneToOne
-    private ImageFile universityLogo;
+    private ImageFile signatureImage;
 
-    @OneToOne
-    private ImageFile universityStamp;
-
-    @OneToMany
-    private List<Signature> signatures;
-
+    private String authorName;
 }
