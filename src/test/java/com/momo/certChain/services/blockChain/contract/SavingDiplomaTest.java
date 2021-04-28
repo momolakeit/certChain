@@ -40,6 +40,15 @@ public class SavingDiplomaTest {
             savingDiploma1.addCertificate(randString,certificate).send();
         });
     }
+    @Test
+    public void savingDiplomaTestAddSameCertIdTwice (Web3j web3j, TransactionManager transactionManager, ContractGasProvider gasProvider) throws Exception {
+        SavingDiploma savingDiploma = SavingDiploma.deploy(web3j,transactionManager,gasProvider).send();
+        savingDiploma.addCertificate(randString,certificate).send();
+
+        Assertions.assertThrows(Exception.class,()->{
+            savingDiploma.addCertificate(randString,certificate).send();
+        });
+    }
     private Credentials getCredentialsFromPrivateKey() {
         return Credentials.create("eb9c0408f00aa45ef323f847bd293c62d3c1d789e76c8e2575b206dc95ca020a");
     }
