@@ -26,40 +26,25 @@ public class ContractService {
         this.objectMapper = objectMapper;
     }
 
-    Web3j web3j = Web3j.build(new HttpService("http://localhost:7545"));
+    Web3j web3j = Web3j.build(new HttpService(ethURL));
 
-    public SavingDiploma uploadContract(String privateKey) throws Exception {
-        return SavingDiploma.deploy(web3j, getCredentialsFromPrivateKey(privateKey), BigInteger.valueOf(4100000000L), Contract.GAS_LIMIT).send();
+    public String uploadContract(String privateKey) throws Exception {
+        SavingDiploma savingDiploma = SavingDiploma.deploy(web3j, getCredentialsFromPrivateKey(privateKey), BigInteger.valueOf(4100000000L), Contract.GAS_LIMIT).send();
+        return savingDiploma.getContractAddress();
     }
 
-    public String getCertificate(String uuid, String address, String privateKey) throws Exception {
+    public Certification getCertificate(String uuid, String address, String privateKey) throws Exception {
         SavingDiploma savingDiploma = getUploadedContract(address, privateKey);
-        return savingDiploma.get(uuid).send();
+        String certificateString = savingDiploma.get(uuid).send();
+        return objectMapper.readValue(certificateString,Certification.class);
     }
 
-    public String uploadCertificate(Certification certification, String address, String privateKey) throws Exception {
+    public void uploadCertificate(Certification certification, String address, String privateKey) throws Exception {
         String certificateJson = objectMapper.writeValueAsString(certification);
         SavingDiploma savingDiploma = getUploadedContract(address, privateKey);
-        return uploadDiploma(certificateJson, savingDiploma).toString();
+        savingDiploma.addCertificate(certification.getId(), certificateJson).send();
 
     }
-
-    private UUID uploadDiploma(String certificateJson, SavingDiploma savingDiploma) throws Exception {
-        UUID uuid;
-        while (true) {
-            try {
-                uuid = UUID.randomUUID();
-                savingDiploma.addCertificate(uuid.toString(), certificateJson).send();
-                break;
-            } catch (Exception e) {
-                if (!e.getMessage().contains("revert")) {
-                    throw e;
-                }
-            }
-        }
-        return uuid;
-    }
-
 
     private SavingDiploma getUploadedContract(String address, String privateKey) {
         return SavingDiploma.load(address, web3j, getCredentialsFromPrivateKey(privateKey), ManagedTransaction.GAS_PRICE, Contract.GAS_LIMIT);

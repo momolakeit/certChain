@@ -1,6 +1,8 @@
 package com.momo.certChain.mapping;
 
+import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Institution;
+import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.model.dto.InstitutionDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -11,9 +13,9 @@ public interface CertificationMapper {
 
     CertificationMapper instance = Mappers.getMapper(CertificationMapper.class);
 
-    InstitutionDTO toDTO (Institution institution);
+    CertificationDTO toDTO (Certification certification);
 
     @Mapping(target = "id",ignore = true)
-    Institution toEntity (InstitutionDTO institution);
+    Certification toEntity (CertificationDTO certificationDTO);
 
 }

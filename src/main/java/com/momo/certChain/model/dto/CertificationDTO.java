@@ -1,12 +1,7 @@
 package com.momo.certChain.model.dto;
 
-import com.momo.certChain.model.data.ImageFile;
-import com.momo.certChain.model.data.Signature;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import java.util.Date;
 import java.util.List;
 
@@ -19,10 +14,13 @@ public class CertificationDTO {
 
     private Date dateOfIssuing;
 
+    private InstitutionDTO institution;
+
+    private StudentDTO student;
+
     private ImageFileDTO universityLogo;
 
     private ImageFileDTO universityStamp;
 
-    @OneToMany
     private List<SignatureDTO> signatures;
 }

@@ -21,6 +21,12 @@ public class Certification {
 
     private Date dateOfIssuing;
 
+    @ManyToOne
+    private Institution institution;
+
+    @ManyToOne
+    private Student student;
+
     @OneToOne
     private ImageFile universityLogo;
 

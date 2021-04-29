@@ -55,6 +55,7 @@ class MessageServiceTest {
         assertEquals(from,message.getFrom()[0].toString());
         assertEquals(from,message.getFrom()[0].toString());
         assertEquals(link,String.valueOf(message.getContent()));
+        transportMockedStatic.closeOnDemand();
     }
 
 }

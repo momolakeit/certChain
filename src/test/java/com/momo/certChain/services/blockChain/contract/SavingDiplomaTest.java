@@ -13,7 +13,7 @@ import java.math.BigInteger;
 import static org.junit.jupiter.api.Assertions.*;
 
 @EVMTest
-public class SavingDiplomaTest {
+class SavingDiplomaTest {
 
     String certificate = "certificate";
     private final String randString = "randString";

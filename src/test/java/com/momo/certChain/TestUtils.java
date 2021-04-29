@@ -2,6 +2,8 @@ package com.momo.certChain;
 
 import com.momo.certChain.model.data.*;
 
+import java.util.Date;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestUtils {
@@ -23,6 +25,8 @@ public class TestUtils {
 
     private static final String id = "123456";
 
+    private static final String program = "genie informatique";
+
     public static void assertAddress(Address returnVal){
         Address address = createAddress();
         assertEquals(address.getCity(),returnVal.getCity());
@@ -38,7 +42,13 @@ public class TestUtils {
     }
 
     public static void assertInstitution(Institution returnVal) {
+        assertBaseUser(returnVal);
         assertEquals(institutionName,returnVal.getName());
+    }
+    public static void assertCertification(Certification returnVal) {
+        Certification certification = createCertification();
+        assertEquals(certification.getId(),returnVal.getId());
+        assertEquals(certification.getProgram(),returnVal.getProgram());
     }
 
     public static Address createAddress() {
@@ -66,6 +76,15 @@ public class TestUtils {
         Institution institution = (Institution) initBasicUser(new Institution());
         institution.setName(institutionName);
         return institution;
+    }
+    public static Certification createCertification(){
+        Certification certification = new Certification();
+        certification.setId(id);
+        certification.setProgram(program);
+        certification.setDateOfIssuing(new Date(System.currentTimeMillis()));
+        certification.setInstitution(createInstitution());
+        certification.setStudent(createStudent());
+        return certification;
     }
 
     private static User initBasicUser(User user) {
