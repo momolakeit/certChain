@@ -32,6 +32,8 @@ public class TestUtils {
 
     private static final String authorName="John Doe";
 
+    private static final String certificateText="given to the best student in the world !";
+
     public static void assertAddress(Address returnVal){
         Address address = createAddress();
         assertEquals(address.getCity(),returnVal.getCity());
@@ -86,6 +88,7 @@ public class TestUtils {
         Certification certification = new Certification();
         certification.setId(id);
         certification.setProgram(program);
+        certification.setCertificateText(certificateText);
         certification.setDateOfIssuing(new Date(System.currentTimeMillis()));
         certification.setInstitution(createInstitution());
         certification.setStudent(createStudent());

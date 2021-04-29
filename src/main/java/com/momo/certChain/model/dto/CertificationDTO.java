@@ -14,6 +14,8 @@ public class CertificationDTO {
 
     private Date dateOfIssuing;
 
+    private String certificateText;
+
     private InstitutionDTO institution;
 
     private StudentDTO student;

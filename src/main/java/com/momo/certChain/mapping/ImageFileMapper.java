@@ -12,8 +12,10 @@ import org.mapstruct.factory.Mappers;
 public interface ImageFileMapper {
     ImageFileMapper instance = Mappers.getMapper(ImageFileMapper.class);
 
+    @Mapping(target = "bytes",ignore = true)
     ImageFileDTO toDTO (ImageFile imageFile);
 
     @Mapping(target = "id",ignore = true)
+    @Mapping(target = "bytes",ignore = true)
     ImageFile toEntity (ImageFileDTO imageFileDTO);
 }
