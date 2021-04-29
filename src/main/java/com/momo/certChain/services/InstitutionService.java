@@ -14,9 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class InstitutionService {
 
-    private InstitutionRepository institutionRepository;
+    private final InstitutionRepository institutionRepository;
 
-    private AddressService addressService;
+    private final AddressService addressService;
 
     public InstitutionService(InstitutionRepository institutionRepository, AddressService addressService) {
         this.institutionRepository = institutionRepository;

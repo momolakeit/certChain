@@ -10,9 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class SignatureService {
 
-    private SignatureRepository signatureRepository;
+    private final SignatureRepository signatureRepository;
 
-    private ImageFileService imageFileService;
+    private final ImageFileService imageFileService;
 
     public SignatureService(SignatureRepository signatureRepository, ImageFileService imageFileService) {
         this.signatureRepository = signatureRepository;

@@ -18,11 +18,11 @@ import java.util.List;
 @Transactional
 public class CertificationService {
 
-    private CertificationRepository certificationRepository;
+    private final CertificationRepository certificationRepository;
 
-    private ImageFileService imageFileService;
+    private final ImageFileService imageFileService;
 
-    private SignatureService signatureService;
+    private final SignatureService signatureService;
 
     public CertificationService(CertificationRepository certificationRepository, ImageFileService imageFileService, SignatureService signatureService) {
         this.certificationRepository = certificationRepository;

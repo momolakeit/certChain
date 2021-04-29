@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ImageFileService {
 
-    private ImageFileRepository imageFileRepository;
+    private final ImageFileRepository imageFileRepository;
 
     public ImageFileService(ImageFileRepository imageFileRepository) {
         this.imageFileRepository = imageFileRepository;
