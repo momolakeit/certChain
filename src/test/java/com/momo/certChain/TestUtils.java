@@ -1,7 +1,10 @@
 package com.momo.certChain;
 
 import com.momo.certChain.model.data.*;
+import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,6 +29,8 @@ public class TestUtils {
     private static final String id = "123456";
 
     private static final String program = "genie informatique";
+
+    private static final String authorName="John Doe";
 
     public static void assertAddress(Address returnVal){
         Address address = createAddress();
@@ -85,6 +90,21 @@ public class TestUtils {
         certification.setInstitution(createInstitution());
         certification.setStudent(createStudent());
         return certification;
+    }
+    public static ImageFile createImageFile() throws IOException {
+        ImageFile imageFile = new ImageFile();
+        imageFile.setBytes(getExcelByteArray());
+        return imageFile;
+    }
+    public static Signature createSignature() throws IOException {
+        Signature signature = new Signature();
+        signature.setAuthorName(authorName);
+        signature.setSignatureImage(createImageFile());
+        return signature;
+    }
+
+    public static byte [] getExcelByteArray() throws IOException {
+        return FileUtils.readFileToByteArray(new File("./src/test/resources/MOCK_DATA.xlsx"));
     }
 
     private static User initBasicUser(User user) {

@@ -26,10 +26,10 @@ public class ImageFileService {
     }
 
     public ImageFile findImageFile(String uuid){
-        return imageFileRepository.findById(uuid).orElseThrow(this::ImageFileNotFound);
+        return imageFileRepository.findById(uuid).orElseThrow(this::imageFileNotFound);
     }
 
-    private ObjectNotFoundException ImageFileNotFound(){
+    private ObjectNotFoundException imageFileNotFound(){
         return new ObjectNotFoundException("Image");
     }
 }

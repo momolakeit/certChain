@@ -21,6 +21,8 @@ public class Certification {
 
     private Date dateOfIssuing;
 
+    private String certificateText;
+
     @ManyToOne
     private Institution institution;
 

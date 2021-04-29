@@ -27,7 +27,7 @@ class ExcelServiceTest {
 
     @BeforeEach
     public void setUp() throws IOException {
-        bytes = FileUtils.readFileToByteArray(new File("./src/test/resources/MOCK_DATA.xlsx"));
+        bytes = TestUtils.getExcelByteArray();
     }
 
     @Test

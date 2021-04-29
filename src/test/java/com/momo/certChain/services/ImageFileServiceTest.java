@@ -1,5 +1,6 @@
 package com.momo.certChain.services;
 
+import com.momo.certChain.TestUtils;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.model.data.ImageFile;
 import com.momo.certChain.repositories.ImageFileRepository;
@@ -32,7 +33,7 @@ class ImageFileServiceTest {
 
     @Test
     public void createImageFileTest() throws IOException {
-        byte[] bytes = FileUtils.readFileToByteArray(new File("./src/test/resources/MOCK_DATA.xlsx"));
+        byte[] bytes = TestUtils.getExcelByteArray();
         when(imageFileRepository.save(any(ImageFile.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         ImageFile imageFile = imageFileService.createImageFile(bytes);
         assertEquals(bytes, imageFile.getBytes());
