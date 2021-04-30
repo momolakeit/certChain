@@ -16,4 +16,6 @@ public interface SignatureMapper {
 
     @Mapping(target = "id",ignore = true)
     Signature toEntity (SignatureDTO signatureDTO);
+
+    Signature toSimple (Signature signature);
 }

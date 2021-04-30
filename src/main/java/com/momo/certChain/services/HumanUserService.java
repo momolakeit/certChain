@@ -3,11 +3,14 @@ package com.momo.certChain.services;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.PasswordNotMatchingException;
 import com.momo.certChain.model.data.HumanUser;
+import com.momo.certChain.model.data.User;
 import com.momo.certChain.repositories.HumanUserRepository;
 import com.momo.certChain.services.messaging.MessageService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -42,6 +45,14 @@ public class HumanUserService {
 
     public HumanUser getUser(String uuid) {
         return humanUserRepository.findById(uuid).orElseThrow(this::humanUserNotFound);
+    }
+
+    public HumanUser saveUser(HumanUser user){
+        return humanUserRepository.save(user);
+    }
+
+    public List<HumanUser> saveMultipleUser(List<HumanUser> user){
+        return humanUserRepository.saveAll(user);
     }
 
     private ObjectNotFoundException humanUserNotFound() {

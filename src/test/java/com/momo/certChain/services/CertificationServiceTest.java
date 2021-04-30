@@ -7,22 +7,27 @@ import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.ImageFile;
 import com.momo.certChain.model.data.Signature;
 import com.momo.certChain.repositories.CertificationRepository;
+import com.momo.certChain.services.blockChain.ContractService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,6 +44,18 @@ class CertificationServiceTest {
     @Mock
     private SignatureService signatureService;
 
+    @Mock
+    private ContractService contractService;
+
+    @Captor
+    private ArgumentCaptor<Certification> certificationArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor<String> addressArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor<String> privateKeyArgumentCaptor;
+
     private String authorName = "John Doe";
 
     @BeforeEach
@@ -52,16 +69,16 @@ class CertificationServiceTest {
         certification.setSignatures(new ArrayList<>());
         addSignatureToCertification(certification);
         List<Signature> signaturesList = createListOfSignatures();
-        for(int i=0; i<3; i++){
+        for (int i = 0; i < 3; i++) {
             when(signatureService.createSignature(certification.getSignatures().get(i).getAuthorName())).thenReturn(signaturesList.get(i));
         }
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         Certification returnValueCertification = certificationService.createCertificationTemplate(CertificationMapper.instance.toDTO(certification));
 
-        assertEquals(certification.getCertificateText(),returnValueCertification.getCertificateText());
-        assertEquals(signaturesList.get(0).getAuthorName(),returnValueCertification.getSignatures().get(0).getAuthorName());
-        assertEquals(signaturesList.get(1).getAuthorName(),returnValueCertification.getSignatures().get(1).getAuthorName());
-        assertEquals(signaturesList.get(2).getAuthorName(),returnValueCertification.getSignatures().get(2).getAuthorName());
+        assertEquals(certification.getCertificateText(), returnValueCertification.getCertificateText());
+        assertEquals(signaturesList.get(0).getAuthorName(), returnValueCertification.getSignatures().get(0).getAuthorName());
+        assertEquals(signaturesList.get(1).getAuthorName(), returnValueCertification.getSignatures().get(1).getAuthorName());
+        assertEquals(signaturesList.get(2).getAuthorName(), returnValueCertification.getSignatures().get(2).getAuthorName());
     }
 
     @Test
@@ -69,9 +86,9 @@ class CertificationServiceTest {
         ImageFile imageFile = TestUtils.createImageFile();
         initAddImageFilesMocks(imageFile);
 
-        Certification returnValueCertification = certificationService.addCertificationUniversityLogo("123456",TestUtils.getExcelByteArray());
+        Certification returnValueCertification = certificationService.addCertificationUniversityLogo("123456", TestUtils.getExcelByteArray());
         TestUtils.assertCertification(returnValueCertification);
-        assertEquals(imageFile.getBytes(),returnValueCertification.getUniversityLogo().getBytes());
+        assertEquals(imageFile.getBytes(), returnValueCertification.getUniversityLogo().getBytes());
     }
 
     @Test
@@ -79,17 +96,47 @@ class CertificationServiceTest {
         ImageFile imageFile = TestUtils.createImageFile();
         initAddImageFilesMocks(imageFile);
 
-        Certification returnValueCertification = certificationService.addCertificationUniversityStamp("123456",TestUtils.getExcelByteArray());
+        Certification returnValueCertification = certificationService.addCertificationUniversityStamp("123456", TestUtils.getExcelByteArray());
         TestUtils.assertCertification(returnValueCertification);
-        assertEquals(imageFile.getBytes(),returnValueCertification.getUniversityStamp().getBytes());
+        assertEquals(imageFile.getBytes(), returnValueCertification.getUniversityStamp().getBytes());
     }
 
     @Test
     public void addCertificateUniversityStampCertificateNotFound() throws IOException {
         when(certificationRepository.findById(anyString())).thenReturn(Optional.empty());
-        Assertions.assertThrows(ObjectNotFoundException.class,()->{
-            certificationService.addCertificationUniversityStamp("123456",TestUtils.getExcelByteArray());
+        Assertions.assertThrows(ObjectNotFoundException.class, () -> {
+            certificationService.addCertificationUniversityStamp("123456", TestUtils.getExcelByteArray());
         });
+    }
+
+    @Test
+    public void uploadCertificateToBlockchain() throws Exception {
+        String contractAddress = "address";
+        String privateKey = "privateKey";
+        when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        Certification studentCertification = TestUtils.createCertification();
+        Certification certificationTemplate = new Certification();
+        certificationTemplate.setSignatures(Arrays.asList(new Signature(), new Signature()));
+        certificationTemplate.setUniversityStamp(TestUtils.createImageFile());
+        certificationTemplate.setUniversityLogo(TestUtils.createImageFile());
+
+        certificationService.uploadCertificationToBlockChain(studentCertification, certificationTemplate, contractAddress, privateKey);
+        verify(contractService).uploadCertificate(certificationArgumentCaptor.capture(), addressArgumentCaptor.capture(), privateKeyArgumentCaptor.capture());
+        Certification uploadedCertificate = certificationArgumentCaptor.getValue();
+        String uploadedAddress = addressArgumentCaptor.getValue();
+        String uploadedPrivateKey = privateKeyArgumentCaptor.getValue();
+
+
+        for (int i = 0;i<2;i++){
+            assertEquals(certificationTemplate.getSignatures().get(0),uploadedCertificate.getSignatures().get(0));
+        }
+        assertEquals(certificationTemplate.getUniversityLogo().getId(),uploadedCertificate.getUniversityLogo().getId());
+        assertNull(uploadedCertificate.getUniversityLogo().getBytes());
+        assertEquals(certificationTemplate.getUniversityStamp().getId(),uploadedCertificate.getUniversityStamp().getId());
+        assertNull(uploadedCertificate.getUniversityStamp().getBytes());
+        assertEquals(contractAddress,uploadedAddress);
+        assertEquals(privateKey,uploadedPrivateKey);
+
     }
 
     private void initAddImageFilesMocks(ImageFile imageFile) {
@@ -111,8 +158,8 @@ class CertificationServiceTest {
 
     private void addSignatureToCertification(Certification certification) throws IOException {
         for (int i = 0; i < 3; i++) {
-            Signature signature=getSignatureWithModifiedAuthorName(i);
-            signature.setAuthorName(signature.getAuthorName()+" wash");
+            Signature signature = getSignatureWithModifiedAuthorName(i);
+            signature.setAuthorName(signature.getAuthorName() + " wash");
             signature.setId(null);
             certification.getSignatures().add(signature);
         }
@@ -120,7 +167,7 @@ class CertificationServiceTest {
 
     private Signature getSignatureWithModifiedAuthorName(int i) throws IOException {
         Signature signature = TestUtils.createSignature();
-        signature.setAuthorName(signature.getAuthorName()+ i);
+        signature.setAuthorName(signature.getAuthorName() + i);
         return signature;
     }
 }

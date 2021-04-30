@@ -1,6 +1,7 @@
 package com.momo.certChain.mapping;
 
 import com.momo.certChain.model.data.Certification;
+import com.momo.certChain.model.data.ImageFile;
 import com.momo.certChain.model.data.Institution;
 import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.model.dto.InstitutionDTO;
@@ -17,5 +18,7 @@ public interface CertificationMapper {
 
     @Mapping(target = "id",ignore = true)
     Certification toEntity (CertificationDTO certificationDTO);
+
+    Certification toSimple (Certification certification);
 
 }

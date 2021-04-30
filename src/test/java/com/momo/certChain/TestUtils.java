@@ -96,6 +96,7 @@ public class TestUtils {
     }
     public static ImageFile createImageFile() throws IOException {
         ImageFile imageFile = new ImageFile();
+        imageFile.setId(id);
         imageFile.setBytes(getExcelByteArray());
         return imageFile;
     }

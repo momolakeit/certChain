@@ -2,6 +2,7 @@ package com.momo.certChain.services.excel;
 
 import com.momo.certChain.model.data.Address;
 import com.momo.certChain.model.data.Certification;
+import com.momo.certChain.model.data.HumanUser;
 import com.momo.certChain.model.data.Student;
 import com.momo.certChain.utils.ListUtils;
 import org.apache.poi.ss.usermodel.*;
@@ -17,8 +18,8 @@ import java.util.List;
 @Service
 public class ExcelService {
 
-    public List<Student> readStudentsFromExcel(byte[] bytes) throws IOException {
-        List<Student> studentList = new ArrayList<>();
+    public List<HumanUser> readStudentsFromExcel(byte[] bytes) throws IOException {
+        List<HumanUser> studentList = new ArrayList<>();
         Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(bytes));
         Sheet sheet = workbook.getSheetAt(0);
         int rowCounter = 0;

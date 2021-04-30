@@ -2,6 +2,7 @@ package com.momo.certChain.services.excel;
 
 import com.momo.certChain.TestUtils;
 import com.momo.certChain.model.data.Certification;
+import com.momo.certChain.model.data.HumanUser;
 import com.momo.certChain.model.data.Student;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,17 +33,18 @@ class ExcelServiceTest {
 
     @Test
     public void convertStudentFromExcel() throws IOException {
-        List<Student> students = excelService.readStudentsFromExcel(bytes);
+        List<HumanUser> students = excelService.readStudentsFromExcel(bytes);
         assertEquals(500,students.size());
         students.forEach(student -> {
-            Certification certification = student.getCertifications().stream().findFirst().orElse(null);
-            assertNotNull(student.getAddress().getCity());
-            assertNotNull(student.getAddress().getPostalCode());
-            assertNotNull(student.getAddress().getCountry());
-            assertNotNull(student.getAddress().getStreet());
-            assertNotNull(student.getAddress().getProvince());
-            assertNotNull(student.getPrenom());
-            assertNotNull(student.getNom());
+            Student stu = (Student) student;
+            Certification certification = stu.getCertifications().stream().findFirst().orElse(null);
+            assertNotNull(stu.getAddress().getCity());
+            assertNotNull(stu.getAddress().getPostalCode());
+            assertNotNull(stu.getAddress().getCountry());
+            assertNotNull(stu.getAddress().getStreet());
+            assertNotNull(stu.getAddress().getProvince());
+            assertNotNull(stu.getPrenom());
+            assertNotNull(stu.getNom());
             assertNotNull(certification.getProgram());
         });
 

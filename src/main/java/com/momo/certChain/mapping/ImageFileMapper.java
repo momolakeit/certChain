@@ -18,4 +18,7 @@ public interface ImageFileMapper {
     @Mapping(target = "id",ignore = true)
     @Mapping(target = "bytes",ignore = true)
     ImageFile toEntity (ImageFileDTO imageFileDTO);
+
+    @Mapping(target = "bytes",ignore = true)
+    ImageFile toSimple (ImageFile imageFile);
 }
