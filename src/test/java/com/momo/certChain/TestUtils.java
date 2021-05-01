@@ -35,6 +35,8 @@ public class TestUtils {
 
     private static final String certificateText="given to the best student in the world !";
 
+    private static final String salt = "salt";
+
     public static void assertAddress(Address returnVal){
         Address address = createAddress();
         assertEquals(address.getCity(),returnVal.getCity());
@@ -106,6 +108,7 @@ public class TestUtils {
         certification.setDateOfIssuing(new Date(System.currentTimeMillis()));
         certification.setInstitution(createInstitution());
         certification.setStudent(createStudent());
+        certification.setSalt(salt);
         return certification;
     }
     public static Certification createCertificationTemplate() throws IOException {

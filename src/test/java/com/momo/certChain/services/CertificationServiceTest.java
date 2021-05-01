@@ -143,9 +143,8 @@ class CertificationServiceTest {
     }
 
     @Test
-    public void testSaveSansSaltCertification(){
+    public void testSaveAvecSaltCertification(){
         Certification certification = TestUtils.createCertification();
-        certification.setSalt("salt");
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         Certification returnValueCertification = certificationService.saveCertification(certification);
         verify(encryptionService,times(0)).generateSalt();
@@ -153,9 +152,10 @@ class CertificationServiceTest {
     }
 
     @Test
-    public void testSaveAvecSaltCertification(){
+    public void testSaveSansSaltCertification(){
         String salt = "salt";
         Certification certification = TestUtils.createCertification();
+        certification.setSalt(null);
         when(encryptionService.generateSalt()).thenReturn(salt);
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         Certification returnValueCertification = certificationService.saveCertification(certification);

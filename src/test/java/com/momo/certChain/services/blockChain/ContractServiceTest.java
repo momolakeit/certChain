@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.momo.certChain.TestUtils;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.services.blockChain.contract.SavingDiploma;
+import com.momo.certChain.services.security.EncryptionService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,9 @@ class ContractServiceTest {
     @Mock
     private Credentials credentials;
 
+    @Mock
+    private EncryptionService encryptionService;
+
     @Captor
     private ArgumentCaptor<String> certificateJsonCaptor;
 
@@ -55,7 +59,7 @@ class ContractServiceTest {
 
     @BeforeEach
     public void init() {
-        contractService = new ContractService(new ObjectMapper());
+        contractService = new ContractService(new ObjectMapper(),encryptionService);
         credentialsMockedStatic = mockStatic(Credentials.class);
         credentialsMockedStatic.when(()-> Credentials.create(anyString())).thenReturn(credentials);
     }
@@ -99,6 +103,7 @@ class ContractServiceTest {
         Certification certification = TestUtils.createCertification();
         savingDiplomaMockedStatic = mockStatic(SavingDiploma.class);
         when(savingDiploma.addCertificate(anyString(),anyString())).thenReturn(remoteFunctionCall);
+        when(encryptionService.encryptData(anyString(),anyString(),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
         savingDiplomaMockedStatic.when(() -> SavingDiploma.load(any(),any(), any(Credentials.class), any(), any())).thenReturn(savingDiploma);
 
 

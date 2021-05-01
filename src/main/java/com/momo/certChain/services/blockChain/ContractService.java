@@ -3,6 +3,7 @@ package com.momo.certChain.services.blockChain;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.services.blockChain.contract.SavingDiploma;
+import com.momo.certChain.services.security.EncryptionService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.Credentials;
@@ -20,10 +21,13 @@ public class ContractService {
     @Value("${blockchain.ethereum.inputUrl}")
     private String ethURL;
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
-    public ContractService(ObjectMapper objectMapper) {
+    private final EncryptionService encryptionService;
+
+    public ContractService(ObjectMapper objectMapper, EncryptionService encryptionService) {
         this.objectMapper = objectMapper;
+        this.encryptionService = encryptionService;
     }
 
     Web3j web3j = Web3j.build(new HttpService(ethURL));
@@ -36,13 +40,14 @@ public class ContractService {
     public Certification getCertificate(String uuid, String address, String privateKey) throws Exception {
         SavingDiploma savingDiploma = getUploadedContract(address, privateKey);
         String certificateString = savingDiploma.get(uuid).send();
-        return objectMapper.readValue(certificateString,Certification.class);
+        return objectMapper.readValue(certificateString, Certification.class);
     }
 
     public void uploadCertificate(Certification certification, String address, String privateKey) throws Exception {
-        String certificateJson = objectMapper.writeValueAsString(certification);
         SavingDiploma savingDiploma = getUploadedContract(address, privateKey);
-        savingDiploma.addCertificate(certification.getId(), certificateJson).send();
+        String certificateJson = objectMapper.writeValueAsString(certification);
+        String encryptedJSON = encryptionService.encryptData(privateKey,certificateJson,certification.getSalt());
+        savingDiploma.addCertificate(certification.getId(), encryptedJSON).send();
 
     }
 
