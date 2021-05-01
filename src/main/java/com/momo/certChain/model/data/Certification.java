@@ -23,6 +23,8 @@ public class Certification {
 
     private String certificateText;
 
+    private String salt;
+
     @ManyToOne
     private Institution institution;
 

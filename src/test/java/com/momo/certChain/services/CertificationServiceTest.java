@@ -8,6 +8,7 @@ import com.momo.certChain.model.data.ImageFile;
 import com.momo.certChain.model.data.Signature;
 import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.services.blockChain.ContractService;
+import com.momo.certChain.services.security.EncryptionService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,8 +27,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CertificationServiceTest {
@@ -46,6 +46,9 @@ class CertificationServiceTest {
     @Mock
     private ContractService contractService;
 
+    @Mock
+    private EncryptionService encryptionService;
+
     @Captor
     private ArgumentCaptor<Certification> certificationArgumentCaptor;
 
@@ -54,6 +57,7 @@ class CertificationServiceTest {
 
     @Captor
     private ArgumentCaptor<String> privateKeyArgumentCaptor;
+
 
     private String authorName = "John Doe";
 
@@ -137,6 +141,29 @@ class CertificationServiceTest {
         }
 
     }
+
+    @Test
+    public void testSaveSansSaltCertification(){
+        Certification certification = TestUtils.createCertification();
+        certification.setSalt("salt");
+        when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        Certification returnValueCertification = certificationService.saveCertification(certification);
+        verify(encryptionService,times(0)).generateSalt();
+        TestUtils.assertCertification(returnValueCertification);
+    }
+
+    @Test
+    public void testSaveAvecSaltCertification(){
+        String salt = "salt";
+        Certification certification = TestUtils.createCertification();
+        when(encryptionService.generateSalt()).thenReturn(salt);
+        when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        Certification returnValueCertification = certificationService.saveCertification(certification);
+        verify(encryptionService,times(1)).generateSalt();
+        TestUtils.assertCertification(returnValueCertification);
+        assertEquals(salt,returnValueCertification.getSalt());
+    }
+
 
     private void initAddImageFilesMocks(ImageFile imageFile) {
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createCertification()));
