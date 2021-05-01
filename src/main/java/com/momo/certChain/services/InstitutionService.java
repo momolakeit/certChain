@@ -8,6 +8,7 @@ import com.momo.certChain.model.dto.InstitutionDTO;
 import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.excel.ExcelService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +49,13 @@ public class InstitutionService {
         Address address = addressService.createAddress(addressDTO.getStreet(), addressDTO.getCity(), addressDTO.getProvince(), addressDTO.getPostalCode(), addressDTO.getCountry());
         Institution institution = InstitutionMapper.instance.toEntity(institutionDTO);
         institution.setAddress(address);
-        return institutionRepository.save(institution);
+        return saveInstitution(institution);
+    }
+
+    public Institution uploadCertificateContract(String uuid,String privateKey) throws Exception {
+        Institution institution = getInstitution(uuid);
+        institution.setContractAddress(contractService.uploadContract(privateKey));
+        return saveInstitution(institution);
     }
 
     public void uploadCertificationsToBlockChain(byte[] bytes, String uuid) throws Exception {
@@ -64,6 +71,10 @@ public class InstitutionService {
                 e.printStackTrace();
             }
         });
+    }
+
+    private Institution saveInstitution(Institution institution) {
+        return institutionRepository.save(institution);
     }
 
     public Institution getInstitution(String uuid) {

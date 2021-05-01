@@ -6,6 +6,7 @@ import com.momo.certChain.mapping.AddressMapper;
 import com.momo.certChain.mapping.InstitutionMapper;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.InstitutionRepository;
+import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.excel.ExcelService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,9 @@ class InstitutionServiceTest {
 
     @Mock
     private ExcelService excelService;
+
+    @Mock
+    private ContractService contractService;
 
     @Mock
     private HumanUserService userService;
@@ -78,6 +82,19 @@ class InstitutionServiceTest {
         Assertions.assertThrows(ObjectNotFoundException.class, () -> {
             institutionService.getInstitution("dsa48");
         });
+    }
+
+    @Test
+    public void uploadContractToBlockchain() throws Exception {
+        String contractAddress ="contractAddress";
+        when(contractService.uploadContract(anyString())).thenReturn(contractAddress);
+        when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(institutionRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createInstitution()));
+
+        Institution returnVal = institutionService.uploadCertificateContract("123456","privateKey");
+
+        assertEquals(contractAddress,returnVal.getContractAddress());
+
     }
 
     @Test
