@@ -20,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,10 +114,8 @@ class CertificationServiceTest {
         String privateKey = "privateKey";
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         Certification studentCertification = TestUtils.createCertification();
-        Certification certificationTemplate = new Certification();
-        certificationTemplate.setSignatures(Arrays.asList(new Signature(), new Signature()));
-        certificationTemplate.setUniversityStamp(TestUtils.createImageFile());
-        certificationTemplate.setUniversityLogo(TestUtils.createImageFile());
+        Certification certificationTemplate = TestUtils.createCertificationTemplate();
+
 
         certificationService.uploadCertificationToBlockChain(studentCertification, certificationTemplate, contractAddress, privateKey);
         verify(contractService).uploadCertificate(certificationArgumentCaptor.capture(), addressArgumentCaptor.capture(), privateKeyArgumentCaptor.capture());
@@ -127,15 +124,17 @@ class CertificationServiceTest {
         String uploadedPrivateKey = privateKeyArgumentCaptor.getValue();
 
 
-        for (int i = 0;i<2;i++){
-            assertEquals(certificationTemplate.getSignatures().get(0),uploadedCertificate.getSignatures().get(0));
-        }
         assertEquals(certificationTemplate.getUniversityLogo().getId(),uploadedCertificate.getUniversityLogo().getId());
         assertNull(uploadedCertificate.getUniversityLogo().getBytes());
         assertEquals(certificationTemplate.getUniversityStamp().getId(),uploadedCertificate.getUniversityStamp().getId());
         assertNull(uploadedCertificate.getUniversityStamp().getBytes());
         assertEquals(contractAddress,uploadedAddress);
         assertEquals(privateKey,uploadedPrivateKey);
+
+        for(Signature signature: uploadedCertificate.getSignatures()){
+            TestUtils.assertSignature(signature);
+            assertNull(signature.getSignatureImage().getBytes());
+        }
 
     }
 

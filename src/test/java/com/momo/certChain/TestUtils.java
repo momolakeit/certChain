@@ -5,6 +5,7 @@ import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,6 +59,12 @@ public class TestUtils {
         assertEquals(certification.getProgram(),returnVal.getProgram());
     }
 
+    public static void assertSignature(Signature signature) throws IOException {
+        Signature returnSignature = createSignature();
+        assertEquals(returnSignature.getId(),signature.getId());
+        assertEquals(returnSignature.getAuthorName(),signature.getAuthorName());
+    }
+
     public static Address createAddress() {
         Address address = new Address();
         address.setCountry(country);
@@ -94,6 +101,14 @@ public class TestUtils {
         certification.setStudent(createStudent());
         return certification;
     }
+    public static Certification createCertificationTemplate() throws IOException {
+        Certification certificationTemplate = createCertification();
+        certificationTemplate.setSignatures(Arrays.asList(createSignature(), createSignature()));
+        certificationTemplate.setUniversityStamp(TestUtils.createImageFile());
+        certificationTemplate.setUniversityLogo(TestUtils.createImageFile());
+        return certificationTemplate;
+    }
+
     public static ImageFile createImageFile() throws IOException {
         ImageFile imageFile = new ImageFile();
         imageFile.setId(id);
@@ -102,6 +117,7 @@ public class TestUtils {
     }
     public static Signature createSignature() throws IOException {
         Signature signature = new Signature();
+        signature.setId(id);
         signature.setAuthorName(authorName);
         signature.setSignatureImage(createImageFile());
         return signature;

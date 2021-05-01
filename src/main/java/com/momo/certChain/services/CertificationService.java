@@ -2,6 +2,7 @@ package com.momo.certChain.services;
 
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.mapping.CertificationMapper;
+import com.momo.certChain.mapping.SignatureMapper;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Signature;
 import com.momo.certChain.model.dto.CertificationDTO;
@@ -13,6 +14,7 @@ import org.web3j.crypto.Sign;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -60,7 +62,9 @@ public class CertificationService {
         certificationTemplate = CertificationMapper.instance.toSimple(certificationTemplate);
         studentCertification.setUniversityLogo(certificationTemplate.getUniversityLogo());
         studentCertification.setUniversityStamp(certificationTemplate.getUniversityStamp());
-        studentCertification.setSignatures(certificationTemplate.getSignatures());
+        studentCertification.setSignatures(certificationTemplate.getSignatures().stream()
+                                                                                .map(SignatureMapper.instance::toSimpleSignature)
+                                                                                .collect(Collectors.toList()));
         studentCertification.setCertificateText(certificationTemplate.getCertificateText());
         contractService.uploadCertificate(studentCertification,contractAdress,privateKey);
     }
