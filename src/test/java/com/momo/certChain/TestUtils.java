@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestUtils {
     private static final String street = "7894 boul maisonneuve";
@@ -58,6 +58,13 @@ public class TestUtils {
         assertEquals(certification.getId(),returnVal.getId());
         assertEquals(certification.getProgram(),returnVal.getProgram());
     }
+
+    public static void assertCertificationInstitution(Certification returnVal) throws IOException {
+        assertNotNull(returnVal.getUniversityStamp());
+        assertNotNull(returnVal.getUniversityStamp());
+        assertEquals(2,returnVal.getSignatures().size());
+    }
+
 
     public static void assertSignature(Signature signature) throws IOException {
         Signature returnSignature = createSignature();
