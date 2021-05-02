@@ -15,5 +15,5 @@ public class WalletDTO {
 
     private String privateKey;
 
-    private String publicKey;
+    private String publicAddress;
 }

@@ -17,5 +17,5 @@ public class Wallet {
 
     private String privateKey;
 
-    private String publicKey;
+    private String publicAddress;
 }
