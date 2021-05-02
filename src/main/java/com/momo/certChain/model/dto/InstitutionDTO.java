@@ -15,6 +15,8 @@ public class InstitutionDTO extends UserDTO {
 
     private String contractAddress;
 
+    private WalletDTO walletDTO;
+
     private List<CertificationDTO> certifications;
 
 }

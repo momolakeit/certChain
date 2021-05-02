@@ -22,4 +22,8 @@ public class Institution extends User {
     @OneToOne
     private Certification certificationTemplate;
 
+
+    @OneToOne
+    private Wallet wallet;
+
 }
