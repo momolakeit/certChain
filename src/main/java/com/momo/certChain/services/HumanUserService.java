@@ -40,7 +40,7 @@ public class HumanUserService {
             throw new PasswordNotMatchingException();
         }
         user.setPassword(passwordEncoder.encode(password));
-        return humanUserRepository.save(user);
+        return saveUser(user);
     }
 
     public HumanUser getUser(String uuid) {

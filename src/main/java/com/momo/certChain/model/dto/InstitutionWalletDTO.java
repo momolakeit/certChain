@@ -10,7 +10,7 @@ import javax.persistence.Id;
 
 @Getter
 @Setter
-public class WalletDTO {
+public class InstitutionWalletDTO {
     private String id;
 
     private String privateKey;

@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-public class Wallet {
+public class InstitutionWallet {
     @Id
     @GeneratedValue(generator="system-uuid")
     @GenericGenerator(name="system-uuid", strategy = "uuid")
@@ -17,5 +17,9 @@ public class Wallet {
 
     private String privateKey;
 
+    private String publicKey;
+
     private String publicAddress;
+
+    private String salt;
 }

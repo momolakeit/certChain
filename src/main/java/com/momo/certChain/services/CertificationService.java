@@ -70,12 +70,14 @@ public class CertificationService {
     public void uploadCertificationToBlockChain(Certification studentCertification, Certification certificationTemplate, String contractAdress, String privateKey) throws Exception {
         studentCertification = saveCertification(studentCertification);
         certificationTemplate = CertificationMapper.instance.toSimple(certificationTemplate);
+
         studentCertification.setUniversityLogo(certificationTemplate.getUniversityLogo());
         studentCertification.setUniversityStamp(certificationTemplate.getUniversityStamp());
         studentCertification.setSignatures(certificationTemplate.getSignatures().stream()
                 .map(SignatureMapper.instance::toSimpleSignature)
                 .collect(Collectors.toList()));
         studentCertification.setCertificateText(certificationTemplate.getCertificateText());
+
         contractService.uploadCertificate(studentCertification, contractAdress, privateKey);
     }
 

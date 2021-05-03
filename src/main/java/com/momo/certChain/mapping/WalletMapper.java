@@ -1,7 +1,7 @@
 package com.momo.certChain.mapping;
 
-import com.momo.certChain.model.data.Wallet;
-import com.momo.certChain.model.dto.WalletDTO;
+import com.momo.certChain.model.data.InstitutionWallet;
+import com.momo.certChain.model.dto.InstitutionWalletDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -10,8 +10,8 @@ import org.mapstruct.factory.Mappers;
 public interface WalletMapper {
     WalletMapper instance = Mappers.getMapper(WalletMapper.class);
 
-    WalletDTO toDTO(Wallet wallet);
+    InstitutionWalletDTO toDTO(InstitutionWallet institutionWallet);
 
     @Mapping(target = "id",ignore = true)
-    Wallet toEntity(WalletDTO walletDTO);
+    InstitutionWallet toEntity(InstitutionWalletDTO institutionWalletDTO);
 }

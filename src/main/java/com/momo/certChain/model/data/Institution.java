@@ -24,6 +24,6 @@ public class Institution extends User {
 
 
     @OneToOne
-    private Wallet wallet;
+    private InstitutionWallet institutionWallet;
 
 }
