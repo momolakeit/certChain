@@ -11,6 +11,7 @@ import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.security.EncryptionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Sign;
 
 import java.util.ArrayList;
@@ -67,7 +68,7 @@ public class CertificationService {
         return saveCertification(certification);
     }
 
-    public void uploadCertificationToBlockChain(Certification studentCertification, Certification certificationTemplate, String contractAdress, String privateKey) throws Exception {
+    public void uploadCertificationToBlockChain(Certification studentCertification, Certification certificationTemplate, String contractAdress, ECKeyPair ecKeyPair) throws Exception {
         studentCertification = saveCertification(studentCertification);
         certificationTemplate = CertificationMapper.instance.toSimple(certificationTemplate);
 
@@ -78,7 +79,7 @@ public class CertificationService {
                 .collect(Collectors.toList()));
         studentCertification.setCertificateText(certificationTemplate.getCertificateText());
 
-        contractService.uploadCertificate(studentCertification, contractAdress, privateKey);
+        contractService.uploadCertificate(studentCertification, contractAdress, ecKeyPair);
     }
 
 

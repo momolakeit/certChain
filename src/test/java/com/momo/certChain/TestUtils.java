@@ -2,9 +2,13 @@ package com.momo.certChain;
 
 import com.momo.certChain.model.data.*;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
+import org.web3j.crypto.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -100,6 +104,12 @@ public class TestUtils {
         institution.setName(institutionName);
         return institution;
     }
+    public static Institution createInstitutionWithWallet() throws NoSuchAlgorithmException, CipherException, InvalidAlgorithmParameterException, NoSuchProviderException {
+        Institution institution = (Institution) initBasicUser(new Institution());
+        institution.setName(institutionName);
+        institution.setInstitutionWallet(createInstitutionWallet());
+        return institution;
+    }
     public static Certification createCertification(){
         Certification certification = new Certification();
         certification.setId(id);
@@ -135,6 +145,16 @@ public class TestUtils {
 
     public static byte [] getExcelByteArray() throws IOException {
         return FileUtils.readFileToByteArray(new File("./src/test/resources/MOCK_DATA.xlsx"));
+    }
+
+    public static InstitutionWallet createInstitutionWallet() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, CipherException {
+        ECKeyPair ecKeyPair = Keys.createEcKeyPair();
+        WalletFile walletFile = Wallet.createStandard(password, ecKeyPair);
+        InstitutionWallet institutionWallet = new InstitutionWallet();
+        institutionWallet.setPublicAddress(walletFile.getAddress());
+        institutionWallet.setPublicKey(ecKeyPair.getPublicKey().toString());
+        institutionWallet.setPrivateKey(ecKeyPair.getPrivateKey().toString());
+        return institutionWallet;
     }
 
     private static User initBasicUser(User user) {

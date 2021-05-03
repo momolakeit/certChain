@@ -8,11 +8,11 @@ import com.momo.certChain.model.dto.InstitutionDTO;
 import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.excel.ExcelService;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.web3j.crypto.ECKeyPair;
 
-import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
 
 @Service
@@ -52,9 +52,10 @@ public class InstitutionService {
         return saveInstitution(institution);
     }
 
-    public Institution uploadCertificateContract(String uuid,String privateKey) throws Exception {
+    public Institution uploadCertificateContract(String uuid) throws Exception {
         Institution institution = getInstitution(uuid);
-        institution.setContractAddress(contractService.uploadContract(privateKey));
+        institution.setContractAddress(contractService.uploadContract(createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
+                                                                                institution.getInstitutionWallet().getPublicKey())));
         return saveInstitution(institution);
     }
 
@@ -66,7 +67,8 @@ public class InstitutionService {
         studentList.forEach(humanUser -> {
             Student student = (Student) humanUser;
             try {
-                certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0), institution.getCertificationTemplate(), "", "");
+                certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0), institution.getCertificationTemplate(), "", createKeyPair( institution.getInstitutionWallet().getPrivateKey(),
+                                                                                                                                                                            institution.getInstitutionWallet().getPublicKey()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -89,5 +91,9 @@ public class InstitutionService {
 
     private ObjectNotFoundException institutionNotFound() {
         return new ObjectNotFoundException("Institution");
+    }
+
+    private ECKeyPair createKeyPair(String privateKey, String publicKey){
+        return new ECKeyPair(new BigInteger(privateKey),new BigInteger(publicKey));
     }
 }

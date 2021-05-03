@@ -18,8 +18,10 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.web3j.crypto.ECKeyPair;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +58,7 @@ class CertificationServiceTest {
     private ArgumentCaptor<String> addressArgumentCaptor;
 
     @Captor
-    private ArgumentCaptor<String> privateKeyArgumentCaptor;
+    private ArgumentCaptor<ECKeyPair> keyPairArgumentCaptor;
 
 
     private String authorName = "John Doe";
@@ -115,17 +117,17 @@ class CertificationServiceTest {
     @Test
     public void uploadCertificateToBlockchain() throws Exception {
         String contractAddress = "address";
-        String privateKey = "privateKey";
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         Certification studentCertification = TestUtils.createCertification();
         Certification certificationTemplate = TestUtils.createCertificationTemplate();
 
 
-        certificationService.uploadCertificationToBlockChain(studentCertification, certificationTemplate, contractAddress, privateKey);
-        verify(contractService).uploadCertificate(certificationArgumentCaptor.capture(), addressArgumentCaptor.capture(), privateKeyArgumentCaptor.capture());
+        certificationService.uploadCertificationToBlockChain(studentCertification, certificationTemplate, contractAddress, new ECKeyPair(BigInteger.ONE,BigInteger.TWO));
+
+        verify(contractService).uploadCertificate(certificationArgumentCaptor.capture(), addressArgumentCaptor.capture(), keyPairArgumentCaptor.capture());
         Certification uploadedCertificate = certificationArgumentCaptor.getValue();
         String uploadedAddress = addressArgumentCaptor.getValue();
-        String uploadedPrivateKey = privateKeyArgumentCaptor.getValue();
+        ECKeyPair keyPair = keyPairArgumentCaptor.getValue();
 
 
         assertEquals(certificationTemplate.getUniversityLogo().getId(),uploadedCertificate.getUniversityLogo().getId());
@@ -133,8 +135,8 @@ class CertificationServiceTest {
         assertEquals(certificationTemplate.getUniversityStamp().getId(),uploadedCertificate.getUniversityStamp().getId());
         assertNull(uploadedCertificate.getUniversityStamp().getBytes());
         assertEquals(contractAddress,uploadedAddress);
-        assertEquals(privateKey,uploadedPrivateKey);
-
+        assertEquals(BigInteger.ONE,keyPair.getPrivateKey());
+        assertEquals(BigInteger.TWO,keyPair.getPublicKey());
         for(Signature signature: uploadedCertificate.getSignatures()){
             TestUtils.assertSignature(signature);
             assertNull(signature.getSignatureImage().getBytes());

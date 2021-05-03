@@ -15,8 +15,14 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.web3j.crypto.Credentials;
+import org.web3j.crypto.ECKeyPair;
+import org.web3j.crypto.Keys;
 import org.web3j.protocol.core.RemoteCall;
 import org.web3j.protocol.core.RemoteFunctionCall;
+
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,15 +63,18 @@ class ContractServiceTest {
 
     MockedStatic<SavingDiploma> savingDiplomaMockedStatic;
 
+    ECKeyPair ecKeyPair;
+
     @BeforeEach
-    public void init() {
-        contractService = new ContractService(new ObjectMapper(),encryptionService);
+    public void init() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
+        contractService = new ContractService(new ObjectMapper(), encryptionService);
         credentialsMockedStatic = mockStatic(Credentials.class);
-        credentialsMockedStatic.when(()-> Credentials.create(anyString())).thenReturn(credentials);
+        credentialsMockedStatic.when(() -> Credentials.create(any(ECKeyPair.class))).thenReturn(credentials);
+        ecKeyPair = Keys.createEcKeyPair();
     }
 
     @AfterEach
-    public void close(){
+    public void close() {
         credentialsMockedStatic.closeOnDemand();
         savingDiplomaMockedStatic.closeOnDemand();
     }
@@ -77,8 +86,8 @@ class ContractServiceTest {
         savingDiplomaMockedStatic = mockStatic(SavingDiploma.class);
         savingDiplomaMockedStatic.when(() -> SavingDiploma.deploy(any(), any(Credentials.class), any(), any())).thenReturn(remoteCall);
 
-        String returncontractAdress = contractService.uploadContract(privateKey);
-        assertEquals(contractAddress,returncontractAdress);
+        String returncontractAdress = contractService.uploadContract(ecKeyPair);
+        assertEquals(contractAddress, returncontractAdress);
     }
 
     @Test
@@ -89,10 +98,10 @@ class ContractServiceTest {
         savingDiplomaMockedStatic = mockStatic(SavingDiploma.class);
 
 
-        savingDiplomaMockedStatic.when(() -> SavingDiploma.load(any(),any(), any(Credentials.class), any(), any())).thenReturn(savingDiploma);
+        savingDiplomaMockedStatic.when(() -> SavingDiploma.load(any(), any(), any(Credentials.class), any(), any())).thenReturn(savingDiploma);
 
 
-        Certification returnValueCertification = contractService.getCertificate("uuid","address",privateKey);
+        Certification returnValueCertification = contractService.getCertificate("uuid", "address", ecKeyPair);
         assertNotNull(returnValueCertification);
         TestUtils.assertCertification(certification);
         TestUtils.assertInstitution(returnValueCertification.getInstitution());
@@ -102,24 +111,22 @@ class ContractServiceTest {
     public void uploadCertificateTest() throws Exception {
         Certification certification = TestUtils.createCertification();
         savingDiplomaMockedStatic = mockStatic(SavingDiploma.class);
-        when(savingDiploma.addCertificate(anyString(),anyString())).thenReturn(remoteFunctionCall);
-        when(encryptionService.encryptData(anyString(),anyString(),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
-        savingDiplomaMockedStatic.when(() -> SavingDiploma.load(any(),any(), any(Credentials.class), any(), any())).thenReturn(savingDiploma);
+        when(savingDiploma.addCertificate(anyString(), anyString())).thenReturn(remoteFunctionCall);
+        when(encryptionService.encryptData(anyString(), anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
+        savingDiplomaMockedStatic.when(() -> SavingDiploma.load(any(), any(), any(Credentials.class), any(), any())).thenReturn(savingDiploma);
 
 
-        contractService.uploadCertificate(certification,"address",privateKey);
-        verify(savingDiploma).addCertificate(certificateIdCaptor.capture(),certificateJsonCaptor.capture());
+        contractService.uploadCertificate(certification, "address", ecKeyPair);
+        verify(savingDiploma).addCertificate(certificateIdCaptor.capture(), certificateJsonCaptor.capture());
         String returnId = certificateIdCaptor.getValue();
 
-        Certification returnValueCertification = new ObjectMapper().readValue(certificateJsonCaptor.getValue(),Certification.class);
+        Certification returnValueCertification = new ObjectMapper().readValue(certificateJsonCaptor.getValue(), Certification.class);
 
         assertNotNull(returnValueCertification);
-        assertEquals(returnId,certification.getId());
+        assertEquals(returnId, certification.getId());
         TestUtils.assertCertification(returnValueCertification);
         TestUtils.assertInstitution(returnValueCertification.getInstitution());
     }
-
-
 
 
 }

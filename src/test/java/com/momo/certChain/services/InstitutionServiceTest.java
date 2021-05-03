@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.web3j.crypto.ECKeyPair;
 
 import java.util.*;
 
@@ -54,7 +55,7 @@ class InstitutionServiceTest {
     private ArgumentCaptor<String> addressArgumentCaptor;
 
     @Captor
-    private ArgumentCaptor<String> privateKeyArgumentCaptor;
+    private ArgumentCaptor<ECKeyPair> KeyPairArgumentCaptor;
 
     @Test
     public void createInstitutionTest() {
@@ -86,14 +87,15 @@ class InstitutionServiceTest {
 
     @Test
     public void uploadContractToBlockchain() throws Exception {
-        String contractAddress ="contractAddress";
-        when(contractService.uploadContract(anyString())).thenReturn(contractAddress);
+        String contractAddress = "contractAddress";
+        Institution institution = TestUtils.createInstitutionWithWallet();
+        when(contractService.uploadContract(any(ECKeyPair.class))).thenReturn(contractAddress);
         when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        when(institutionRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createInstitution()));
+        when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
 
-        Institution returnVal = institutionService.uploadCertificateContract("123456","privateKey");
+        Institution returnVal = institutionService.uploadCertificateContract("123456");
 
-        assertEquals(contractAddress,returnVal.getContractAddress());
+        assertEquals(contractAddress, returnVal.getContractAddress());
 
     }
 
@@ -101,26 +103,27 @@ class InstitutionServiceTest {
     public void uploadCertification() throws Exception {
         int nbDeStudents = 100;
         List<HumanUser> listeOfStudents = initStudentsList(nbDeStudents);
-        Institution institution = TestUtils.createInstitution();
+        Institution institution = TestUtils.createInstitutionWithWallet();
         institution.setCertificationTemplate(TestUtils.createCertificationTemplate());
+
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
         when(userService.saveMultipleUser(any(List.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(excelService.readStudentsFromExcel(any(byte[].class))).thenReturn(listeOfStudents);
 
         institutionService.uploadCertificationsToBlockChain(TestUtils.getExcelByteArray(), "123456");
-        verify(certificationService, times(nbDeStudents)).uploadCertificationToBlockChain(  studentCertificateArgumentCaptor.capture(),
-                                                                                            institutionTemplateCertificateArgumentCaptor.capture(),
-                                                                                            addressArgumentCaptor.capture(),
-                                                                                            privateKeyArgumentCaptor.capture());
+        verify(certificationService, times(nbDeStudents)).uploadCertificationToBlockChain(studentCertificateArgumentCaptor.capture(),
+                institutionTemplateCertificateArgumentCaptor.capture(),
+                addressArgumentCaptor.capture(),
+                KeyPairArgumentCaptor.capture());
 
         List<Certification> studentsCertifications = studentCertificateArgumentCaptor.getAllValues();
 
         List<Certification> institutionCertificationTemplates = institutionTemplateCertificateArgumentCaptor.getAllValues();
 
-        for(Certification cert: studentsCertifications){
+        for (Certification cert : studentsCertifications) {
             TestUtils.assertCertification(cert);
         }
-        for(Certification cert: institutionCertificationTemplates){
+        for (Certification cert : institutionCertificationTemplates) {
             TestUtils.assertCertificationInstitution(cert);
         }
     }
