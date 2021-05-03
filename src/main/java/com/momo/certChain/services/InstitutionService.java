@@ -10,9 +10,13 @@ import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.excel.ExcelService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.web3j.crypto.CipherException;
 import org.web3j.crypto.ECKeyPair;
 
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.List;
 
 @Service
@@ -31,31 +35,36 @@ public class InstitutionService {
 
     private final HumanUserService userService;
 
+    private final WalletService walletService;
+
     public InstitutionService(InstitutionRepository institutionRepository,
                               AddressService addressService,
                               ContractService contractService,
                               CertificationService certificationService,
                               ExcelService excelService,
-                              HumanUserService userService) {
+                              HumanUserService userService,
+                              WalletService walletService) {
         this.institutionRepository = institutionRepository;
         this.addressService = addressService;
         this.contractService = contractService;
         this.certificationService = certificationService;
         this.excelService = excelService;
         this.userService = userService;
+        this.walletService = walletService;
     }
 
-    public Institution createInstitution(AddressDTO addressDTO, InstitutionDTO institutionDTO) {
+    public Institution createInstitution(AddressDTO addressDTO, InstitutionDTO institutionDTO,String walletPassword) throws NoSuchProviderException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, CipherException {
         Address address = addressService.createAddress(addressDTO.getStreet(), addressDTO.getCity(), addressDTO.getProvince(), addressDTO.getPostalCode(), addressDTO.getCountry());
         Institution institution = InstitutionMapper.instance.toEntity(institutionDTO);
         institution.setAddress(address);
+        institution.setInstitutionWallet(walletService.createWallet(walletPassword));
         return saveInstitution(institution);
     }
 
     public Institution uploadCertificateContract(String uuid) throws Exception {
         Institution institution = getInstitution(uuid);
         institution.setContractAddress(contractService.uploadContract(createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
-                                                                                institution.getInstitutionWallet().getPublicKey())));
+                                                                                    institution.getInstitutionWallet().getPublicKey())));
         return saveInstitution(institution);
     }
 

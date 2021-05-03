@@ -13,8 +13,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.web3j.crypto.CipherException;
 import org.web3j.crypto.ECKeyPair;
 
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -43,6 +47,9 @@ class InstitutionServiceTest {
     private HumanUserService userService;
 
     @Mock
+    private WalletService walletService;
+
+    @Mock
     private CertificationService certificationService;
 
     @Captor
@@ -58,12 +65,19 @@ class InstitutionServiceTest {
     private ArgumentCaptor<ECKeyPair> KeyPairArgumentCaptor;
 
     @Test
-    public void createInstitutionTest() {
+    public void createInstitutionTest() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException {
         Address address = TestUtils.createAddress();
         Institution institution = TestUtils.createInstitution();
+        InstitutionWallet institutionWallet = TestUtils.createInstitutionWallet();
+
         when(addressService.createAddress(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(TestUtils.createAddress());
         when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        Institution returnVal = institutionService.createInstitution(AddressMapper.instance.toDTO(address), InstitutionMapper.instance.toDTO(institution));
+        when(walletService.createWallet(anyString())).thenReturn(institutionWallet);
+        Institution returnVal = institutionService.createInstitution(AddressMapper.instance.toDTO(address), InstitutionMapper.instance.toDTO(institution),"password");
+
+        assertEquals(institutionWallet.getPrivateKey(),returnVal.getInstitutionWallet().getPrivateKey());
+        assertEquals(institutionWallet.getPublicAddress(),returnVal.getInstitutionWallet().getPublicAddress());
+        assertEquals(institutionWallet.getPublicKey(),returnVal.getInstitutionWallet().getPublicKey());
         TestUtils.assertAddress(returnVal.getAddress());
         assertInstitution(institution, returnVal);
 
