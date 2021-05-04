@@ -53,10 +53,11 @@ public class InstitutionService {
         this.walletService = walletService;
     }
 
-    public Institution createInstitution(AddressDTO addressDTO, InstitutionDTO institutionDTO,String walletPassword) throws NoSuchProviderException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, CipherException {
-        Address address = addressService.createAddress(addressDTO.getStreet(), addressDTO.getCity(), addressDTO.getProvince(), addressDTO.getPostalCode(), addressDTO.getCountry());
-        Institution institution = InstitutionMapper.instance.toEntity(institutionDTO);
+    public Institution createInstitution(String street,String city,String province,String postalCode,String country, String name,String walletPassword) throws NoSuchProviderException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, CipherException {
+        Address address = addressService.createAddress(street, city, province, postalCode, country);
+        Institution institution = new Institution();
         institution.setAddress(address);
+        institution.setName(name);
         institution.setInstitutionWallet(walletService.createWallet(walletPassword));
         return saveInstitution(institution);
     }

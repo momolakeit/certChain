@@ -78,7 +78,7 @@ class CertificationServiceTest {
             when(signatureService.createSignature(certification.getSignatures().get(i).getAuthorName())).thenReturn(signaturesList.get(i));
         }
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        Certification returnValueCertification = certificationService.createCertificationTemplate(CertificationMapper.instance.toDTO(certification));
+        Certification returnValueCertification = certificationService.createCertificationTemplate(certification);
 
         assertEquals(certification.getCertificateText(), returnValueCertification.getCertificateText());
         assertEquals(signaturesList.get(0).getAuthorName(), returnValueCertification.getSignatures().get(0).getAuthorName());

@@ -46,8 +46,7 @@ public class CertificationService {
         this.encryptionService = encryptionService;
     }
 
-    public Certification createCertificationTemplate(CertificationDTO certificationDTO) {
-        Certification certification = CertificationMapper.instance.toEntity(certificationDTO);
+    public Certification createCertificationTemplate(Certification certification) {
         List<Signature> signatures = new ArrayList<>();
         for (Signature signature : certification.getSignatures()) {
             signatures.add(signatureService.createSignature(signature.getAuthorName()));
