@@ -5,14 +5,13 @@ import com.momo.certChain.mapping.CertificationMapper;
 import com.momo.certChain.mapping.SignatureMapper;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Signature;
-import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.services.blockChain.ContractService;
+import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.security.EncryptionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.ECKeyPair;
-import org.web3j.crypto.Sign;
 
 import java.util.ArrayList;
 import java.util.List;

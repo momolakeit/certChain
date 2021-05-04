@@ -3,10 +3,10 @@ package com.momo.certChain.services;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.mapping.InstitutionMapper;
 import com.momo.certChain.model.data.*;
-import com.momo.certChain.model.dto.AddressDTO;
 import com.momo.certChain.model.dto.InstitutionDTO;
 import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.services.blockChain.ContractService;
+import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.excel.ExcelService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +53,7 @@ public class InstitutionService {
         this.walletService = walletService;
     }
 
-    public Institution createInstitution(String street,String city,String province,String postalCode,String country, String name,String walletPassword) throws NoSuchProviderException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, CipherException {
+    public Institution createInstitution(String street, String city, String province, String postalCode, String country, String name, String walletPassword) throws NoSuchProviderException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, CipherException {
         Address address = addressService.createAddress(street, city, province, postalCode, country);
         Institution institution = new Institution();
         institution.setAddress(address);
@@ -74,15 +74,18 @@ public class InstitutionService {
         List<HumanUser> studentList = excelService.readStudentsFromExcel(bytes);
         linkInstitutionAndStudents(institution, studentList);
         studentList = userService.saveMultipleUser(studentList);
-        studentList.forEach(humanUser -> {
+        for(HumanUser humanUser :studentList){
             Student student = (Student) humanUser;
-            try {
-                certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0), institution.getCertificationTemplate(), "", createKeyPair( institution.getInstitutionWallet().getPrivateKey(),
-                                                                                                                                                                            institution.getInstitutionWallet().getPublicKey()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+            certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0),
+                                                                 institution.getCertificationTemplate(),
+                                                                 institution.getContractAddress(),
+                                                                 createKeyPair( institution.getInstitutionWallet().getPrivateKey(),
+                                                                               institution.getInstitutionWallet().getPublicKey()));
+        }
+    }
+
+    public InstitutionDTO toDTO(Institution institution){
+        return InstitutionMapper.instance.toDTO(institution);
     }
 
     private Institution saveInstitution(Institution institution) {

@@ -18,4 +18,9 @@ public abstract class BaseController {
         return new ResponseEntity<Object>(exception.getMessage(),new HttpHeaders(), HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleNotFoundException(Exception exception){
+        return new ResponseEntity<Object>(exception.getMessage(),new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

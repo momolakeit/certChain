@@ -2,12 +2,11 @@ package com.momo.certChain.services;
 
 import com.momo.certChain.TestUtils;
 import com.momo.certChain.exception.ObjectNotFoundException;
-import com.momo.certChain.mapping.CertificationMapper;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.ImageFile;
 import com.momo.certChain.model.data.Signature;
 import com.momo.certChain.repositories.CertificationRepository;
-import com.momo.certChain.services.blockChain.ContractService;
+import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.security.EncryptionService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +45,7 @@ class CertificationServiceTest {
     private SignatureService signatureService;
 
     @Mock
-    private ContractService contractService;
+    private ContractServiceImpl contractServiceImpl;
 
     @Mock
     private EncryptionService encryptionService;
@@ -124,7 +123,7 @@ class CertificationServiceTest {
 
         certificationService.uploadCertificationToBlockChain(studentCertification, certificationTemplate, contractAddress, new ECKeyPair(BigInteger.ONE,BigInteger.TWO));
 
-        verify(contractService).uploadCertificate(certificationArgumentCaptor.capture(), addressArgumentCaptor.capture(), keyPairArgumentCaptor.capture());
+        verify(contractServiceImpl).uploadCertificate(certificationArgumentCaptor.capture(), addressArgumentCaptor.capture(), keyPairArgumentCaptor.capture());
         Certification uploadedCertificate = certificationArgumentCaptor.getValue();
         String uploadedAddress = addressArgumentCaptor.getValue();
         ECKeyPair keyPair = keyPairArgumentCaptor.getValue();

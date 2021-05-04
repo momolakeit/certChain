@@ -31,9 +31,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ContractServiceTest {
+class ContractServiceImplTest {
 
-    private ContractService contractService;
+    private ContractServiceImpl contractServiceImpl;
 
     private String privateKey = "privateKey";
 
@@ -71,7 +71,7 @@ class ContractServiceTest {
 
     @BeforeEach
     public void init() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
-        contractService = new ContractService(new ObjectMapper(), encryptionService,web3j);
+        contractServiceImpl = new ContractServiceImpl(new ObjectMapper(), encryptionService,web3j);
         credentialsMockedStatic = mockStatic(Credentials.class);
         credentialsMockedStatic.when(() -> Credentials.create(any(ECKeyPair.class))).thenReturn(credentials);
         ecKeyPair = Keys.createEcKeyPair();
@@ -90,7 +90,7 @@ class ContractServiceTest {
         savingDiplomaMockedStatic = mockStatic(SavingDiploma.class);
         savingDiplomaMockedStatic.when(() -> SavingDiploma.deploy(any(), any(Credentials.class), any(), any())).thenReturn(remoteCall);
 
-        String returncontractAdress = contractService.uploadContract(ecKeyPair);
+        String returncontractAdress = contractServiceImpl.uploadContract(ecKeyPair);
         assertEquals(contractAddress, returncontractAdress);
     }
 
@@ -105,7 +105,7 @@ class ContractServiceTest {
         savingDiplomaMockedStatic.when(() -> SavingDiploma.load(any(), any(), any(Credentials.class), any(), any())).thenReturn(savingDiploma);
 
 
-        Certification returnValueCertification = contractService.getCertificate("uuid", "address", ecKeyPair);
+        Certification returnValueCertification = contractServiceImpl.getCertificate("uuid", "address", ecKeyPair);
         assertNotNull(returnValueCertification);
         TestUtils.assertCertification(certification);
         TestUtils.assertInstitution(returnValueCertification.getInstitution());
@@ -120,7 +120,7 @@ class ContractServiceTest {
         savingDiplomaMockedStatic.when(() -> SavingDiploma.load(any(), any(), any(Credentials.class), any(), any())).thenReturn(savingDiploma);
 
 
-        contractService.uploadCertificate(certification, "address", ecKeyPair);
+        contractServiceImpl.uploadCertificate(certification, "address", ecKeyPair);
         verify(savingDiploma).addCertificate(certificateIdCaptor.capture(), certificateJsonCaptor.capture());
         String returnId = certificateIdCaptor.getValue();
 
