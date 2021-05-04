@@ -9,12 +9,15 @@ import org.springframework.stereotype.Service;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.WalletUtils;
+import org.web3j.evm.Configuration;
+import org.web3j.evm.EmbeddedWeb3jService;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.Contract;
 import org.web3j.tx.ManagedTransaction;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -27,12 +30,13 @@ public class ContractService {
 
     private final EncryptionService encryptionService;
 
-    public ContractService(ObjectMapper objectMapper, EncryptionService encryptionService) {
+    private final Web3j web3j;
+
+    public ContractService(ObjectMapper objectMapper, EncryptionService encryptionService, Web3j web3j) {
         this.objectMapper = objectMapper;
         this.encryptionService = encryptionService;
+        this.web3j = web3j;
     }
-
-    Web3j web3j = Web3j.build(new HttpService(ethURL));
 
     public String uploadContract(ECKeyPair ecKeyPair) throws Exception {
         SavingDiploma savingDiploma = SavingDiploma.deploy(web3j, getCredentialsFromPrivateKey(ecKeyPair), BigInteger.valueOf(4100000000L), Contract.GAS_LIMIT).send();

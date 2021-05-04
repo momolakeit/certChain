@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
+import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.RemoteCall;
 import org.web3j.protocol.core.RemoteFunctionCall;
 
@@ -53,6 +54,9 @@ class ContractServiceTest {
     @Mock
     private EncryptionService encryptionService;
 
+    @Mock
+    private Web3j web3j;
+
     @Captor
     private ArgumentCaptor<String> certificateJsonCaptor;
 
@@ -67,7 +71,7 @@ class ContractServiceTest {
 
     @BeforeEach
     public void init() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
-        contractService = new ContractService(new ObjectMapper(), encryptionService);
+        contractService = new ContractService(new ObjectMapper(), encryptionService,web3j);
         credentialsMockedStatic = mockStatic(Credentials.class);
         credentialsMockedStatic.when(() -> Credentials.create(any(ECKeyPair.class))).thenReturn(credentials);
         ecKeyPair = Keys.createEcKeyPair();
