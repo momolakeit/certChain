@@ -11,6 +11,7 @@ import org.web3j.abi.datatypes.Address;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
+import org.web3j.crypto.WalletUtils;
 import org.web3j.evm.EmbeddedWeb3jService;
 import org.web3j.protocol.Web3j;
 import org.web3j.tx.Contract;
@@ -33,12 +34,11 @@ public class TestingContractServiceImpl implements ContractService {
 
     private final Credentials credentials;
 
-    public TestingContractServiceImpl(ObjectMapper objectMapper, EncryptionService encryptionService) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
+    public TestingContractServiceImpl(ObjectMapper objectMapper, EncryptionService encryptionService, Web3j web3j, Credentials credentials) {
         this.objectMapper = objectMapper;
         this.encryptionService = encryptionService;
-        credentials = Credentials.create(Keys.createEcKeyPair());
-        org.web3j.evm.Configuration configuration = new org.web3j.evm.Configuration(new Address(credentials.getAddress()), 10);
-        this.web3j = Web3j.build(new EmbeddedWeb3jService(configuration));
+        this.web3j = web3j;
+        this.credentials = credentials;
     }
 
     public String uploadContract(ECKeyPair ecKeyPair) throws Exception {
@@ -65,7 +65,4 @@ public class TestingContractServiceImpl implements ContractService {
         return SavingDiploma.load(address, web3j, credentials, ManagedTransaction.GAS_PRICE, Contract.GAS_LIMIT);
     }
 
-    private Credentials getCredentialsFromPrivateKey(ECKeyPair ecKeyPair) {
-        return Credentials.create(ecKeyPair);
-    }
 }
