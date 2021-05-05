@@ -27,7 +27,7 @@ public class InstitutionController extends BaseController {
     @PostMapping
     public InstitutionDTO createInstitution(@RequestBody CreateInstitutionDTO createInstitutionDTO) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException {
         AddressDTO addressDTO = createInstitutionDTO.getAddressDTO();
-        InstitutionDTO institutionDTO= createInstitutionDTO.getInstitutionDTO();
+        InstitutionDTO institutionDTO = createInstitutionDTO.getInstitutionDTO();
         return institutionService.toDTO(institutionService.createInstitution(addressDTO.getStreet(),
                                                                              addressDTO.getCity(),
                                                                              addressDTO.getProvince(),

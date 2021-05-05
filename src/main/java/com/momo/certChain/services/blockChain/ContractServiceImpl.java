@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.services.blockChain.contract.SavingDiploma;
 import com.momo.certChain.services.security.EncryptionService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.Credentials;

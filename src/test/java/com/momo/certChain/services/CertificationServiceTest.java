@@ -77,40 +77,15 @@ class CertificationServiceTest {
             when(signatureService.createSignature(certification.getSignatures().get(i).getAuthorName())).thenReturn(signaturesList.get(i));
         }
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        Certification returnValueCertification = certificationService.createCertificationTemplate(certification);
+        when(imageFileService.createImageFile(any(byte[].class))).thenReturn(TestUtils.createImageFile());
+        Certification returnValueCertification = certificationService.createCertificationTemplate(certification,TestUtils.getExcelByteArray(),TestUtils.getExcelByteArray());
 
         assertEquals(certification.getCertificateText(), returnValueCertification.getCertificateText());
         assertEquals(signaturesList.get(0).getAuthorName(), returnValueCertification.getSignatures().get(0).getAuthorName());
         assertEquals(signaturesList.get(1).getAuthorName(), returnValueCertification.getSignatures().get(1).getAuthorName());
         assertEquals(signaturesList.get(2).getAuthorName(), returnValueCertification.getSignatures().get(2).getAuthorName());
-    }
-
-    @Test
-    public void addCertificateUniversityLogo() throws IOException {
-        ImageFile imageFile = TestUtils.createImageFile();
-        initAddImageFilesMocks(imageFile);
-
-        Certification returnValueCertification = certificationService.addCertificationUniversityLogo("123456", TestUtils.getExcelByteArray());
-        TestUtils.assertCertification(returnValueCertification);
-        assertEquals(imageFile.getBytes(), returnValueCertification.getUniversityLogo().getBytes());
-    }
-
-    @Test
-    public void addCertificateUniversityStamp() throws IOException {
-        ImageFile imageFile = TestUtils.createImageFile();
-        initAddImageFilesMocks(imageFile);
-
-        Certification returnValueCertification = certificationService.addCertificationUniversityStamp("123456", TestUtils.getExcelByteArray());
-        TestUtils.assertCertification(returnValueCertification);
-        assertEquals(imageFile.getBytes(), returnValueCertification.getUniversityStamp().getBytes());
-    }
-
-    @Test
-    public void addCertificateUniversityStampCertificateNotFound() throws IOException {
-        when(certificationRepository.findById(anyString())).thenReturn(Optional.empty());
-        Assertions.assertThrows(ObjectNotFoundException.class, () -> {
-            certificationService.addCertificationUniversityStamp("123456", TestUtils.getExcelByteArray());
-        });
+        assertNotNull(returnValueCertification.getUniversityStamp().getBytes());
+        assertNotNull(returnValueCertification.getUniversityLogo().getBytes());
     }
 
     @Test

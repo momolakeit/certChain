@@ -46,24 +46,14 @@ public class CertificationService {
         this.encryptionService = encryptionService;
     }
 
-    public Certification createCertificationTemplate(Certification certification) {
+    public Certification createCertificationTemplate(Certification certification,byte[]universityLogoBytes,byte[]universityStampBytes) {
         List<Signature> signatures = new ArrayList<>();
         for (Signature signature : certification.getSignatures()) {
             signatures.add(signatureService.createSignature(signature.getAuthorName()));
         }
         certification.setSignatures(signatures);
-        return saveCertification(certification);
-    }
-
-    public Certification addCertificationUniversityLogo(String uuid, byte[] bytes) {
-        Certification certification = findCertification(uuid);
-        certification.setUniversityLogo(imageFileService.createImageFile(bytes));
-        return saveCertification(certification);
-    }
-
-    public Certification addCertificationUniversityStamp(String uuid, byte[] bytes) {
-        Certification certification = findCertification(uuid);
-        certification.setUniversityStamp(imageFileService.createImageFile(bytes));
+        certification.setUniversityLogo(imageFileService.createImageFile(universityLogoBytes));
+        certification.setUniversityStamp(imageFileService.createImageFile(universityStampBytes));
         return saveCertification(certification);
     }
 

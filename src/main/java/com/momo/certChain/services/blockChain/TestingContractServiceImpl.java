@@ -47,21 +47,21 @@ public class TestingContractServiceImpl implements ContractService {
     }
 
     public Certification getCertificate(String uuid, String address, ECKeyPair ecKeyPair) throws Exception {
-        SavingDiploma savingDiploma = getUploadedContract(address, ecKeyPair);
+        SavingDiploma savingDiploma = getUploadedContract(address);
         String certificateString = savingDiploma.get(uuid).send();
         return objectMapper.readValue(certificateString, Certification.class);
     }
 
     public void uploadCertificate(Certification certification, String address, ECKeyPair ecKeyPair) throws Exception {
 
-        SavingDiploma savingDiploma = getUploadedContract(address, ecKeyPair);
+        SavingDiploma savingDiploma = getUploadedContract(address);
         String certificateJson = objectMapper.writeValueAsString(certification);
         String encryptedJSON = encryptionService.encryptData(ecKeyPair.getPrivateKey().toString(),certificateJson,certification.getSalt());
         savingDiploma.addCertificate(certification.getId(), encryptedJSON).send();
 
     }
 
-    private SavingDiploma getUploadedContract(String address, ECKeyPair ecKeyPair) {
+    private SavingDiploma getUploadedContract(String address) {
         return SavingDiploma.load(address, web3j, credentials, ManagedTransaction.GAS_PRICE, Contract.GAS_LIMIT);
     }
 

@@ -1,6 +1,8 @@
 package com.momo.certChain.controller;
 
 import com.momo.certChain.TestUtils;
+import com.momo.certChain.mapping.CertificationMapper;
+import com.momo.certChain.model.data.Certification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -38,9 +41,15 @@ class CertificationControllerTest {
     }
 
     @Test
-    public void testCreateCertification() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/institution/createTemplate")
-                .content(objectMapper.writeValueAsString(TestUtils.createCertificationTemplate()))
+    public void testCreateCertificationTemplate() throws Exception {
+        MockMultipartFile universityLogo = new MockMultipartFile("universityLogo", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
+        MockMultipartFile universityStamp= new MockMultipartFile("universityStamp", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
+        Certification certification = TestUtils.createCertificationTemplate();
+        certification.setId(null);
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/createTemplate")
+                .file("universityLogo",universityLogo.getBytes())
+                .file("universityStamp",universityStamp.getBytes())
+                .param("certificationDTO",objectMapper.writeValueAsString(CertificationMapper.instance.toDTO(certification)))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
