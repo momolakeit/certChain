@@ -5,6 +5,7 @@ import com.momo.certChain.mapping.CertificationMapper;
 import com.momo.certChain.mapping.SignatureMapper;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Signature;
+import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
@@ -78,6 +79,10 @@ public class CertificationService {
         studentCertification.setCertificateText(certificationTemplate.getCertificateText());
 
         contractService.uploadCertificate(studentCertification, contractAdress, ecKeyPair);
+    }
+
+    public CertificationDTO toDTO(Certification certification){
+        return CertificationMapper.instance.toDTO(certification);
     }
 
 
