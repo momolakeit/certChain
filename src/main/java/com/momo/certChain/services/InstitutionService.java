@@ -8,6 +8,7 @@ import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.excel.ExcelService;
+import com.momo.certChain.services.security.EncryptionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.CipherException;
@@ -37,13 +38,16 @@ public class InstitutionService {
 
     private final WalletService walletService;
 
+    private final EncryptionService encryptionService;
+
     public InstitutionService(InstitutionRepository institutionRepository,
                               AddressService addressService,
                               ContractService contractService,
                               CertificationService certificationService,
                               ExcelService excelService,
                               HumanUserService userService,
-                              WalletService walletService) {
+                              WalletService walletService,
+                              EncryptionService encryptionService) {
         this.institutionRepository = institutionRepository;
         this.addressService = addressService;
         this.contractService = contractService;
@@ -51,6 +55,7 @@ public class InstitutionService {
         this.excelService = excelService;
         this.userService = userService;
         this.walletService = walletService;
+        this.encryptionService = encryptionService;
     }
 
     public Institution createInstitution(String street, String city, String province, String postalCode, String country, String name, String walletPassword) throws NoSuchProviderException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, CipherException {
@@ -69,7 +74,7 @@ public class InstitutionService {
         return saveInstitution(institution);
     }
 
-    public void uploadCertificationsToBlockChain(byte[] bytes, String uuid) throws Exception {
+    public void uploadCertificationsToBlockChain(byte[] bytes, String uuid,String walletPassword) throws Exception {
         Institution institution = getInstitution(uuid);
         List<HumanUser> studentList = excelService.readStudentsFromExcel(bytes);
         linkInstitutionAndStudents(institution, studentList);
@@ -79,8 +84,7 @@ public class InstitutionService {
             certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0),
                                                                  institution.getCertificationTemplate(),
                                                                  institution.getContractAddress(),
-                                                                 createKeyPair( institution.getInstitutionWallet().getPrivateKey(),
-                                                                               institution.getInstitutionWallet().getPublicKey()));
+                                                                 createKeyPair( institution.getInstitutionWallet(),walletPassword));
         }
     }
 
@@ -108,5 +112,10 @@ public class InstitutionService {
 
     private ECKeyPair createKeyPair(String privateKey, String publicKey){
         return new ECKeyPair(new BigInteger(privateKey),new BigInteger(publicKey));
+    }
+    private ECKeyPair createKeyPair(InstitutionWallet institutionWallet,String walletPassword){
+        String privateKey = encryptionService.decryptData(walletPassword,institutionWallet.getPrivateKey(),institutionWallet.getSalt());
+        String publicKey = encryptionService.decryptData(walletPassword,institutionWallet.getPublicKey(),institutionWallet.getSalt());
+        return createKeyPair(privateKey,publicKey);
     }
 }

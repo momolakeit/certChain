@@ -29,7 +29,7 @@ public class BlockChainConfiguration {
     @Bean("web3j")
     @Profile("test")
     public Web3j testWeb3j() throws  InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
-        org.web3j.evm.Configuration configuration = new org.web3j.evm.Configuration(new Address(credentials().getAddress()), 10);
+        org.web3j.evm.Configuration configuration = new org.web3j.evm.Configuration(new Address(credentials().getAddress()), 30);
         return Web3j.build(new EmbeddedWeb3jService(configuration));
     }
 

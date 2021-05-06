@@ -6,6 +6,7 @@ import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.excel.ExcelService;
+import com.momo.certChain.services.security.EncryptionService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,6 +47,9 @@ class InstitutionServiceTest {
 
     @Mock
     private WalletService walletService;
+
+    @Mock
+    private EncryptionService encryptionService;
 
     @Mock
     private CertificationService certificationService;
@@ -117,12 +121,14 @@ class InstitutionServiceTest {
         List<HumanUser> listeOfStudents = initStudentsList(nbDeStudents);
         Institution institution = TestUtils.createInstitutionWithWallet();
         institution.setCertificationTemplate(TestUtils.createCertificationTemplate());
+        institution.getInstitutionWallet().setSalt("salt");
 
+        when(encryptionService.decryptData(anyString(),anyString(),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
         when(userService.saveMultipleUser(any(List.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(excelService.readStudentsFromExcel(any(byte[].class))).thenReturn(listeOfStudents);
 
-        institutionService.uploadCertificationsToBlockChain(TestUtils.getExcelByteArray(), "123456");
+        institutionService.uploadCertificationsToBlockChain(TestUtils.getExcelByteArray(), "123456","password");
         verify(certificationService, times(nbDeStudents)).uploadCertificationToBlockChain(studentCertificateArgumentCaptor.capture(),
                 institutionTemplateCertificateArgumentCaptor.capture(),
                 addressArgumentCaptor.capture(),

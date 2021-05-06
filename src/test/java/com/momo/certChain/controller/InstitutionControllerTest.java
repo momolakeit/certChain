@@ -13,6 +13,7 @@ import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.repositories.WalletRepository;
 import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
+import com.momo.certChain.services.security.EncryptionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,6 +53,9 @@ class InstitutionControllerTest {
     private ContractService contractService;
 
     @Autowired
+    private EncryptionService encryptionService;
+
+    @Autowired
     private CertificationRepository certificationRepository;
 
     private String conversationId;
@@ -60,16 +64,24 @@ class InstitutionControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private final String encryptionKey="encrypted";
+
     @BeforeEach
     public void init() throws Exception {
         mockMvc = MockMvcBuilders.standaloneSetup(institutionController).build();
         Institution institution = TestUtils.createInstitution();
         Certification certification = TestUtils.createCertificationTemplate();
-        InstitutionWallet institutionWallet = TestUtils.createInstitutionWallet();
         certification.setId(null);
+        InstitutionWallet institutionWallet = TestUtils.createInstitutionWallet();
+
         institution.setContractAddress(contractService.uploadContract(new ECKeyPair(new BigInteger(institutionWallet.getPrivateKey()),new BigInteger(institutionWallet.getPublicKey()))));
-        institution.setInstitutionWallet(walletRepository.save(institutionWallet));
+
+        institutionWallet.setSalt(encryptionService.generateSalt());
+        institutionWallet.setPrivateKey(encryptionService.encryptData(encryptionKey,institutionWallet.getPrivateKey(),institutionWallet.getSalt()));
+        institutionWallet.setPublicKey(encryptionService.encryptData(encryptionKey,institutionWallet.getPublicKey(),institutionWallet.getSalt()));
+
         institution.setCertificationTemplate(certificationRepository.save(certification));
+        institution.setInstitutionWallet(walletRepository.save(institutionWallet));
         conversationId = institutionRepository.save(institution).getId();
     }
 
@@ -107,6 +119,7 @@ class InstitutionControllerTest {
         MockMultipartFile file = new MockMultipartFile("file", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
         mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/uploadCertification/{institutionId}",conversationId)
                 .file(file)
+                .param("walletPassword",encryptionKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());

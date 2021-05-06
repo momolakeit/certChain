@@ -56,8 +56,9 @@ public class CertificationService {
         certification.setUniversityStamp(imageFileService.createImageFile(universityStampBytes));
         return saveCertification(certification);
     }
-
+    //todo test that
     public void uploadCertificationToBlockChain(Certification studentCertification, Certification certificationTemplate, String contractAdress, ECKeyPair ecKeyPair) throws Exception {
+        studentCertification.setInstitution(certificationTemplate.getInstitution());
         studentCertification = saveCertification(studentCertification);
         certificationTemplate = CertificationMapper.instance.toSimple(certificationTemplate);
 
