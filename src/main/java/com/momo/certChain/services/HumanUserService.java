@@ -29,8 +29,8 @@ public class HumanUserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public HumanUser createHumanUser(HumanUser humanUser) throws MessagingException {
-        messageService.sendEmail(humanUser);
+    public HumanUser createHumanUser(HumanUser humanUser,String encryptionKey) throws MessagingException {
+        messageService.sendEmail(humanUser,encryptionKey);
         return saveUser(humanUser);
     }
 

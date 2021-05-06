@@ -45,13 +45,15 @@ class MessageServiceTest {
     public void sendMessage() throws MessagingException, IOException {
         Student student = TestUtils.createStudent();
         student.setId("123456");
-        String link = frontEndUrl +"createPassword/" +student.getId()+".com";
+        String privateKey ="superPrivate";
+        String messageString = frontEndUrl +"createPassword/" +student.getId()+".com"+
+                               "This is the password, save it so you can retreive your diploma:"+privateKey;
         String from =  "certChain@"+student.getInstitution().getName()+".com";
 
         Properties properties = System.getProperties();
         properties.setProperty("mail.smtp.host","localhost");
         when(javaMailSender.createMimeMessage()).thenReturn(new MimeMessage(Session.getDefaultInstance(properties)));
-        messageService.sendEmail(student);
+        messageService.sendEmail(student,privateKey);
         verify(javaMailSender).send(messageArgumentCaptor.capture());
 
         Message message = messageArgumentCaptor.getValue();
@@ -60,7 +62,7 @@ class MessageServiceTest {
         assertEquals(student.getUsername(),address.toString());
         assertEquals(from,message.getFrom()[0].toString());
         assertEquals(from,message.getFrom()[0].toString());
-        assertEquals(link,String.valueOf(message.getContent()));
+        assertEquals(messageString,String.valueOf(message.getContent()));
 
     }
 

@@ -80,8 +80,8 @@ public class InstitutionService {
         List<HumanUser> studentList = excelService.readStudentsFromExcel(bytes);
         linkInstitutionAndStudents(institution, studentList);
         for(HumanUser humanUser :studentList){
-            Student student = (Student) userService.createHumanUser(humanUser);
             String generatedString = RandomStringUtils.randomAlphanumeric(10);
+            Student student = (Student) userService.createHumanUser(humanUser,generatedString);
             certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0),
                                                                  institution.getCertificationTemplate(),
                                                                  institution.getContractAddress(),

@@ -70,6 +70,10 @@ class InstitutionServiceTest {
     @Captor
     private ArgumentCaptor<String> encKeyPrivateKeyCaptor;
 
+    @Captor
+    private ArgumentCaptor<String> encKeySentByEmailCaptor;
+
+
 
     @Test
     public void createInstitutionTest() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException {
@@ -133,7 +137,7 @@ class InstitutionServiceTest {
 
         when(encryptionService.decryptData(anyString(),anyString(),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
-        when(userService.createHumanUser(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(userService.createHumanUser(any(HumanUser.class),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(excelService.readStudentsFromExcel(any(byte[].class))).thenReturn(listeOfStudents);
         randomStringUtilsMockedStatic.when(()->RandomStringUtils.randomAlphanumeric(10)).thenReturn(randomString);
 
@@ -144,11 +148,15 @@ class InstitutionServiceTest {
                 KeyPairArgumentCaptor.capture(),
                 encKeyPrivateKeyCaptor.capture());
 
+        verify(userService,times(nbDeStudents)).createHumanUser(any(HumanUser.class), encKeySentByEmailCaptor.capture());
+
         List<Certification> studentsCertifications = studentCertificateArgumentCaptor.getAllValues();
 
         List<Certification> institutionCertificationTemplates = institutionTemplateCertificateArgumentCaptor.getAllValues();
 
         List<String> encKeys = encKeyPrivateKeyCaptor.getAllValues();
+
+        List<String> encKeySentByEmail =  this.encKeySentByEmailCaptor.getAllValues();
 
         for (Certification cert : studentsCertifications) {
             TestUtils.assertCertification(cert);
@@ -157,6 +165,9 @@ class InstitutionServiceTest {
             TestUtils.assertCertificationInstitution(cert);
         }
         for(String val : encKeys){
+            assertEquals(randomString,val);
+        }
+        for(String val : encKeySentByEmail){
             assertEquals(randomString,val);
         }
     }

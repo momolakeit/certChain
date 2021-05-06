@@ -11,6 +11,8 @@ import com.momo.certChain.services.messaging.MessageService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,22 +40,35 @@ class HumanUserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Captor
+    private ArgumentCaptor<String> encKeyPrivateKey;
+
     @Test
     public void createStudentUserTest() throws MessagingException {
         when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        String privateKey="superPrivate";
         Student student = TestUtils.createStudent();
-        Student returnValue = (Student) humanUserService.createHumanUser(student);
-        verify(messageService, times(1)).sendEmail(any(HumanUser.class));
+        Student returnValue = (Student) humanUserService.createHumanUser(student,privateKey);
+
+
+        verify(messageService, times(1)).sendEmail(any(HumanUser.class),encKeyPrivateKey.capture());
+
+        assertEquals(privateKey,encKeyPrivateKey.getValue());
         TestUtils.assertBaseUser(returnValue);
         TestUtils.assertInstitution(returnValue.getInstitution());
     }
 
     @Test
     public void createEmployeeUserTest() throws MessagingException {
-        when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         Employee employe = TestUtils.createEmploye();
-        Employee returnValue = (Employee) humanUserService.createHumanUser(employe);
-        verify(messageService, times(1)).sendEmail(any(HumanUser.class));
+        String privateKey="superPrivate";
+
+        when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        Employee returnValue = (Employee) humanUserService.createHumanUser(employe,privateKey);
+        verify(messageService, times(1)).sendEmail(any(HumanUser.class),encKeyPrivateKey.capture());
+
+        assertEquals(privateKey,encKeyPrivateKey.getValue());
         TestUtils.assertBaseUser(returnValue);
         TestUtils.assertInstitution(returnValue.getInstitution());
     }
