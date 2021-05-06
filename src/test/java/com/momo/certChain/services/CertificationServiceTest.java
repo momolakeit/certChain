@@ -7,6 +7,7 @@ import com.momo.certChain.model.data.Signature;
 import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.security.EncryptionService;
+import org.checkerframework.checker.nullness.Opt;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -143,6 +144,23 @@ class CertificationServiceTest {
         verify(encryptionService,times(1)).generateSalt();
         TestUtils.assertCertification(returnValueCertification);
         assertEquals(salt,returnValueCertification.getSalt());
+    }
+
+    @Test
+    public void forgetCertificateTest(){
+        Certification certification =  TestUtils.createCertification();
+        certification.setSalt("salty");
+
+        when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
+
+        certificationService.forgetCertificate("123456");
+
+        verify(certificationRepository).save(certificationArgumentCaptor.capture());
+
+        Certification returnValCertification = certificationArgumentCaptor.getValue();
+
+        assertNotNull(returnValCertification);
+        assertNull(returnValCertification.getSalt());
     }
 
 

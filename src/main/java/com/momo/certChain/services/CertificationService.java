@@ -82,6 +82,12 @@ public class CertificationService {
         return certificationRepository.save(certification);
     }
 
+    public void forgetCertificate(String uuid){
+        Certification certification = findCertification(uuid);
+        certification.setSalt(null);
+        saveCertification(certification);
+    }
+
     private Certification findCertification(String uuid) {
         return certificationRepository.findById(uuid).orElseThrow(this::certificationNotFound);
     }
