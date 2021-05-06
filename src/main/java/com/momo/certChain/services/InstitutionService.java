@@ -61,15 +61,18 @@ public class InstitutionService {
 
     public Institution createInstitution(String street, String city, String province, String postalCode, String country, String name, String walletPassword) throws NoSuchProviderException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, CipherException {
         Address address = addressService.createAddress(street, city, province, postalCode, country);
+
         Institution institution = new Institution();
         institution.setAddress(address);
         institution.setName(name);
         institution.setInstitutionWallet(walletService.createWallet(walletPassword));
+
         return saveInstitution(institution);
     }
 
     public Institution uploadCertificateContract(String uuid) throws Exception {
         Institution institution = getInstitution(uuid);
+
         institution.setContractAddress(contractService.uploadContract(createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
                                                                                     institution.getInstitutionWallet().getPublicKey())));
         return saveInstitution(institution);

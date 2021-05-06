@@ -22,12 +22,15 @@ public class SignatureService {
     public Signature createSignature(String authorName){
         Signature signature = new Signature();
         signature.setAuthorName(authorName);
+
         return saveSignature(signature);
     }
 
     public Signature addSignatureImage(String signatureID, byte[] imageBytes){
         Signature signature = getSignature(signatureID);
+
         signature.setSignatureImage(imageFileService.createImageFile(imageBytes));
+
         return saveSignature(signature);
     }
 

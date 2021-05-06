@@ -18,6 +18,7 @@ public class ImageFileService {
     public ImageFile createImageFile(byte[] bytes){
         ImageFile imageFile = new ImageFile();
         imageFile.setBytes(bytes);
+
         return saveImageFile(imageFile);
     }
 

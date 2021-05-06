@@ -31,16 +31,20 @@ public class HumanUserService {
 
     public HumanUser createHumanUser(HumanUser humanUser,String encryptionKey) throws MessagingException {
         messageService.sendEmail(humanUser,encryptionKey);
+
         return saveUser(humanUser);
     }
 
     //set up confirmer password dans le backend aussi pour securite accrue
     public HumanUser setUpPassword(String uuid,String password,String passwordConfirmation) {
         HumanUser user = getUser(uuid);
+
         if(!password.equals(passwordConfirmation)){
             throw new PasswordNotMatchingException();
         }
+
         user.setPassword(passwordEncoder.encode(password));
+
         return saveUser(user);
     }
 
