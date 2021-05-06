@@ -1,14 +1,12 @@
 package com.momo.certChain.services;
 
 import com.momo.certChain.TestUtils;
-import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.ImageFile;
 import com.momo.certChain.model.data.Signature;
 import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.security.EncryptionService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,6 +57,9 @@ class CertificationServiceTest {
     @Captor
     private ArgumentCaptor<ECKeyPair> keyPairArgumentCaptor;
 
+    @Captor
+    private ArgumentCaptor<String> encryptionPrivateKeyCaptor;
+
 
     private String authorName = "John Doe";
 
@@ -88,27 +89,30 @@ class CertificationServiceTest {
         assertNotNull(returnValueCertification.getUniversityLogo().getBytes());
     }
 
-    //todo fix test
     @Test
     public void uploadCertificateToBlockchain() throws Exception {
         String contractAddress = "address";
-        when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        String encryptionKey = "encryptionKey";
         Certification studentCertification = TestUtils.createCertification();
         Certification certificationTemplate = TestUtils.createCertificationTemplate();
 
+        when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-        certificationService.uploadCertificationToBlockChain(studentCertification, certificationTemplate, contractAddress, new ECKeyPair(BigInteger.ONE,BigInteger.TWO),"");
 
-        verify(contractServiceImpl).uploadCertificate(certificationArgumentCaptor.capture(), addressArgumentCaptor.capture(), keyPairArgumentCaptor.capture(),"");
+        certificationService.uploadCertificationToBlockChain(studentCertification, certificationTemplate, contractAddress, new ECKeyPair(BigInteger.ONE,BigInteger.TWO),encryptionKey);
+
+        verify(contractServiceImpl).uploadCertificate(certificationArgumentCaptor.capture(), addressArgumentCaptor.capture(), keyPairArgumentCaptor.capture(), encryptionPrivateKeyCaptor.capture());
         Certification uploadedCertificate = certificationArgumentCaptor.getValue();
         String uploadedAddress = addressArgumentCaptor.getValue();
         ECKeyPair keyPair = keyPairArgumentCaptor.getValue();
+        String encKey = encryptionPrivateKeyCaptor.getValue();
 
 
         assertEquals(certificationTemplate.getUniversityLogo().getId(),uploadedCertificate.getUniversityLogo().getId());
         assertNull(uploadedCertificate.getUniversityLogo().getBytes());
         assertEquals(certificationTemplate.getUniversityStamp().getId(),uploadedCertificate.getUniversityStamp().getId());
         assertNull(uploadedCertificate.getUniversityStamp().getBytes());
+        assertEquals(encryptionKey,encKey);
         assertEquals(contractAddress,uploadedAddress);
         assertEquals(BigInteger.ONE,keyPair.getPrivateKey());
         assertEquals(BigInteger.TWO,keyPair.getPublicKey());

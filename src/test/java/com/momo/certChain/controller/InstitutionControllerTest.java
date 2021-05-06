@@ -13,6 +13,7 @@ import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.repositories.WalletRepository;
 import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
+import com.momo.certChain.services.messaging.MessageService;
 import com.momo.certChain.services.security.EncryptionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
@@ -57,6 +59,10 @@ class InstitutionControllerTest {
 
     @Autowired
     private CertificationRepository certificationRepository;
+
+    //todo enlever et et fix le pb failed to connect ...
+    @MockBean
+    private MessageService messageService;
 
     private String conversationId;
 

@@ -39,6 +39,8 @@ class MessageServiceTest {
         ReflectionTestUtils.setField(messageService,"frontEndUrl",frontEndUrl);
     }
 
+
+    //todo fix test
     @Test
     public void sendMessage() throws MessagingException, IOException {
         Student student = TestUtils.createStudent();

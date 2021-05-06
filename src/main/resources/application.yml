@@ -8,5 +8,16 @@ spring:
     username: sa
     password:
     driverClassName: org.h2.Driver
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: selfserveapp13@gmail.com
+    password: kulotte2008
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 front-end-url: "http://localhost:4200/"

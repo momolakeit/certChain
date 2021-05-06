@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.mail.MessagingException;
 import java.util.List;
 
 @Service
@@ -28,7 +29,7 @@ public class HumanUserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public HumanUser createHumanUser(HumanUser humanUser) {
+    public HumanUser createHumanUser(HumanUser humanUser) throws MessagingException {
         messageService.sendEmail(humanUser);
         return saveUser(humanUser);
     }

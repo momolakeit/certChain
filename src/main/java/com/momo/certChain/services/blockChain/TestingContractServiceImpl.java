@@ -56,6 +56,7 @@ public class TestingContractServiceImpl implements ContractService {
 
         SavingDiploma savingDiploma = getUploadedContract(address);
         String certificateJson = objectMapper.writeValueAsString(certification);
+
         String encryptedJSON = encryptionService.encryptData(encryptionKey,certificateJson,certification.getSalt());
         savingDiploma.addCertificate(certification.getId(), encryptedJSON).send();
 

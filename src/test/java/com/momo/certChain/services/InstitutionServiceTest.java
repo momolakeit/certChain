@@ -7,6 +7,7 @@ import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.excel.ExcelService;
 import com.momo.certChain.services.security.EncryptionService;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,6 +67,10 @@ class InstitutionServiceTest {
     @Captor
     private ArgumentCaptor<ECKeyPair> KeyPairArgumentCaptor;
 
+    @Captor
+    private ArgumentCaptor<String> encKeyPrivateKeyCaptor;
+
+
     @Test
     public void createInstitutionTest() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException {
         Address address = TestUtils.createAddress();
@@ -115,36 +120,44 @@ class InstitutionServiceTest {
 
     }
 
-    //todo fix test
     @Test
     public void uploadCertification() throws Exception {
         int nbDeStudents = 100;
+        String randomString = "random";
         List<HumanUser> listeOfStudents = initStudentsList(nbDeStudents);
         Institution institution = TestUtils.createInstitutionWithWallet();
         institution.setCertificationTemplate(TestUtils.createCertificationTemplate());
         institution.getInstitutionWallet().setSalt("salt");
+        MockedStatic<RandomStringUtils> randomStringUtilsMockedStatic = mockStatic(RandomStringUtils.class);
+
 
         when(encryptionService.decryptData(anyString(),anyString(),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
-        when(userService.saveMultipleUser(any(List.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(userService.createHumanUser(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(excelService.readStudentsFromExcel(any(byte[].class))).thenReturn(listeOfStudents);
+        randomStringUtilsMockedStatic.when(()->RandomStringUtils.randomAlphanumeric(10)).thenReturn(randomString);
 
         institutionService.uploadCertificationsToBlockChain(TestUtils.getExcelByteArray(), "123456","password");
         verify(certificationService, times(nbDeStudents)).uploadCertificationToBlockChain(studentCertificateArgumentCaptor.capture(),
                 institutionTemplateCertificateArgumentCaptor.capture(),
                 addressArgumentCaptor.capture(),
                 KeyPairArgumentCaptor.capture(),
-                "fix");
+                encKeyPrivateKeyCaptor.capture());
 
         List<Certification> studentsCertifications = studentCertificateArgumentCaptor.getAllValues();
 
         List<Certification> institutionCertificationTemplates = institutionTemplateCertificateArgumentCaptor.getAllValues();
+
+        List<String> encKeys = encKeyPrivateKeyCaptor.getAllValues();
 
         for (Certification cert : studentsCertifications) {
             TestUtils.assertCertification(cert);
         }
         for (Certification cert : institutionCertificationTemplates) {
             TestUtils.assertCertificationInstitution(cert);
+        }
+        for(String val : encKeys){
+            assertEquals(randomString,val);
         }
     }
 

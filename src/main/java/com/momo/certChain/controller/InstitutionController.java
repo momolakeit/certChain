@@ -41,7 +41,7 @@ public class InstitutionController extends BaseController {
     public InstitutionDTO getInstitution(@PathVariable String institutionId){
         return institutionService.toDTO(institutionService.getInstitution(institutionId));
     }
-    //todo change payload pour passer wallet password
+
     @PostMapping("/uploadCertification/{institutionId}")
     public ResponseEntity uploadCertifications(@RequestParam("file") MultipartFile file,@RequestParam("walletPassword") String walletPassword,@PathVariable String institutionId ) throws Exception {
         institutionService.uploadCertificationsToBlockChain(file.getBytes(),institutionId,walletPassword);

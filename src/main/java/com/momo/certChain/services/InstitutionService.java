@@ -81,7 +81,7 @@ public class InstitutionService {
         linkInstitutionAndStudents(institution, studentList);
         for(HumanUser humanUser :studentList){
             Student student = (Student) userService.createHumanUser(humanUser);
-            String generatedString = RandomStringUtils.randomAlphabetic(10);
+            String generatedString = RandomStringUtils.randomAlphanumeric(10);
             certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0),
                                                                  institution.getCertificationTemplate(),
                                                                  institution.getContractAddress(),

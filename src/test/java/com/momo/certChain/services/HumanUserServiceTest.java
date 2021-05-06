@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.mail.MessagingException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,7 +39,7 @@ class HumanUserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Test
-    public void createStudentUserTest() {
+    public void createStudentUserTest() throws MessagingException {
         when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         Student student = TestUtils.createStudent();
         Student returnValue = (Student) humanUserService.createHumanUser(student);
@@ -48,7 +49,7 @@ class HumanUserServiceTest {
     }
 
     @Test
-    public void createEmployeeUserTest() {
+    public void createEmployeeUserTest() throws MessagingException {
         when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         Employee employe = TestUtils.createEmploye();
         Employee returnValue = (Employee) humanUserService.createHumanUser(employe);
