@@ -75,10 +75,12 @@ class InstitutionControllerTest {
     @BeforeEach
     public void init() throws Exception {
         mockMvc = MockMvcBuilders.standaloneSetup(institutionController).build();
+
         Institution institution = TestUtils.createInstitution();
         Certification certification = TestUtils.createCertificationTemplate();
-        certification.setId(null);
         InstitutionWallet institutionWallet = TestUtils.createInstitutionWallet();
+
+        certification.setId(null);
 
         institution.setContractAddress(contractService.uploadContract(new ECKeyPair(new BigInteger(institutionWallet.getPrivateKey()),new BigInteger(institutionWallet.getPublicKey()))));
 
@@ -95,8 +97,10 @@ class InstitutionControllerTest {
     public void testCreateInstitution() throws Exception {
         Address address = TestUtils.createAddress();
         address.setId(null);
+
         Institution institution = TestUtils.createInstitution();
         institution.setId(null);
+
         mockMvc.perform(MockMvcRequestBuilders.post("/institution")
                 .content(objectMapper.writeValueAsString(new CreateInstitutionDTO(AddressMapper.instance.toDTO(address),InstitutionMapper.instance.toDTO(institution),"password")))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -123,6 +127,7 @@ class InstitutionControllerTest {
     @Test
     public void testUploadCertificationToBlockchain() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
+
         mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/uploadCertification/{institutionId}",conversationId)
                 .file(file)
                 .param("walletPassword",encryptionKey)

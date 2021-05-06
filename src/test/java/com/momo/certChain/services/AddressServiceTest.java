@@ -33,6 +33,7 @@ class AddressServiceTest {
     @Test
     public void testCreateAddress(){
         Mockito.when(addressRepository.save(any(Address.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
         Address address = addressService.createAddress(street,city,province,postalCode,country);
 
         assertEquals(street,address.getStreet());

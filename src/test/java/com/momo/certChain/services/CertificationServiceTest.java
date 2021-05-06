@@ -75,11 +75,13 @@ class CertificationServiceTest {
         certification.setSignatures(new ArrayList<>());
         addSignatureToCertification(certification);
         List<Signature> signaturesList = createListOfSignatures();
+
         for (int i = 0; i < 3; i++) {
             when(signatureService.createSignature(certification.getSignatures().get(i).getAuthorName())).thenReturn(signaturesList.get(i));
         }
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(imageFileService.createImageFile(any(byte[].class))).thenReturn(TestUtils.createImageFile());
+
         Certification returnValueCertification = certificationService.createCertificationTemplate(certification,TestUtils.getExcelByteArray(),TestUtils.getExcelByteArray());
 
         assertEquals(certification.getCertificateText(), returnValueCertification.getCertificateText());
@@ -94,15 +96,16 @@ class CertificationServiceTest {
     public void uploadCertificateToBlockchain() throws Exception {
         String contractAddress = "address";
         String encryptionKey = "encryptionKey";
+
         Certification studentCertification = TestUtils.createCertification();
         Certification certificationTemplate = TestUtils.createCertificationTemplate();
 
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-
         certificationService.uploadCertificationToBlockChain(studentCertification, certificationTemplate, contractAddress, new ECKeyPair(BigInteger.ONE,BigInteger.TWO),encryptionKey);
 
         verify(contractServiceImpl).uploadCertificate(certificationArgumentCaptor.capture(), addressArgumentCaptor.capture(), keyPairArgumentCaptor.capture(), encryptionPrivateKeyCaptor.capture());
+
         Certification uploadedCertificate = certificationArgumentCaptor.getValue();
         String uploadedAddress = addressArgumentCaptor.getValue();
         ECKeyPair keyPair = keyPairArgumentCaptor.getValue();
@@ -127,9 +130,13 @@ class CertificationServiceTest {
     @Test
     public void testSaveAvecSaltCertification(){
         Certification certification = TestUtils.createCertification();
+
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
         Certification returnValueCertification = certificationService.saveCertification(certification);
+
         verify(encryptionService,times(0)).generateSalt();
+
         TestUtils.assertCertification(returnValueCertification);
     }
 
@@ -138,10 +145,14 @@ class CertificationServiceTest {
         String salt = "salt";
         Certification certification = TestUtils.createCertification();
         certification.setSalt(null);
+
         when(encryptionService.generateSalt()).thenReturn(salt);
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
         Certification returnValueCertification = certificationService.saveCertification(certification);
+
         verify(encryptionService,times(1)).generateSalt();
+
         TestUtils.assertCertification(returnValueCertification);
         assertEquals(salt,returnValueCertification.getSalt());
     }
@@ -164,19 +175,15 @@ class CertificationServiceTest {
     }
 
 
-    private void initAddImageFilesMocks(ImageFile imageFile) {
-        when(certificationRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createCertification()));
-        when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        when(imageFileService.createImageFile(any(byte[].class))).thenReturn(imageFile);
-    }
-
 
     private List<Signature> createListOfSignatures() throws IOException {
         List<Signature> signatureList = new ArrayList<>();
+
         for (int i = 0; i < 3; i++) {
             Signature signature = getSignatureWithModifiedAuthorName(i);
             signature.setId(String.valueOf(i));
             signatureList.add(signature);
+
         }
         return signatureList;
     }

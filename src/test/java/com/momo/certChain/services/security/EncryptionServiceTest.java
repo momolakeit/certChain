@@ -24,13 +24,16 @@ class EncryptionServiceTest {
     @Test
     public void encryptDataTest() {
         String salt = KeyGenerators.string().generateKey();
+
         String returnValue = encryptionService.encryptData(privateKey, valueToEncrypt,salt);
+
         assertNotEquals(valueToEncrypt,returnValue);
     }
 
     @Test
     public void decryptDataTest() {
         String salt = KeyGenerators.string().generateKey();
+
         String encryptData = encryptionService.encryptData(privateKey, valueToEncrypt,salt);
         String decryptedData = encryptionService.decryptData(privateKey,encryptData,salt);
 
@@ -40,7 +43,9 @@ class EncryptionServiceTest {
     @Test
     public void decryptWrongEncKeyThrowsExceptionDataTest() {
         String salt = KeyGenerators.string().generateKey();
+
         String encryptData = encryptionService.encryptData(privateKey, valueToEncrypt,salt);
+
         Assertions.assertThrows(WrongKeyException.class,()->{
             encryptionService.decryptData("mauvaise Enc Key",encryptData,salt);
         });
@@ -49,6 +54,7 @@ class EncryptionServiceTest {
     @Test
     public void decryptWrongSaltThrowsExceptionDataTest() {
         String encryptData = encryptionService.encryptData(privateKey, valueToEncrypt,KeyGenerators.string().generateKey());
+
         Assertions.assertThrows(WrongKeyException.class,()->{
             encryptionService.decryptData("mauvaise Enc Key",encryptData,KeyGenerators.string().generateKey());
         });

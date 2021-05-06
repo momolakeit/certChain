@@ -98,8 +98,8 @@ public class CertificationService {
 
     private void mapCertificateTemplateToStudentCertification(Certification studentCertification, Certification certificationTemplate) {
         List<Signature> signatures = certificationTemplate.getSignatures().stream()
-                                    .map(SignatureMapper.instance::toSimpleSignature)
-                                    .collect(Collectors.toList());
+                                                          .map(SignatureMapper.instance::toSimpleSignature)
+                                                          .collect(Collectors.toList());
         initCertificationFields(studentCertification,
                                 certificationTemplate.getUniversityLogo(),
                                 certificationTemplate.getUniversityStamp(),

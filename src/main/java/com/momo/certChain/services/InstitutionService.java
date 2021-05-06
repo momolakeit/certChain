@@ -76,9 +76,12 @@ public class InstitutionService {
     }
 
     public void uploadCertificationsToBlockChain(byte[] bytes, String uuid,String walletPassword) throws Exception {
-        Institution institution = getInstitution(uuid);
         List<HumanUser> studentList = excelService.readStudentsFromExcel(bytes);
+
+        Institution institution = getInstitution(uuid);
+
         linkInstitutionAndStudents(institution, studentList);
+
         for(HumanUser humanUser :studentList){
             String generatedString = RandomStringUtils.randomAlphanumeric(10);
             Student student = (Student) userService.createHumanUser(humanUser,generatedString);
@@ -118,6 +121,7 @@ public class InstitutionService {
     private ECKeyPair createKeyPair(InstitutionWallet institutionWallet,String walletPassword){
         String privateKey = encryptionService.decryptData(walletPassword,institutionWallet.getPrivateKey(),institutionWallet.getSalt());
         String publicKey = encryptionService.decryptData(walletPassword,institutionWallet.getPublicKey(),institutionWallet.getSalt());
+
         return createKeyPair(privateKey,publicKey);
     }
 }

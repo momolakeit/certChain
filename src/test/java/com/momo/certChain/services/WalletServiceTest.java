@@ -40,14 +40,14 @@ class WalletServiceTest {
     public void createWalletTest() throws NoSuchProviderException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, CipherException {
         String salt = "salt";
         String password = "password";
+
         when(encryptionService.generateSalt()).thenReturn(salt);
         when(encryptionService.encryptData(anyString(),anyString(),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
         when(walletRepository.save(any(InstitutionWallet.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         InstitutionWallet institutionWallet = walletService.createWallet(password);
+
         verify(encryptionService,times(3)).encryptData(anyString(),anyString(),anyString());
-
-
 
         WalletFile walletFile = createWalletFile(new BigInteger(institutionWallet.getPrivateKey()),new BigInteger(institutionWallet.getPublicKey()),password);
 

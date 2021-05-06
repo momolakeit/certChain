@@ -34,7 +34,9 @@ class ImageFileServiceTest {
     @Test
     public void createImageFileTest() throws IOException {
         byte[] bytes = TestUtils.getExcelByteArray();
+
         when(imageFileRepository.save(any(ImageFile.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
         ImageFile imageFile = imageFileService.createImageFile(bytes);
         assertEquals(bytes, imageFile.getBytes());
     }
@@ -42,7 +44,9 @@ class ImageFileServiceTest {
     @Test
     public void findImageFile() {
         ImageFile imageFile = new ImageFile();
+
         when(imageFileRepository.findById(anyString())).thenReturn(Optional.of(imageFile));
+
         ImageFile returnImageFile = imageFileService.findImageFile("123456");
         assertEquals(imageFile, returnImageFile);
 
@@ -51,6 +55,7 @@ class ImageFileServiceTest {
     @Test
     public void findImageNotFoundThrowsException() {
         when(imageFileRepository.findById(anyString())).thenReturn(Optional.empty());
+
         Assertions.assertThrows(ObjectNotFoundException.class, () -> {
             imageFileService.findImageFile("123456");
         });
@@ -60,8 +65,11 @@ class ImageFileServiceTest {
     @Test
     public void saveImageFile() {
         ImageFile imageFile = new ImageFile();
+
         when(imageFileRepository.save(any(ImageFile.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
         ImageFile returnImageFile = imageFileService.saveImageFile(imageFile);
+
         assertEquals(imageFile, returnImageFile);
     }
 

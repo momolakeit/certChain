@@ -26,10 +26,12 @@ public class WalletService {
 
     public InstitutionWallet createWallet(String walletPassword) throws NoSuchAlgorithmException, CipherException, InvalidAlgorithmParameterException, NoSuchProviderException {
         InstitutionWallet institutionWallet = initWalletKeyPair(walletPassword);
+
         institutionWallet.setSalt(encryptionService.generateSalt());
         institutionWallet.setPrivateKey(encryptionService.encryptData(walletPassword, institutionWallet.getPrivateKey(), institutionWallet.getSalt()));
         institutionWallet.setPublicAddress(encryptionService.encryptData(walletPassword, institutionWallet.getPublicAddress(), institutionWallet.getSalt()));
         institutionWallet.setPublicKey(encryptionService.encryptData(walletPassword, institutionWallet.getPublicKey(), institutionWallet.getSalt()));
+
         return saveWallet(institutionWallet);
     }
 
@@ -38,11 +40,13 @@ public class WalletService {
     }
     private InstitutionWallet initWalletKeyPair(String password) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, CipherException {
         ECKeyPair ecKeyPair = Keys.createEcKeyPair();
+
         WalletFile walletFile = Wallet.createStandard(password, ecKeyPair);
         InstitutionWallet institutionWallet = new InstitutionWallet();
         institutionWallet.setPublicAddress(walletFile.getAddress());
         institutionWallet.setPrivateKey(ecKeyPair.getPrivateKey().toString());
         institutionWallet.setPublicKey(ecKeyPair.getPublicKey().toString());
+
         return institutionWallet;
     }
 

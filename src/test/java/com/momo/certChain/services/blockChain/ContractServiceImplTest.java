@@ -72,8 +72,10 @@ class ContractServiceImplTest {
     @BeforeEach
     public void init() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
         contractServiceImpl = new ContractServiceImpl(new ObjectMapper(), encryptionService,web3j);
+
         credentialsMockedStatic = mockStatic(Credentials.class);
         credentialsMockedStatic.when(() -> Credentials.create(any(ECKeyPair.class))).thenReturn(credentials);
+
         ecKeyPair = Keys.createEcKeyPair();
     }
 
@@ -87,6 +89,7 @@ class ContractServiceImplTest {
     public void uploadContractTest() throws Exception {
         when(savingDiploma.getContractAddress()).thenReturn(contractAddress);
         when(remoteCall.send()).thenReturn(savingDiploma);
+
         savingDiplomaMockedStatic = mockStatic(SavingDiploma.class);
         savingDiplomaMockedStatic.when(() -> SavingDiploma.deploy(any(), any(Credentials.class), any(), any())).thenReturn(remoteCall);
 
@@ -97,15 +100,15 @@ class ContractServiceImplTest {
     @Test
     public void getCertificate() throws Exception {
         Certification certification = TestUtils.createCertification();
+
         when(savingDiploma.get(anyString())).thenReturn(remoteFunctionCall);
         when(remoteFunctionCall.send()).thenReturn(new ObjectMapper().writeValueAsString(certification));
         savingDiplomaMockedStatic = mockStatic(SavingDiploma.class);
-
-
         savingDiplomaMockedStatic.when(() -> SavingDiploma.load(any(), any(), any(Credentials.class), any(), any())).thenReturn(savingDiploma);
 
 
         Certification returnValueCertification = contractServiceImpl.getCertificate("uuid", "address", ecKeyPair);
+
         assertNotNull(returnValueCertification);
         TestUtils.assertCertification(certification);
         TestUtils.assertInstitution(returnValueCertification.getInstitution());
@@ -117,6 +120,7 @@ class ContractServiceImplTest {
     public void uploadCertificateTest() throws Exception {
         Certification certification = TestUtils.createCertification();
         savingDiplomaMockedStatic = mockStatic(SavingDiploma.class);
+
         when(savingDiploma.addCertificate(anyString(), anyString())).thenReturn(remoteFunctionCall);
         when(encryptionService.encryptData(anyString(), anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
         savingDiplomaMockedStatic.when(() -> SavingDiploma.load(any(), any(), any(Credentials.class), any(), any())).thenReturn(savingDiploma);

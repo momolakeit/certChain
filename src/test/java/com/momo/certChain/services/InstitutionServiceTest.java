@@ -84,6 +84,7 @@ class InstitutionServiceTest {
         when(addressService.createAddress(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(TestUtils.createAddress());
         when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(walletService.createWallet(anyString())).thenReturn(institutionWallet);
+
         Institution returnVal = institutionService.createInstitution(address.getStreet(),address.getCity(),address.getProvince(),address.getPostalCode(),address.getCountry(),institution.getName(),"password");
 
         assertEquals(institutionWallet.getPrivateKey(),returnVal.getInstitutionWallet().getPrivateKey());
@@ -97,14 +98,18 @@ class InstitutionServiceTest {
     @Test
     public void fetchInstitution() {
         Institution institution = TestUtils.createInstitution();
+
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
+
         Institution returnVal = institutionService.getInstitution("dsa48");
+
         assertInstitution(institution, returnVal);
     }
 
     @Test
     public void fetchInstitutionNotFoundLanceException() {
         when(institutionRepository.findById(anyString())).thenReturn(Optional.empty());
+
         Assertions.assertThrows(ObjectNotFoundException.class, () -> {
             institutionService.getInstitution("dsa48");
         });
@@ -114,6 +119,7 @@ class InstitutionServiceTest {
     public void uploadContractToBlockchain() throws Exception {
         String contractAddress = "contractAddress";
         Institution institution = TestUtils.createInstitutionWithWallet();
+
         when(contractServiceImpl.uploadContract(any(ECKeyPair.class))).thenReturn(contractAddress);
         when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
@@ -142,20 +148,17 @@ class InstitutionServiceTest {
         randomStringUtilsMockedStatic.when(()->RandomStringUtils.randomAlphanumeric(10)).thenReturn(randomString);
 
         institutionService.uploadCertificationsToBlockChain(TestUtils.getExcelByteArray(), "123456","password");
-        verify(certificationService, times(nbDeStudents)).uploadCertificationToBlockChain(studentCertificateArgumentCaptor.capture(),
-                institutionTemplateCertificateArgumentCaptor.capture(),
-                addressArgumentCaptor.capture(),
-                KeyPairArgumentCaptor.capture(),
-                encKeyPrivateKeyCaptor.capture());
 
+        verify(certificationService, times(nbDeStudents)).uploadCertificationToBlockChain(studentCertificateArgumentCaptor.capture(),
+                                                                                          institutionTemplateCertificateArgumentCaptor.capture(),
+                                                                                          addressArgumentCaptor.capture(),
+                                                                                          KeyPairArgumentCaptor.capture(),
+                                                                                          encKeyPrivateKeyCaptor.capture());
         verify(userService,times(nbDeStudents)).createHumanUser(any(HumanUser.class), encKeySentByEmailCaptor.capture());
 
         List<Certification> studentsCertifications = studentCertificateArgumentCaptor.getAllValues();
-
         List<Certification> institutionCertificationTemplates = institutionTemplateCertificateArgumentCaptor.getAllValues();
-
         List<String> encKeys = encKeyPrivateKeyCaptor.getAllValues();
-
         List<String> encKeySentByEmail =  this.encKeySentByEmailCaptor.getAllValues();
 
         for (Certification cert : studentsCertifications) {

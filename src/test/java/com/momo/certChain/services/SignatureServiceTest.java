@@ -34,8 +34,11 @@ class SignatureServiceTest {
     @Test
     public void createSignature() {
         String authorName = "John Doe";
+
         when(signatureRepository.save(any(Signature.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
         Signature signature = signatureService.createSignature(authorName);
+
         assertNotNull(signature);
         assertEquals(authorName, signature.getAuthorName());
     }
@@ -43,9 +46,11 @@ class SignatureServiceTest {
     @Test
     public void addSignatureImage() throws IOException {
         ImageFile imageFile = TestUtils.createImageFile();
+
         when(signatureRepository.save(any(Signature.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(signatureRepository.findById(anyString())).thenReturn(Optional.of(new Signature()));
         when(imageFileService.createImageFile(any(byte[].class))).thenReturn(imageFile);
+
         Signature signature = signatureService.addSignatureImage("123456", imageFile.getBytes());
 
         assertEquals(imageFile, signature.getSignatureImage());
@@ -54,9 +59,11 @@ class SignatureServiceTest {
     @Test
     public void getSignatureTest() throws IOException {
         Signature signature = TestUtils.createSignature();
+
         when(signatureRepository.findById(anyString())).thenReturn(Optional.of(signature));
 
         Signature returnValueSignature = signatureService.getSignature("123456");
+
         assertEquals(signature.getAuthorName(), returnValueSignature.getAuthorName());
         assertEquals(signature.getSignatureImage(), returnValueSignature.getSignatureImage());
     }

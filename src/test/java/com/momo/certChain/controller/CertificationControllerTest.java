@@ -44,8 +44,10 @@ class CertificationControllerTest {
     public void testCreateCertificationTemplate() throws Exception {
         MockMultipartFile universityLogo = new MockMultipartFile("universityLogo", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
         MockMultipartFile universityStamp= new MockMultipartFile("universityStamp", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
+
         Certification certification = TestUtils.createCertificationTemplate();
         certification.setId(null);
+
         mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/createTemplate")
                 .file("universityLogo",universityLogo.getBytes())
                 .file("universityStamp",universityStamp.getBytes())
