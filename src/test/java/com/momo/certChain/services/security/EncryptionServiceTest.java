@@ -1,5 +1,7 @@
 package com.momo.certChain.services.security;
 
+import com.momo.certChain.exception.WrongKeyException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,6 +36,24 @@ class EncryptionServiceTest {
 
         assertEquals(valueToEncrypt,decryptedData);
     }
+
+    @Test
+    public void decryptWrongEncKeyThrowsExceptionDataTest() {
+        String salt = KeyGenerators.string().generateKey();
+        String encryptData = encryptionService.encryptData(privateKey, valueToEncrypt,salt);
+        Assertions.assertThrows(WrongKeyException.class,()->{
+            encryptionService.decryptData("mauvaise Enc Key",encryptData,salt);
+        });
+    }
+
+    @Test
+    public void decryptWrongSaltThrowsExceptionDataTest() {
+        String encryptData = encryptionService.encryptData(privateKey, valueToEncrypt,KeyGenerators.string().generateKey());
+        Assertions.assertThrows(WrongKeyException.class,()->{
+            encryptionService.decryptData("mauvaise Enc Key",encryptData,KeyGenerators.string().generateKey());
+        });
+    }
+
 
     @Test
     public void generateSalt(){

@@ -1,9 +1,12 @@
 package com.momo.certChain.services.security;
 
+import com.momo.certChain.exception.WrongKeyException;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.stereotype.Service;
+
+import javax.crypto.AEADBadTagException;
 
 @Service
 public class EncryptionService {
@@ -14,8 +17,13 @@ public class EncryptionService {
     }
 
     public String decryptData(String encryptionKey,String valueToEncrypt,String salt){
-        TextEncryptor encryptor = Encryptors.delux(encryptionKey,salt);
-        return encryptor.decrypt(valueToEncrypt);
+        try{
+            TextEncryptor encryptor = Encryptors.delux(encryptionKey,salt);
+            return encryptor.decrypt(valueToEncrypt);
+
+        }catch(IllegalStateException exception){
+            throw new WrongKeyException();
+        }
     }
 
     public String generateSalt() {
