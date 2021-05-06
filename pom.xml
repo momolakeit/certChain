@@ -102,6 +102,7 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 			<version>2.2.5.RELEASE</version>
 		</dependency>
+		
 		<!--TESTING DEPENDENCIES-->
 
 		<dependency>

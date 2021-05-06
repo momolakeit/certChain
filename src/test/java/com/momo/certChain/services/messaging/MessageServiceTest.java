@@ -5,23 +5,20 @@ import com.momo.certChain.model.data.Student;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.MockedStatic;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.testcontainers.shaded.org.bouncycastle.cms.Recipient;
 
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Transport;
+import javax.mail.*;
+import javax.mail.internet.MimeMessage;
 
 import java.io.IOException;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MessageServiceTest {
@@ -29,8 +26,11 @@ class MessageServiceTest {
     @InjectMocks
     private MessageService messageService;
 
+    @Mock
+    private JavaMailSender javaMailSender;
+
     @Captor
-    private ArgumentCaptor<Message> messageArgumentCaptor;
+    private ArgumentCaptor<MimeMessage> messageArgumentCaptor;
 
     private String frontEndUrl = "http:localhost:9000/";
 
@@ -47,9 +47,13 @@ class MessageServiceTest {
         student.setId("123456");
         String link = frontEndUrl +"createPassword/" +student.getId()+".com";
         String from =  "certChain@"+student.getInstitution().getName()+".com";
-        MockedStatic<Transport> transportMockedStatic = mockStatic(Transport.class);
+
+        Properties properties = System.getProperties();
+        properties.setProperty("mail.smtp.host","localhost");
+        when(javaMailSender.createMimeMessage()).thenReturn(new MimeMessage(Session.getDefaultInstance(properties)));
         messageService.sendEmail(student);
-        transportMockedStatic.verify(()->Transport.send(messageArgumentCaptor.capture()));
+        verify(javaMailSender).send(messageArgumentCaptor.capture());
+
         Message message = messageArgumentCaptor.getValue();
         Address address = message.getRecipients(Message.RecipientType.TO)[0];
         assertEquals("Receive your diploma !",message.getSubject());
@@ -57,7 +61,7 @@ class MessageServiceTest {
         assertEquals(from,message.getFrom()[0].toString());
         assertEquals(from,message.getFrom()[0].toString());
         assertEquals(link,String.valueOf(message.getContent()));
-        transportMockedStatic.closeOnDemand();
+
     }
 
 }
