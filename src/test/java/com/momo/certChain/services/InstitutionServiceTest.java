@@ -115,6 +115,7 @@ class InstitutionServiceTest {
 
     }
 
+    //todo fix test
     @Test
     public void uploadCertification() throws Exception {
         int nbDeStudents = 100;
@@ -132,7 +133,8 @@ class InstitutionServiceTest {
         verify(certificationService, times(nbDeStudents)).uploadCertificationToBlockChain(studentCertificateArgumentCaptor.capture(),
                 institutionTemplateCertificateArgumentCaptor.capture(),
                 addressArgumentCaptor.capture(),
-                KeyPairArgumentCaptor.capture());
+                KeyPairArgumentCaptor.capture(),
+                "fix");
 
         List<Certification> studentsCertifications = studentCertificateArgumentCaptor.getAllValues();
 

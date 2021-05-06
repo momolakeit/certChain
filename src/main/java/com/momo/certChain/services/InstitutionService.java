@@ -9,6 +9,7 @@ import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.excel.ExcelService;
 import com.momo.certChain.services.security.EncryptionService;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.CipherException;
@@ -78,13 +79,14 @@ public class InstitutionService {
         Institution institution = getInstitution(uuid);
         List<HumanUser> studentList = excelService.readStudentsFromExcel(bytes);
         linkInstitutionAndStudents(institution, studentList);
-        studentList = userService.saveMultipleUser(studentList);
         for(HumanUser humanUser :studentList){
-            Student student = (Student) humanUser;
+            Student student = (Student) userService.createHumanUser(humanUser);
+            String generatedString = RandomStringUtils.randomAlphabetic(10);
             certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0),
                                                                  institution.getCertificationTemplate(),
                                                                  institution.getContractAddress(),
-                                                                 createKeyPair( institution.getInstitutionWallet(),walletPassword));
+                                                                 createKeyPair( institution.getInstitutionWallet(),walletPassword),
+                                                                 generatedString);
         }
     }
 

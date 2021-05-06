@@ -57,7 +57,7 @@ public class CertificationService {
         return saveCertification(certification);
     }
     //todo test that
-    public void uploadCertificationToBlockChain(Certification studentCertification, Certification certificationTemplate, String contractAdress, ECKeyPair ecKeyPair) throws Exception {
+    public void uploadCertificationToBlockChain(Certification studentCertification, Certification certificationTemplate, String contractAdress, ECKeyPair ecKeyPair,String encryptionKey) throws Exception {
         studentCertification.setInstitution(certificationTemplate.getInstitution());
         studentCertification = saveCertification(studentCertification);
         certificationTemplate = CertificationMapper.instance.toSimple(certificationTemplate);
@@ -69,7 +69,7 @@ public class CertificationService {
                 .collect(Collectors.toList()));
         studentCertification.setCertificateText(certificationTemplate.getCertificateText());
 
-        contractService.uploadCertificate(studentCertification, contractAdress, ecKeyPair);
+        contractService.uploadCertificate(studentCertification, contractAdress, ecKeyPair,encryptionKey);
     }
 
     public CertificationDTO toDTO(Certification certification){

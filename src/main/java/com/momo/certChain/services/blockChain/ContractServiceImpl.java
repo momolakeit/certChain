@@ -41,11 +41,11 @@ public class ContractServiceImpl implements ContractService {
         return objectMapper.readValue(certificateString, Certification.class);
     }
 
-    public void uploadCertificate(Certification certification, String address, ECKeyPair ecKeyPair) throws Exception {
+    public void uploadCertificate(Certification certification, String address, ECKeyPair ecKeyPair,String encryptionKey) throws Exception {
 
         SavingDiploma savingDiploma = getUploadedContract(address, ecKeyPair);
         String certificateJson = objectMapper.writeValueAsString(certification);
-        String encryptedJSON = encryptionService.encryptData(ecKeyPair.getPrivateKey().toString(),certificateJson,certification.getSalt());
+        String encryptedJSON = encryptionService.encryptData(encryptionKey,certificateJson,certification.getSalt());
         savingDiploma.addCertificate(certification.getId(), encryptedJSON).send();
 
     }

@@ -8,5 +8,5 @@ public interface ContractService {
 
     Certification getCertificate(String uuid, String address, ECKeyPair ecKeyPair) throws Exception;
 
-    void uploadCertificate(Certification certification, String address, ECKeyPair ecKeyPair) throws Exception;
+    void uploadCertificate(Certification certification, String address, ECKeyPair ecKeyPair,String encryptionKey) throws Exception;
 }

@@ -30,7 +30,7 @@ public class HumanUserService {
 
     public HumanUser createHumanUser(HumanUser humanUser) {
         messageService.sendEmail(humanUser);
-        return humanUserRepository.save(humanUser);
+        return saveUser(humanUser);
     }
 
     //set up confirmer password dans le backend aussi pour securite accrue

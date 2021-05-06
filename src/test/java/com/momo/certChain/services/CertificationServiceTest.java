@@ -88,6 +88,7 @@ class CertificationServiceTest {
         assertNotNull(returnValueCertification.getUniversityLogo().getBytes());
     }
 
+    //todo fix test
     @Test
     public void uploadCertificateToBlockchain() throws Exception {
         String contractAddress = "address";
@@ -96,9 +97,9 @@ class CertificationServiceTest {
         Certification certificationTemplate = TestUtils.createCertificationTemplate();
 
 
-        certificationService.uploadCertificationToBlockChain(studentCertification, certificationTemplate, contractAddress, new ECKeyPair(BigInteger.ONE,BigInteger.TWO));
+        certificationService.uploadCertificationToBlockChain(studentCertification, certificationTemplate, contractAddress, new ECKeyPair(BigInteger.ONE,BigInteger.TWO),"");
 
-        verify(contractServiceImpl).uploadCertificate(certificationArgumentCaptor.capture(), addressArgumentCaptor.capture(), keyPairArgumentCaptor.capture());
+        verify(contractServiceImpl).uploadCertificate(certificationArgumentCaptor.capture(), addressArgumentCaptor.capture(), keyPairArgumentCaptor.capture(),"");
         Certification uploadedCertificate = certificationArgumentCaptor.getValue();
         String uploadedAddress = addressArgumentCaptor.getValue();
         ECKeyPair keyPair = keyPairArgumentCaptor.getValue();

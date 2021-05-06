@@ -111,6 +111,8 @@ class ContractServiceImplTest {
         TestUtils.assertInstitution(returnValueCertification.getInstitution());
     }
 
+
+    //todo test that
     @Test
     public void uploadCertificateTest() throws Exception {
         Certification certification = TestUtils.createCertification();
@@ -120,7 +122,7 @@ class ContractServiceImplTest {
         savingDiplomaMockedStatic.when(() -> SavingDiploma.load(any(), any(), any(Credentials.class), any(), any())).thenReturn(savingDiploma);
 
 
-        contractServiceImpl.uploadCertificate(certification, "address", ecKeyPair);
+        contractServiceImpl.uploadCertificate(certification, "address", ecKeyPair,"");
         verify(savingDiploma).addCertificate(certificateIdCaptor.capture(), certificateJsonCaptor.capture());
         String returnId = certificateIdCaptor.getValue();
 
