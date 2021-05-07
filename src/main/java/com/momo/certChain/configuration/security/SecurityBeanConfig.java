@@ -1,4 +1,4 @@
-package com.momo.certChain.security;
+package com.momo.certChain.configuration.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
