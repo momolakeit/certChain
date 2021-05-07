@@ -117,6 +117,7 @@ public class InstitutionService {
         return new ObjectNotFoundException("Institution");
     }
 
+    //todo mettre dans une methode de service a part
     private ECKeyPair createKeyPair(String privateKey, String publicKey){
         return new ECKeyPair(new BigInteger(privateKey),new BigInteger(publicKey));
     }

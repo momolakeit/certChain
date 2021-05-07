@@ -16,4 +16,10 @@ public class ListUtils {
         list.add(obj);
         return list;
     }
+
+    public static <T> List<T> ajouterListAListe(List<T> listToAdd, List<T> list){
+        list =initList(list);
+        list.addAll(listToAdd);
+        return list;
+    }
 }
