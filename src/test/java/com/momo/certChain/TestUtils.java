@@ -41,6 +41,8 @@ public class TestUtils {
 
     private static final String salt = "salt";
 
+    private static final String contractAddress="contract address";
+
     public static void assertAddress(Address returnVal){
         Address address = createAddress();
         assertEquals(address.getCity(),returnVal.getCity());
@@ -102,6 +104,7 @@ public class TestUtils {
     public static Institution createInstitution() {
         Institution institution = (Institution) initBasicUser(new Institution());
         institution.setName(institutionName);
+        institution.setContractAddress(contractAddress);
         return institution;
     }
     public static Institution createInstitutionWithWallet() throws NoSuchAlgorithmException, CipherException, InvalidAlgorithmParameterException, NoSuchProviderException {

@@ -1,6 +1,7 @@
 package com.momo.certChain.services;
 
 import com.momo.certChain.exception.ObjectNotFoundException;
+import com.momo.certChain.exception.UserForgottenException;
 import com.momo.certChain.mapping.CertificationMapper;
 import com.momo.certChain.mapping.SignatureMapper;
 import com.momo.certChain.model.data.Certification;
@@ -14,7 +15,11 @@ import com.momo.certChain.services.security.EncryptionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.ECKeyPair;
+import org.web3j.crypto.Keys;
 
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -72,6 +77,20 @@ public class CertificationService {
 
     public CertificationDTO toDTO(Certification certification) {
         return CertificationMapper.instance.toDTO(certification);
+    }
+
+    //todo utiliser un wallet pour tout les get
+    public Certification getUploadedCertification(String uuid,String privateKey) throws Exception {
+        Certification certification = findCertification(uuid);
+        if(Objects.isNull(certification.getSalt())){
+            throw new UserForgottenException();
+        }
+        return contractService.getCertificate(uuid,
+                                              certification.getInstitution().getContractAddress(),
+                                              Keys.createEcKeyPair(),
+                                              privateKey,
+                                              certification.getSalt());
+
     }
 
 

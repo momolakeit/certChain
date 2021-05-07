@@ -1,6 +1,7 @@
 package com.momo.certChain.services;
 
 import com.momo.certChain.TestUtils;
+import com.momo.certChain.exception.UserForgottenException;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.ImageFile;
 import com.momo.certChain.model.data.Signature;
@@ -8,6 +9,7 @@ import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.security.EncryptionService;
 import org.checkerframework.checker.nullness.Opt;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,8 +63,9 @@ class CertificationServiceTest {
     @Captor
     private ArgumentCaptor<String> encryptionPrivateKeyCaptor;
 
+    @Captor
+    private ArgumentCaptor<String> saltArgumentCaptor;
 
-    private String authorName = "John Doe";
 
     @BeforeEach
     public void init() throws IOException {
@@ -173,6 +176,51 @@ class CertificationServiceTest {
         assertNotNull(returnValCertification);
         assertNull(returnValCertification.getSalt());
     }
+
+
+    @Test
+    public void getUploadedCertificate() throws Exception {
+        String privateKey = "privateKey";
+        String salt = "salt";
+        Certification certification =  TestUtils.createCertification();
+        certification.setInstitution(TestUtils.createInstitution());
+
+        when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
+        when(contractServiceImpl.getCertificate(anyString(),
+                                                anyString(),
+                                                any(ECKeyPair.class),
+                                                anyString(),
+                                                anyString()))
+                                                .thenReturn(certification);
+
+        certificationService.getUploadedCertification("123456",privateKey);
+
+        verify(contractServiceImpl).getCertificate(anyString(),
+                                                   addressArgumentCaptor.capture(),
+                                                   keyPairArgumentCaptor.capture(),
+                                                   encryptionPrivateKeyCaptor.capture(),
+                                                   saltArgumentCaptor.capture());
+
+        assertEquals(certification.getInstitution().getContractAddress(),addressArgumentCaptor.getValue());
+        assertNotNull(keyPairArgumentCaptor.getValue());
+        assertEquals(privateKey,encryptionPrivateKeyCaptor.getValue());
+        assertEquals(salt,saltArgumentCaptor.getValue());
+    }
+
+    @Test
+    public void getUploadedCertificateNoSaltThrowsException() throws Exception {
+        String privateKey = "privateKey";
+        Certification certification =  TestUtils.createCertification();
+        certification.setSalt(null);
+        certification.setInstitution(TestUtils.createInstitution());
+
+        when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
+
+        Assertions.assertThrows(UserForgottenException.class,()->{
+            certificationService.getUploadedCertification("123456",privateKey);
+        });
+    }
+
 
 
 
