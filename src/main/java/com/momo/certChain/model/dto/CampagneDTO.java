@@ -1,5 +1,8 @@
 package com.momo.certChain.model.dto;
 
+import com.momo.certChain.model.data.Campagne;
+import com.momo.certChain.model.data.HumanUser;
+import com.momo.certChain.model.data.Institution;
 import com.momo.certChain.model.data.Student;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,5 +23,9 @@ public class CampagneDTO {
 
     private Date date;
 
-    private List<StudentDTO> studentList;
+    private List<HumanUserDTO> studentList;
+
+    private InstitutionDTO institution;
+
+    private List<CampagneDTO> campagnes;
 }

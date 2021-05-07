@@ -16,12 +16,15 @@ public class Institution extends User {
 
     private String contractAddress;
 
+    //todo delete list certification
     @OneToMany
     private List<Certification> certifications;
 
     @OneToOne
     private Certification certificationTemplate;
 
+    @OneToMany
+    private List<Campagne> campagnes;
 
     @OneToOne
     private InstitutionWallet institutionWallet;

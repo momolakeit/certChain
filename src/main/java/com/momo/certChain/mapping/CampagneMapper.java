@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = StudentMapper.class)
+@Mapper(uses = {SimpleStudentMapper.class,SimpleInstitutionMapper.class})
 public interface CampagneMapper {
     CampagneMapper instance = Mappers.getMapper(CampagneMapper.class);
 

@@ -4,10 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 
@@ -25,5 +22,8 @@ public class Campagne {
     private Date date;
 
     @OneToMany
-    private List<Student> studentList;
+    private List<HumanUser> studentList;
+
+    @ManyToOne
+    private Institution institution;
 }
