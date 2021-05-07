@@ -69,12 +69,11 @@ public class InstitutionService {
 
         return saveInstitution(institution);
     }
-
-    public Institution uploadCertificateContract(String uuid) throws Exception {
+    //todo decrypt keys here
+    public Institution uploadCertificateContract(String uuid,String walletPassword) throws Exception {
         Institution institution = getInstitution(uuid);
 
-        institution.setContractAddress(contractService.uploadContract(createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
-                                                                                    institution.getInstitutionWallet().getPublicKey())));
+        institution.setContractAddress(contractService.uploadContract(createKeyPair( institution.getInstitutionWallet(),walletPassword)));
         return saveInstitution(institution);
     }
 

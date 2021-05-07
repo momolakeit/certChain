@@ -2,7 +2,16 @@ package com.momo.certChain.controller;
 
 import com.momo.certChain.TestUtils;
 import com.momo.certChain.mapping.CertificationMapper;
+import com.momo.certChain.model.data.Address;
 import com.momo.certChain.model.data.Certification;
+import com.momo.certChain.model.data.Institution;
+import com.momo.certChain.model.data.InstitutionWallet;
+import com.momo.certChain.repositories.CertificationRepository;
+import com.momo.certChain.repositories.WalletRepository;
+import com.momo.certChain.services.CertificationService;
+import com.momo.certChain.services.InstitutionService;
+import com.momo.certChain.services.security.EncryptionService;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,16 +20,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+import org.web3j.crypto.ECKeyPair;
 
 import java.io.IOException;
+import java.math.BigInteger;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -31,9 +42,23 @@ class CertificationControllerTest {
     @Autowired
     private CertificationController certificationController;
 
+    @Autowired
+    private InstitutionService institutionService;
+
+    @Autowired
+    private CertificationService certificationService;
+
+    @Autowired
+    private EncryptionService encryptionService;
+
+    @Autowired
+    private CertificationRepository certificationRepository;
+
     private MockMvc mockMvc;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    Certification studentCertification;
 
     @BeforeEach
     public void init(){
@@ -55,5 +80,50 @@ class CertificationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testGetCertification() throws Exception {
+        uploadEncryptedCertificate();
+        mockMvc.perform(MockMvcRequestBuilders.get("/institution/fetchCertificate/{id}/{key}",studentCertification.getId(),"walletPassword")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    private void uploadEncryptedCertificate() throws Exception {
+        String walletPassword = "walletPassword";
+        Address address = TestUtils.createAddress();
+        Institution institution = institutionService.createInstitution( address.getStreet(),
+                                                                        address.getCity(),
+                                                                        address.getProvince(),
+                                                                        address.getPostalCode(),
+                                                                        address.getCountry(),
+                                                                        "name",
+                                                                        walletPassword);
+        String privateKey = encryptionService.decryptData(walletPassword,institution.getInstitutionWallet().getPrivateKey(),institution.getInstitutionWallet().getSalt());
+        String publicKey = encryptionService.decryptData(walletPassword,institution.getInstitutionWallet().getPublicKey(),institution.getInstitutionWallet().getSalt());
+        ECKeyPair ecKeyPair = new ECKeyPair(new BigInteger(privateKey),new BigInteger(publicKey));
+
+        institution = institutionService.uploadCertificateContract(institution.getId(),walletPassword);
+
+        saveCertificationInBD();
+
+        certificationService.uploadCertificationToBlockChain(studentCertification,initCertificationTemplate(institution),institution.getContractAddress(),ecKeyPair,"walletPassword");
+
+    }
+
+    private Certification initCertificationTemplate(Institution institution) throws IOException {
+        Certification certificationTemplate = TestUtils.createCertificationTemplate();
+        certificationTemplate.setId(null);
+        certificationTemplate.setInstitution(institution);
+        return certificationTemplate;
+    }
+
+    private void saveCertificationInBD() {
+        studentCertification = TestUtils.createCertification();
+        studentCertification.setId(null);
+        studentCertification.setSalt(KeyGenerators.string().generateKey());
+        studentCertification = certificationRepository.save(studentCertification);
     }
 }

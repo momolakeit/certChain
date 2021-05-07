@@ -124,7 +124,8 @@ class InstitutionServiceTest {
         when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
 
-        Institution returnVal = institutionService.uploadCertificateContract("123456");
+        //todo gerer wallet password
+        Institution returnVal = institutionService.uploadCertificateContract("123456","");
 
         assertEquals(contractAddress, returnVal.getContractAddress());
 

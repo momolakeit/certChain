@@ -24,7 +24,7 @@ public class CertificationController {
     }
 
     @PostMapping("/createTemplate")
-    public CertificationDTO certificationDTO(@RequestParam("universityLogo") MultipartFile universityLogo,
+    public CertificationDTO createCertificationTemplate(@RequestParam("universityLogo") MultipartFile universityLogo,
                                              @RequestParam("universityStamp") MultipartFile universityStamp,
                                              @RequestParam("certificationDTO") String certificationString) throws IOException {
         Certification certification = certificationService.createCertificationTemplate(objectMapper.readValue(certificationString,Certification.class),
@@ -33,4 +33,9 @@ public class CertificationController {
         return certificationService.toDTO(certification);
     }
 
+    @GetMapping("/fetchCertificate/{id}/{key}")
+    public CertificationDTO certificationDTO(@PathVariable String id,@PathVariable String key) throws Exception {
+        Certification certification = certificationService.getUploadedCertification(id,key);
+        return certificationService.toDTO(certification);
+    }
 }
