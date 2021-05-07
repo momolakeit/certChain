@@ -157,6 +157,7 @@ public class TestUtils {
         institutionWallet.setPublicAddress(walletFile.getAddress());
         institutionWallet.setPublicKey(ecKeyPair.getPublicKey().toString());
         institutionWallet.setPrivateKey(ecKeyPair.getPrivateKey().toString());
+        institutionWallet.setSalt(salt);
         return institutionWallet;
     }
 
