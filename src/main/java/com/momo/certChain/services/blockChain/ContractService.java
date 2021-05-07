@@ -6,7 +6,7 @@ import org.web3j.crypto.ECKeyPair;
 public interface ContractService {
     String uploadContract(ECKeyPair ecKeyPair) throws Exception;
 
-    Certification getCertificate(String uuid, String address, ECKeyPair ecKeyPair) throws Exception;
+    Certification getCertificate(String uuid, String address, ECKeyPair ecKeyPair,String privateKey,String salt) throws Exception;
 
     void uploadCertificate(Certification certification, String address, ECKeyPair ecKeyPair,String encryptionKey) throws Exception;
 }

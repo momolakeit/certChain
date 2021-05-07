@@ -35,10 +35,11 @@ public class ContractServiceImpl implements ContractService {
         return savingDiploma.getContractAddress();
     }
 
-    public Certification getCertificate(String uuid, String address, ECKeyPair ecKeyPair) throws Exception {
+    public Certification getCertificate(String uuid, String address, ECKeyPair ecKeyPair,String privateKey,String salt) throws Exception {
         SavingDiploma savingDiploma = getUploadedContract(address, ecKeyPair);
         String certificateString = savingDiploma.get(uuid).send();
-        return objectMapper.readValue(certificateString, Certification.class);
+        String decryptedCertificateString = encryptionService.decryptData(privateKey,certificateString,salt);
+        return objectMapper.readValue(decryptedCertificateString, Certification.class);
     }
 
     public void uploadCertificate(Certification certification, String address, ECKeyPair ecKeyPair,String encryptionKey) throws Exception {

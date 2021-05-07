@@ -100,14 +100,15 @@ class ContractServiceImplTest {
     @Test
     public void getCertificate() throws Exception {
         Certification certification = TestUtils.createCertification();
+        savingDiplomaMockedStatic = mockStatic(SavingDiploma.class);
 
         when(savingDiploma.get(anyString())).thenReturn(remoteFunctionCall);
         when(remoteFunctionCall.send()).thenReturn(new ObjectMapper().writeValueAsString(certification));
-        savingDiplomaMockedStatic = mockStatic(SavingDiploma.class);
+        when(encryptionService.decryptData(anyString(),anyString(),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
         savingDiplomaMockedStatic.when(() -> SavingDiploma.load(any(), any(), any(Credentials.class), any(), any())).thenReturn(savingDiploma);
 
 
-        Certification returnValueCertification = contractServiceImpl.getCertificate("uuid", "address", ecKeyPair);
+        Certification returnValueCertification = contractServiceImpl.getCertificate("uuid", "address", ecKeyPair,"privateKey","salt");
 
         assertNotNull(returnValueCertification);
         TestUtils.assertCertification(certification);
