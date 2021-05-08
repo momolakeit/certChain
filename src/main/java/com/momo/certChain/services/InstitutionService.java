@@ -6,10 +6,9 @@ import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.InstitutionDTO;
 import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.services.blockChain.ContractService;
-import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.excel.ExcelService;
 import com.momo.certChain.services.security.EncryptionService;
-import org.apache.commons.lang3.RandomStringUtils;
+import com.momo.certChain.utils.ListUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.CipherException;
@@ -31,31 +30,27 @@ public class InstitutionService {
 
     private final ContractService contractService;
 
-    private final CertificationService certificationService;
-
     private final ExcelService excelService;
-
-    private final HumanUserService userService;
 
     private final WalletService walletService;
 
     private final EncryptionService encryptionService;
 
+    private final CampagneService campagneService;
+
     public InstitutionService(InstitutionRepository institutionRepository,
                               AddressService addressService,
                               ContractService contractService,
-                              CertificationService certificationService,
                               ExcelService excelService,
-                              HumanUserService userService,
                               WalletService walletService,
-                              EncryptionService encryptionService) {
+                              EncryptionService encryptionService,
+                              CampagneService campagneService) {
         this.institutionRepository = institutionRepository;
         this.addressService = addressService;
         this.contractService = contractService;
-        this.certificationService = certificationService;
         this.excelService = excelService;
-        this.userService = userService;
         this.walletService = walletService;
+        this.campagneService = campagneService;
         this.encryptionService = encryptionService;
     }
 
@@ -77,22 +72,18 @@ public class InstitutionService {
         return saveInstitution(institution);
     }
 
-    public void uploadCertificationsToBlockChain(byte[] bytes, String uuid,String walletPassword) throws Exception {
+    public Institution uploadCertificationsToBlockChain(byte[] bytes, String uuid,String walletPassword,String campagneName) throws Exception {
         List<HumanUser> studentList = excelService.readStudentsFromExcel(bytes);
 
         Institution institution = getInstitution(uuid);
 
         linkInstitutionAndStudents(institution, studentList);
 
-        for(HumanUser humanUser :studentList){
-            String generatedString = RandomStringUtils.randomAlphanumeric(10);
-            Student student = (Student) userService.createHumanUser(humanUser,generatedString);
-            certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0),
-                                                                 institution.getCertificationTemplate(),
-                                                                 institution.getContractAddress(),
-                                                                 createKeyPair( institution.getInstitutionWallet(),walletPassword),
-                                                                 generatedString);
-        }
+        Campagne campagne = campagneService.runCampagne(campagneName,studentList,institution,walletPassword);
+
+        institution.setCampagnes(ListUtils.ajouterObjectAListe(campagne,institution.getCampagnes()));
+
+        return saveInstitution(institution);
     }
 
     public InstitutionDTO toDTO(Institution institution){

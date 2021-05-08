@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class InstitutionServiceTest {
@@ -40,13 +41,13 @@ class InstitutionServiceTest {
     private InstitutionRepository institutionRepository;
 
     @Mock
-    private ExcelService excelService;
-
-    @Mock
     private ContractServiceImpl contractServiceImpl;
 
     @Mock
-    private HumanUserService userService;
+    private CampagneService campagneService;
+
+    @Mock
+    private ExcelService excelService;
 
     @Mock
     private WalletService walletService;
@@ -75,19 +76,11 @@ class InstitutionServiceTest {
     @Captor
     private ArgumentCaptor<String> encKeySentByEmailCaptor;
 
-    MockedStatic<RandomStringUtils> randomStringUtilsMockedStatic;
+    @Captor
+    private ArgumentCaptor<String> campagneNameCaptor;
 
-    @BeforeEach
-    public void init(){
-        randomStringUtilsMockedStatic = mockStatic(RandomStringUtils.class);
-    }
-
-    @AfterEach
-    public void destroy(){
-        randomStringUtilsMockedStatic.closeOnDemand();
-    }
-
-
+    @Captor
+    private ArgumentCaptor<String>  walletPasswordCaptor;
 
     @Test
     public void createInstitutionTest() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException {
@@ -152,45 +145,30 @@ class InstitutionServiceTest {
     @Test
     public void uploadCertification() throws Exception {
         int nbDeStudents = 100;
-        String randomString = "random";
         List<HumanUser> listeOfStudents = initStudentsList(nbDeStudents);
-        Institution institution = TestUtils.createInstitutionWithWallet();
-        institution.setCertificationTemplate(TestUtils.createCertificationTemplate());
-        institution.getInstitutionWallet().setSalt("salt");
+        String campagneName = "campagneName";
+        String walletPassword = "walletPassword";
 
-
-        when(encryptionService.decryptData(anyString(),anyString(),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
-        when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
-        when(userService.createHumanUser(any(HumanUser.class),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(institutionRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createInstitutionWithWallet()));
+        when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(campagneService.runCampagne(anyString(),any(List.class),any(Institution.class),anyString())).thenReturn(TestUtils.createCampagne());
         when(excelService.readStudentsFromExcel(any(byte[].class))).thenReturn(listeOfStudents);
-        randomStringUtilsMockedStatic.when(()->RandomStringUtils.randomAlphanumeric(10)).thenReturn(randomString);
 
-        institutionService.uploadCertificationsToBlockChain(TestUtils.getExcelByteArray(), "123456","password");
+        Institution returnInstitution = institutionService.uploadCertificationsToBlockChain(TestUtils.getExcelByteArray(), "123456",walletPassword,campagneName);
+        verify(campagneService).runCampagne(campagneNameCaptor.capture(),any(List.class),any(Institution.class),walletPasswordCaptor.capture());
 
-        verify(certificationService, times(nbDeStudents)).uploadCertificationToBlockChain(studentCertificateArgumentCaptor.capture(),
-                                                                                          institutionTemplateCertificateArgumentCaptor.capture(),
-                                                                                          addressArgumentCaptor.capture(),
-                                                                                          KeyPairArgumentCaptor.capture(),
-                                                                                          encKeyPrivateKeyCaptor.capture());
-        verify(userService,times(nbDeStudents)).createHumanUser(any(HumanUser.class), encKeySentByEmailCaptor.capture());
+        List<String> walletPasswordCaptorAllValues = walletPasswordCaptor.getAllValues();
+        List<String> campagneNameCaptorAllValues = campagneNameCaptor.getAllValues();
 
-        List<Certification> studentsCertifications = studentCertificateArgumentCaptor.getAllValues();
-        List<Certification> institutionCertificationTemplates = institutionTemplateCertificateArgumentCaptor.getAllValues();
-        List<String> encKeys = encKeyPrivateKeyCaptor.getAllValues();
-        List<String> encKeySentByEmail =  this.encKeySentByEmailCaptor.getAllValues();
+        for(String name : campagneNameCaptorAllValues){
+            assertEquals(campagneName,name);
+        }
 
-        for (Certification cert : studentsCertifications) {
-            TestUtils.assertCertification(cert);
+        for(String password : walletPasswordCaptorAllValues){
+            assertEquals(walletPassword,password);
         }
-        for (Certification cert : institutionCertificationTemplates) {
-            TestUtils.assertCertificationInstitution(cert);
-        }
-        for(String val : encKeys){
-            assertEquals(randomString,val);
-        }
-        for(String val : encKeySentByEmail){
-            assertEquals(randomString,val);
-        }
+
+        TestUtils.assertCampagne(returnInstitution.getCampagnes().get(0));
     }
 
     private List<HumanUser> initStudentsList(int nbDeStudents) {

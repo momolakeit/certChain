@@ -72,6 +72,8 @@ class InstitutionControllerTest {
 
     private final String encryptionKey="encrypted";
 
+    private final String campagneName = "genie logicel session hiver";
+
     @BeforeEach
     public void init() throws Exception {
         mockMvc = MockMvcBuilders.standaloneSetup(institutionController).build();
@@ -131,6 +133,7 @@ class InstitutionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/uploadCertification/{institutionId}",conversationId)
                 .file(file)
                 .param("walletPassword",encryptionKey)
+                .param("campagneName",campagneName)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());

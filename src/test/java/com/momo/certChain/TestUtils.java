@@ -43,6 +43,9 @@ public class TestUtils {
 
     private static final String contractAddress="contract address";
 
+    private static final String campagneName="genie logiciel hiver";
+
+
     public static void assertAddress(Address returnVal){
         Address address = createAddress();
         assertEquals(address.getCity(),returnVal.getCity());
@@ -78,6 +81,14 @@ public class TestUtils {
         Signature returnSignature = createSignature();
         assertEquals(returnSignature.getId(),signature.getId());
         assertEquals(returnSignature.getAuthorName(),signature.getAuthorName());
+    }
+
+    public static void assertCampagne(Campagne campagne) throws IOException {
+        Campagne returnCampagne = createCampagne();
+        assertEquals(returnCampagne.getDate().getDay(),campagne.getDate().getDay());
+        assertEquals(returnCampagne.getDate().getMonth(),campagne.getDate().getMonth());
+        assertEquals(returnCampagne.getName(),campagne.getName());
+        assertEquals(returnCampagne.getId(),campagne.getId());
     }
 
     public static Address createAddress() {
@@ -159,6 +170,14 @@ public class TestUtils {
         institutionWallet.setPrivateKey(ecKeyPair.getPrivateKey().toString());
         institutionWallet.setSalt(salt);
         return institutionWallet;
+    }
+
+    public static Campagne createCampagne(){
+        Campagne campagne = new Campagne();
+        campagne.setId(id);
+        campagne.setName(campagneName);
+        campagne.setDate(new Date(System.currentTimeMillis()));
+        return campagne;
     }
 
     private static User initBasicUser(User user) {

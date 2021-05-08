@@ -43,8 +43,11 @@ public class InstitutionController extends BaseController {
     }
 
     @PostMapping("/uploadCertification/{institutionId}")
-    public ResponseEntity uploadCertifications(@RequestParam("file") MultipartFile file,@RequestParam("walletPassword") String walletPassword,@PathVariable String institutionId ) throws Exception {
-        institutionService.uploadCertificationsToBlockChain(file.getBytes(),institutionId,walletPassword);
+    public ResponseEntity uploadCertifications(@RequestParam("file") MultipartFile file,
+                                               @RequestParam("walletPassword") String walletPassword,
+                                               @PathVariable String institutionId,
+                                               @RequestParam("campagneName") String campagneName ) throws Exception {
+        institutionService.uploadCertificationsToBlockChain(file.getBytes(),institutionId,walletPassword,campagneName);
         return ResponseEntity.ok().build();
     }
 
