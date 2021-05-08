@@ -39,13 +39,15 @@ public class CampagneService {
 
     public Campagne runCampagne(String name, List<HumanUser> studentList, Institution institution, String walletPassword) throws Exception {
         uploadCertificatesToBlockChain(studentList, institution, walletPassword);
-        return createCampagne(studentList);
+        return createCampagne(studentList,name,institution);
     }
 
-    private Campagne createCampagne(List<HumanUser> studentList) {
+    private Campagne createCampagne(List<HumanUser> studentList,String name,Institution institution) {
         Campagne campagne = new Campagne();
+        campagne.setName(name);
         campagne.setDate(new Date(System.currentTimeMillis()));
         campagne.setStudentList(ListUtils.ajouterListAListe(studentList,campagne.getStudentList()));
+        campagne.setInstitution(institution);
         return saveCampagne(campagne);
     }
 
