@@ -8,7 +8,9 @@ import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.excel.ExcelService;
 import com.momo.certChain.services.security.EncryptionService;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -72,6 +74,18 @@ class InstitutionServiceTest {
 
     @Captor
     private ArgumentCaptor<String> encKeySentByEmailCaptor;
+
+    MockedStatic<RandomStringUtils> randomStringUtilsMockedStatic;
+
+    @BeforeEach
+    public void init(){
+        randomStringUtilsMockedStatic = mockStatic(RandomStringUtils.class);
+    }
+
+    @AfterEach
+    public void destroy(){
+        randomStringUtilsMockedStatic.closeOnDemand();
+    }
 
 
 
@@ -143,7 +157,6 @@ class InstitutionServiceTest {
         Institution institution = TestUtils.createInstitutionWithWallet();
         institution.setCertificationTemplate(TestUtils.createCertificationTemplate());
         institution.getInstitutionWallet().setSalt("salt");
-        MockedStatic<RandomStringUtils> randomStringUtilsMockedStatic = mockStatic(RandomStringUtils.class);
 
 
         when(encryptionService.decryptData(anyString(),anyString(),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
