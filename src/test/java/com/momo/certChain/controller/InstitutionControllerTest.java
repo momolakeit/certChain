@@ -60,7 +60,6 @@ class InstitutionControllerTest {
     @Autowired
     private CertificationRepository certificationRepository;
 
-    //todo enlever et et fix le pb failed to connect ...
     @MockBean
     private MessageService messageService;
 

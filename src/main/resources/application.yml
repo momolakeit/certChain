@@ -9,10 +9,10 @@ spring:
     password:
     driverClassName: org.h2.Driver
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: selfserveapp13@gmail.com
-    password: kulotte2008
+    host: smtp.mailtrap.io
+    port: 2525
+    username: ae1113d438c0cf
+    password: 801cfe565ed958
     properties:
       mail:
         smtp:
