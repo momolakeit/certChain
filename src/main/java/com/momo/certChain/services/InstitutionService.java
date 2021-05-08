@@ -64,11 +64,15 @@ public class InstitutionService {
 
         return saveInstitution(institution);
     }
-    //todo decrypt keys here
+
     public Institution uploadCertificateContract(String uuid,String walletPassword) throws Exception {
         Institution institution = getInstitution(uuid);
 
-        institution.setContractAddress(contractService.uploadContract(createKeyPair( institution.getInstitutionWallet(),walletPassword)));
+        ECKeyPair keyPair = encryptionService.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
+                                                            institution.getInstitutionWallet().getPublicKey(),
+                                                            institution.getInstitutionWallet().getSalt(),
+                                                            walletPassword);
+        institution.setContractAddress(contractService.uploadContract(keyPair));
         return saveInstitution(institution);
     }
 
@@ -106,16 +110,5 @@ public class InstitutionService {
 
     private ObjectNotFoundException institutionNotFound() {
         return new ObjectNotFoundException("Institution");
-    }
-
-    //todo mettre dans une methode de service a part
-    private ECKeyPair createKeyPair(String privateKey, String publicKey){
-        return new ECKeyPair(new BigInteger(privateKey),new BigInteger(publicKey));
-    }
-    private ECKeyPair createKeyPair(InstitutionWallet institutionWallet,String walletPassword){
-        String privateKey = encryptionService.decryptData(walletPassword,institutionWallet.getPrivateKey(),institutionWallet.getSalt());
-        String publicKey = encryptionService.decryptData(walletPassword,institutionWallet.getPublicKey(),institutionWallet.getSalt());
-
-        return createKeyPair(privateKey,publicKey);
     }
 }

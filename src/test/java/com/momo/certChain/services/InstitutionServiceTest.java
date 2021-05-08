@@ -126,17 +126,15 @@ class InstitutionServiceTest {
     public void uploadContractToBlockchain() throws Exception {
         String contractAddress = "contractAddress";
         Institution institution = TestUtils.createInstitutionWithWallet();
-        String privateKey = institution.getInstitutionWallet().getPrivateKey();
-        String publicKey = institution.getInstitutionWallet().getPublicKey();
+        String walletPassword = "walletPassword";
 
+        when(encryptionService.createKeyPair(anyString(),anyString(),anyString(),anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
+                                                                                                                                  institution.getInstitutionWallet().getPublicKey()));
         when(contractServiceImpl.uploadContract(any(ECKeyPair.class))).thenReturn(contractAddress);
         when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
-        when(encryptionService.decryptData(anyString(),eq(privateKey),anyString())).thenReturn(privateKey);
-        when(encryptionService.decryptData(anyString(),eq(publicKey),anyString())).thenReturn(publicKey);
-        //todo gerer wallet password
 
-        Institution returnVal = institutionService.uploadCertificateContract("123456","password");
+        Institution returnVal = institutionService.uploadCertificateContract("123456",walletPassword);
 
         assertEquals(contractAddress, returnVal.getContractAddress());
 

@@ -6,6 +6,7 @@ import org.web3j.crypto.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -178,6 +179,10 @@ public class TestUtils {
         campagne.setName(campagneName);
         campagne.setDate(new Date(System.currentTimeMillis()));
         return campagne;
+    }
+
+    public static ECKeyPair createKeyPair(String privateKey, String publicKey){
+        return new ECKeyPair(new BigInteger(privateKey),new BigInteger(publicKey));
     }
 
     private static User initBasicUser(User user) {

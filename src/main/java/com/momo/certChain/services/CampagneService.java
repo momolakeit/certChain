@@ -56,25 +56,19 @@ public class CampagneService {
     }
 
     private void uploadCertificatesToBlockChain(List<HumanUser> studentList, Institution institution, String walletPassword) throws Exception {
+        ECKeyPair keyPair = encryptionService.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
+                                                            institution.getInstitutionWallet().getPublicKey(),
+                                                            institution.getInstitutionWallet().getSalt(),
+                                                            walletPassword);
+
         for(HumanUser humanUser : studentList){
             String generatedString = RandomStringUtils.randomAlphanumeric(10);
             Student student = (Student) userService.createHumanUser(humanUser,generatedString);
             certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0),
-                    institution.getCertificationTemplate(),
-                    institution.getContractAddress(),
-                    createKeyPair( institution.getInstitutionWallet(), walletPassword),
-                    generatedString);
+                                                                 institution.getCertificationTemplate(),
+                                                                 institution.getContractAddress(),
+                                                                 keyPair,
+                                                                 generatedString);
         }
     }
-
-    private ECKeyPair createKeyPair(String privateKey, String publicKey){
-        return new ECKeyPair(new BigInteger(privateKey),new BigInteger(publicKey));
-    }
-    private ECKeyPair createKeyPair(InstitutionWallet institutionWallet, String walletPassword){
-        String privateKey = encryptionService.decryptData(walletPassword,institutionWallet.getPrivateKey(),institutionWallet.getSalt());
-        String publicKey = encryptionService.decryptData(walletPassword,institutionWallet.getPublicKey(),institutionWallet.getSalt());
-
-        return createKeyPair(privateKey,publicKey);
-    }
-
 }

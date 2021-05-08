@@ -15,6 +15,7 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.web3j.crypto.ECKeyPair;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -85,7 +86,9 @@ class CampagneServiceTest {
         institution.setCertificationTemplate(TestUtils.createCertificationTemplate());
         institution.getInstitutionWallet().setSalt("salt");
 
-        when(encryptionService.decryptData(anyString(), anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
+        when(encryptionService.createKeyPair(anyString(), anyString(), anyString(),anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
+                                                                                                                                    institution.getInstitutionWallet().getPublicKey()));
+
         when(userService.createHumanUser(any(HumanUser.class), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(campagneRepository.save(any(Campagne.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(10)).thenReturn(randomString);
@@ -135,5 +138,4 @@ class CampagneServiceTest {
         }
         return students;
     }
-
 }
