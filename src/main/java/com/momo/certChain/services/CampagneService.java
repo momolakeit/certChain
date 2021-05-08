@@ -4,6 +4,7 @@ import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.CampagneRepository;
 import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.security.EncryptionService;
+import com.momo.certChain.services.security.KeyPairService;
 import com.momo.certChain.utils.ListUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.math3.stat.inference.TestUtils;
@@ -25,16 +26,16 @@ public class CampagneService {
 
     private final HumanUserService userService;
 
-    private final EncryptionService encryptionService;
+    private final KeyPairService keyPairService;
 
     public CampagneService(CertificationService certificationService,
                            CampagneRepository campagneRepository,
                            HumanUserService userService,
-                           EncryptionService encryptionService) {
+                           KeyPairService keyPairService) {
         this.certificationService = certificationService;
         this.campagneRepository = campagneRepository;
         this.userService = userService;
-        this.encryptionService = encryptionService;
+        this.keyPairService = keyPairService;
     }
 
     public Campagne runCampagne(String name, List<HumanUser> studentList, Institution institution, String walletPassword) throws Exception {
@@ -56,7 +57,7 @@ public class CampagneService {
     }
 
     private void uploadCertificatesToBlockChain(List<HumanUser> studentList, Institution institution, String walletPassword) throws Exception {
-        ECKeyPair keyPair = encryptionService.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
+        ECKeyPair keyPair = keyPairService.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
                                                             institution.getInstitutionWallet().getPublicKey(),
                                                             institution.getInstitutionWallet().getSalt(),
                                                             walletPassword);

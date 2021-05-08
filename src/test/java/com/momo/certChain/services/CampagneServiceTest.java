@@ -3,23 +3,19 @@ package com.momo.certChain.services;
 import com.momo.certChain.TestUtils;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.CampagneRepository;
-import com.momo.certChain.services.security.EncryptionService;
+import com.momo.certChain.services.security.KeyPairService;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.After;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.web3j.crypto.ECKeyPair;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,7 +36,7 @@ class CampagneServiceTest {
     private HumanUserService userService;
 
     @Mock
-    private EncryptionService encryptionService;
+    private KeyPairService keyPairService;
 
     @Mock
     private CertificationService certificationService;
@@ -86,7 +82,7 @@ class CampagneServiceTest {
         institution.setCertificationTemplate(TestUtils.createCertificationTemplate());
         institution.getInstitutionWallet().setSalt("salt");
 
-        when(encryptionService.createKeyPair(anyString(), anyString(), anyString(),anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
+        when(keyPairService.createKeyPair(anyString(), anyString(), anyString(),anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
                                                                                                                                     institution.getInstitutionWallet().getPublicKey()));
 
         when(userService.createHumanUser(any(HumanUser.class), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));

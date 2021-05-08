@@ -8,6 +8,7 @@ import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.excel.ExcelService;
 import com.momo.certChain.services.security.EncryptionService;
+import com.momo.certChain.services.security.KeyPairService;
 import com.momo.certChain.utils.ListUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,24 +35,24 @@ public class InstitutionService {
 
     private final WalletService walletService;
 
-    private final EncryptionService encryptionService;
-
     private final CampagneService campagneService;
+
+    private final KeyPairService keyPairService;
 
     public InstitutionService(InstitutionRepository institutionRepository,
                               AddressService addressService,
                               ContractService contractService,
                               ExcelService excelService,
                               WalletService walletService,
-                              EncryptionService encryptionService,
-                              CampagneService campagneService) {
+                              CampagneService campagneService,
+                              KeyPairService keyPairService) {
         this.institutionRepository = institutionRepository;
         this.addressService = addressService;
         this.contractService = contractService;
         this.excelService = excelService;
         this.walletService = walletService;
         this.campagneService = campagneService;
-        this.encryptionService = encryptionService;
+        this.keyPairService = keyPairService;
     }
 
     public Institution createInstitution(String street, String city, String province, String postalCode, String country, String name, String walletPassword) throws NoSuchProviderException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, CipherException {
@@ -68,7 +69,7 @@ public class InstitutionService {
     public Institution uploadCertificateContract(String uuid,String walletPassword) throws Exception {
         Institution institution = getInstitution(uuid);
 
-        ECKeyPair keyPair = encryptionService.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
+        ECKeyPair keyPair = keyPairService.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
                                                             institution.getInstitutionWallet().getPublicKey(),
                                                             institution.getInstitutionWallet().getSalt(),
                                                             walletPassword);

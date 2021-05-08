@@ -6,11 +6,8 @@ import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.excel.ExcelService;
-import com.momo.certChain.services.security.EncryptionService;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.AfterEach;
+import com.momo.certChain.services.security.KeyPairService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -53,28 +50,7 @@ class InstitutionServiceTest {
     private WalletService walletService;
 
     @Mock
-    private EncryptionService encryptionService;
-
-    @Mock
-    private CertificationService certificationService;
-
-    @Captor
-    private ArgumentCaptor<Certification> studentCertificateArgumentCaptor;
-
-    @Captor
-    private ArgumentCaptor<Certification> institutionTemplateCertificateArgumentCaptor;
-
-    @Captor
-    private ArgumentCaptor<String> addressArgumentCaptor;
-
-    @Captor
-    private ArgumentCaptor<ECKeyPair> KeyPairArgumentCaptor;
-
-    @Captor
-    private ArgumentCaptor<String> encKeyPrivateKeyCaptor;
-
-    @Captor
-    private ArgumentCaptor<String> encKeySentByEmailCaptor;
+    private KeyPairService keyPairService;
 
     @Captor
     private ArgumentCaptor<String> campagneNameCaptor;
@@ -128,7 +104,7 @@ class InstitutionServiceTest {
         Institution institution = TestUtils.createInstitutionWithWallet();
         String walletPassword = "walletPassword";
 
-        when(encryptionService.createKeyPair(anyString(),anyString(),anyString(),anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
+        when(keyPairService.createKeyPair(anyString(),anyString(),anyString(),anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
                                                                                                                                   institution.getInstitutionWallet().getPublicKey()));
         when(contractServiceImpl.uploadContract(any(ECKeyPair.class))).thenReturn(contractAddress);
         when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
