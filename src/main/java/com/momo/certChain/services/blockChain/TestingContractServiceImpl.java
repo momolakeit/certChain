@@ -1,12 +1,14 @@
 package com.momo.certChain.services.blockChain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.momo.certChain.mapping.SimpleCertificationMapper;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.services.blockChain.contract.SavingDiploma;
 import com.momo.certChain.services.security.EncryptionService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.web3j.abi.datatypes.Address;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
@@ -56,9 +58,11 @@ public class TestingContractServiceImpl implements ContractService {
     public void uploadCertificate(Certification certification, String address, ECKeyPair ecKeyPair,String encryptionKey) throws Exception {
 
         SavingDiploma savingDiploma = getUploadedContract(address);
-        String certificateJson = objectMapper.writeValueAsString(certification);
+
+        String certificateJson = objectMapper.writeValueAsString(SimpleCertificationMapper.instance.toSimple(certification));
 
         String encryptedJSON = encryptionService.encryptData(encryptionKey,certificateJson,certification.getSalt());
+
         savingDiploma.addCertificate(certification.getId(), encryptedJSON).send();
 
     }

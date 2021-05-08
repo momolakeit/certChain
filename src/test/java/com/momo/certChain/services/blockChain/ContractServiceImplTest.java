@@ -3,6 +3,7 @@ package com.momo.certChain.services.blockChain;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.momo.certChain.TestUtils;
 import com.momo.certChain.model.data.Certification;
+import com.momo.certChain.model.data.Student;
 import com.momo.certChain.services.blockChain.contract.SavingDiploma;
 import com.momo.certChain.services.security.EncryptionService;
 import org.junit.jupiter.api.AfterEach;
@@ -133,10 +134,17 @@ class ContractServiceImplTest {
 
         Certification returnValueCertification = new ObjectMapper().readValue(certificateJsonCaptor.getValue(), Certification.class);
 
+        Student student = returnValueCertification.getStudent();
+
         assertNotNull(returnValueCertification);
         assertEquals(returnId, certification.getId());
         TestUtils.assertCertification(returnValueCertification);
-        TestUtils.assertInstitution(returnValueCertification.getInstitution());
+        assertNull(returnValueCertification.getInstitution());
+        assertNull(student.getInstitution());
+        assertNull(student.getAddress());
+        assertNull(student.getUsername());
+        assertNull(student.getPassword());
+        assertNull(student.getCertifications());
     }
 
 

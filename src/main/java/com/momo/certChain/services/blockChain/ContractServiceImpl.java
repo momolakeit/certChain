@@ -1,6 +1,7 @@
 package com.momo.certChain.services.blockChain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.momo.certChain.mapping.SimpleCertificationMapper;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.services.blockChain.contract.SavingDiploma;
 import com.momo.certChain.services.security.EncryptionService;
@@ -37,16 +38,20 @@ public class ContractServiceImpl implements ContractService {
 
     public Certification getCertificate(String uuid, String address, ECKeyPair ecKeyPair,String privateKey,String salt) throws Exception {
         SavingDiploma savingDiploma = getUploadedContract(address, ecKeyPair);
+
         String certificateString = savingDiploma.get(uuid).send();
         String decryptedCertificateString = encryptionService.decryptData(privateKey,certificateString,salt);
+
         return objectMapper.readValue(decryptedCertificateString, Certification.class);
     }
 
     public void uploadCertificate(Certification certification, String address, ECKeyPair ecKeyPair,String encryptionKey) throws Exception {
 
         SavingDiploma savingDiploma = getUploadedContract(address, ecKeyPair);
-        String certificateJson = objectMapper.writeValueAsString(certification);
+
+        String certificateJson = objectMapper.writeValueAsString(SimpleCertificationMapper.instance.toSimple(certification));
         String encryptedJSON = encryptionService.encryptData(encryptionKey,certificateJson,certification.getSalt());
+
         savingDiploma.addCertificate(certification.getId(), encryptedJSON).send();
 
     }
