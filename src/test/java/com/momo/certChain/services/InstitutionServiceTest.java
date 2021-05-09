@@ -91,6 +91,7 @@ class InstitutionServiceTest {
         assertEquals(institutionWallet.getPrivateKey(), returnVal.getInstitutionWallet().getPrivateKey());
         assertEquals(institutionWallet.getPublicAddress(), returnVal.getInstitutionWallet().getPublicAddress());
         assertEquals(institutionWallet.getPublicKey(), returnVal.getInstitutionWallet().getPublicKey());
+        assertFalse(institution.isApprouved());
         TestUtils.assertAddress(returnVal.getAddress());
         assertInstitution(institution, returnVal);
 
@@ -105,17 +106,17 @@ class InstitutionServiceTest {
 
         when(addressService.createAddress(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(TestUtils.createAddress());
 
-        Assertions.assertThrows(PasswordNotMatchingException.class,()->{
+        Assertions.assertThrows(PasswordNotMatchingException.class, () -> {
             institutionService.createInstitution(address.getStreet(),
-                                                 address.getCity(),
-                                                 address.getProvince(),
-                                                 address.getPostalCode(),
-                                                 address.getCountry(),
-                                                 institution.getName(),
-                                                "password",
-                                                 username,
-                                                 password,
-                                                "BadPassword");
+                    address.getCity(),
+                    address.getProvince(),
+                    address.getPostalCode(),
+                    address.getCountry(),
+                    institution.getName(),
+                    "password",
+                    username,
+                    password,
+                    "BadPassword");
         });
 
 

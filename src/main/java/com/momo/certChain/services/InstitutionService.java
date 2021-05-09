@@ -133,6 +133,7 @@ public class InstitutionService {
         institution.setName(name);
         institution.setPassword(password);
         institution.setUsername(username);
+        institution.setApprouved(false);
         institution.setInstitutionWallet(walletService.createWallet(walletPassword));
         return institution;
     }
