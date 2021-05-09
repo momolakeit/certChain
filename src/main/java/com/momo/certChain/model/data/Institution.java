@@ -16,6 +16,8 @@ public class Institution extends User {
 
     private String contractAddress;
 
+    private boolean approuved;
+
     //todo delete list certification
     @OneToMany
     private List<Certification> certifications;

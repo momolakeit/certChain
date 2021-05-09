@@ -13,8 +13,14 @@ public class InstitutionDTO extends UserDTO {
 
     private String contractAddress;
 
-    private InstitutionWalletDTO institutionWalletDTO;
+    private boolean approuved;
 
     private List<CertificationDTO> certifications;
+
+    private CertificationDTO certificationTemplate;
+
+    private List<CampagneDTO> campagnes;
+
+    private InstitutionWalletDTO institutionWallet;
 
 }
