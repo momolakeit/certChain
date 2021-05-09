@@ -13,7 +13,7 @@ public abstract class BaseController {
     }
 
     @ExceptionHandler(AuthorizationException.class)
-    public ResponseEntity<Object> handleNotFoundException(PasswordNotMatchingException exception){
+    public ResponseEntity<Object> handleNotFoundException(AuthorizationException exception){
         return new ResponseEntity<Object>(exception.getMessage(),new HttpHeaders(), HttpStatus.UNAUTHORIZED);
     }
 

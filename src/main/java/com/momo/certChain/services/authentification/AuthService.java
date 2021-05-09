@@ -32,9 +32,9 @@ public class AuthService {
         this.jwtProvider = jwtProvider;
     }
 
-    public JWTResponse logInUser(LogInDTO logInDTO){
-        User user = userRepository.findByUsername(logInDTO.getEmailAdress()).orElseThrow(this::userNotFound);
-        if(!passwordEncoder.matches(logInDTO.getPassword(),user.getPassword())){
+    public JWTResponse logInUser(String username,String password){
+        User user = userRepository.findByUsername(username).orElseThrow(this::userNotFound);
+        if(!passwordEncoder.matches(password,user.getPassword())){
             throw new BadPasswordException();
         }
 

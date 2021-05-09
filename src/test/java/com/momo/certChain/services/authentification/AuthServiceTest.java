@@ -6,7 +6,6 @@ import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.jwt.JwtProvider;
 import com.momo.certChain.model.data.User;
 import com.momo.certChain.model.dto.JWTResponse;
-import com.momo.certChain.model.dto.request.LogInDTO;
 import com.momo.certChain.repositories.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -45,7 +44,7 @@ class AuthServiceTest {
         when(passwordEncoder.matches(anyString(),anyString())).thenReturn(true);
         when(jwtProvider.generate(any(User.class))).thenReturn(token);
 
-        JWTResponse jwtResponse = authService.logInUser(new LogInDTO("email","password"));
+        JWTResponse jwtResponse = authService.logInUser("email","password");
 
         assertEquals(token,jwtResponse.getToken());
     }
@@ -57,7 +56,7 @@ class AuthServiceTest {
         when(passwordEncoder.matches(anyString(),anyString())).thenReturn(false);
 
         Assertions.assertThrows(BadPasswordException.class,()->{
-            authService.logInUser(new LogInDTO("email","password"));
+            authService.logInUser("email","password");
         });
 
     }
@@ -68,7 +67,7 @@ class AuthServiceTest {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
         Assertions.assertThrows(ObjectNotFoundException.class,()->{
-            authService.logInUser(new LogInDTO("email","password"));
+            authService.logInUser("email","password");
         });
 
     }
