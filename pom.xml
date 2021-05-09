@@ -17,36 +17,47 @@
 		<java.version>11</java.version>
 	</properties>
 	<dependencies>
+		<!--DATABASE-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+
+		<!--SECURITY-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>3.15.0</version>
+		</dependency>
 
-		<!--Ethereum-->
+		<!--SPRING BOOT-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!--LOMBOK-->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<!--ETHEREUM-->
 		<dependency>
 			<groupId>org.web3j</groupId>
 			<artifactId>core</artifactId>
@@ -67,13 +78,15 @@
 			<artifactId>okhttp</artifactId>
 			<version>4.9.1</version>
 		</dependency>
+
 		<!--H2-->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		<!--Data Mapping-->
+
+		<!--DATA MAPPING-->
 		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
@@ -86,7 +99,7 @@
 			<version>1.4.2.Final</version>
 		</dependency>
 
-		<!-- Excel -->
+		<!-- EXCEL -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
@@ -98,7 +111,7 @@
 			<version>5.0.0</version>
 		</dependency>
 
-		<!-- Mailing -->
+		<!-- MAILING -->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -127,7 +140,7 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
-
+		<!--APACHE COMMONS-->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
