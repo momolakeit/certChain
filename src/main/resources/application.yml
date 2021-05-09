@@ -21,3 +21,8 @@ spring:
             enable: true
 
 front-end-url: "http://localhost:4200/"
+
+security:
+  jwt:
+    duration: 5
+    secret: "dP5O3KjgLbAtU1oUIMM1"
