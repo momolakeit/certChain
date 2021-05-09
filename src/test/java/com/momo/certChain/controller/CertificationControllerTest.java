@@ -73,7 +73,7 @@ class CertificationControllerTest {
         Certification certification = TestUtils.createCertificationTemplate();
         certification.setId(null);
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/createTemplate")
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/certification/createTemplate")
                 .file("universityLogo",universityLogo.getBytes())
                 .file("universityStamp",universityStamp.getBytes())
                 .param("certificationDTO",objectMapper.writeValueAsString(CertificationMapper.instance.toDTO(certification)))
@@ -85,7 +85,7 @@ class CertificationControllerTest {
     @Test
     public void testGetCertification() throws Exception {
         uploadEncryptedCertificate();
-        mockMvc.perform(MockMvcRequestBuilders.get("/institution/fetchCertificate/{id}/{key}",studentCertification.getId(),"walletPassword")
+        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{id}/{key}",studentCertification.getId(),"walletPassword")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
