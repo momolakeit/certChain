@@ -7,5 +7,5 @@ import javax.persistence.Entity;
 
 @Getter
 @Setter
-public class Employees extends HumanUserDTO {
+public class EmployeesDTO extends HumanUserDTO {
 }
