@@ -1,7 +1,9 @@
 package com.momo.certChain.services;
 
 import com.momo.certChain.TestUtils;
+import com.momo.certChain.exception.BadPasswordException;
 import com.momo.certChain.exception.ObjectNotFoundException;
+import com.momo.certChain.exception.PasswordNotMatchingException;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
@@ -56,25 +58,61 @@ class InstitutionServiceTest {
     private ArgumentCaptor<String> campagneNameCaptor;
 
     @Captor
-    private ArgumentCaptor<String>  walletPasswordCaptor;
+    private ArgumentCaptor<String> walletPasswordCaptor;
 
     @Test
     public void createInstitutionTest() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException {
         Address address = TestUtils.createAddress();
         Institution institution = TestUtils.createInstitution();
         InstitutionWallet institutionWallet = TestUtils.createInstitutionWallet();
+        String username = "username";
+        String password = "password";
 
         when(addressService.createAddress(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(TestUtils.createAddress());
         when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(walletService.createWallet(anyString())).thenReturn(institutionWallet);
 
-        Institution returnVal = institutionService.createInstitution(address.getStreet(),address.getCity(),address.getProvince(),address.getPostalCode(),address.getCountry(),institution.getName(),"password");
+        Institution returnVal = institutionService.createInstitution(address.getStreet(),
+                address.getCity(),
+                address.getProvince(),
+                address.getPostalCode(),
+                address.getCountry(),
+                institution.getName(),
+                "password",
+                username,
+                password,
+                password);
 
-        assertEquals(institutionWallet.getPrivateKey(),returnVal.getInstitutionWallet().getPrivateKey());
-        assertEquals(institutionWallet.getPublicAddress(),returnVal.getInstitutionWallet().getPublicAddress());
-        assertEquals(institutionWallet.getPublicKey(),returnVal.getInstitutionWallet().getPublicKey());
+        assertEquals(institutionWallet.getPrivateKey(), returnVal.getInstitutionWallet().getPrivateKey());
+        assertEquals(institutionWallet.getPublicAddress(), returnVal.getInstitutionWallet().getPublicAddress());
+        assertEquals(institutionWallet.getPublicKey(), returnVal.getInstitutionWallet().getPublicKey());
         TestUtils.assertAddress(returnVal.getAddress());
         assertInstitution(institution, returnVal);
+
+    }
+
+    @Test
+    public void createInstitutionBadPasswordThrowsExceptionTest() {
+        Address address = TestUtils.createAddress();
+        Institution institution = TestUtils.createInstitution();
+        String username = "username";
+        String password = "password";
+
+        when(addressService.createAddress(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(TestUtils.createAddress());
+
+        Assertions.assertThrows(PasswordNotMatchingException.class,()->{
+            institutionService.createInstitution(address.getStreet(),
+                                                 address.getCity(),
+                                                 address.getProvince(),
+                                                 address.getPostalCode(),
+                                                 address.getCountry(),
+                                                 institution.getName(),
+                                                "password",
+                                                 username,
+                                                 password,
+                                                "BadPassword");
+        });
+
 
     }
 
@@ -104,13 +142,13 @@ class InstitutionServiceTest {
         Institution institution = TestUtils.createInstitutionWithWallet();
         String walletPassword = "walletPassword";
 
-        when(keyPairService.createKeyPair(anyString(),anyString(),anyString(),anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
-                                                                                                                                  institution.getInstitutionWallet().getPublicKey()));
+        when(keyPairService.createKeyPair(anyString(), anyString(), anyString(), anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
+                institution.getInstitutionWallet().getPublicKey()));
         when(contractServiceImpl.uploadContract(any(ECKeyPair.class))).thenReturn(contractAddress);
         when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
 
-        Institution returnVal = institutionService.uploadCertificateContract("123456",walletPassword);
+        Institution returnVal = institutionService.uploadCertificateContract("123456", walletPassword);
 
         assertEquals(contractAddress, returnVal.getContractAddress());
 
@@ -125,21 +163,21 @@ class InstitutionServiceTest {
 
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createInstitutionWithWallet()));
         when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        when(campagneService.runCampagne(anyString(),any(List.class),any(Institution.class),anyString())).thenReturn(TestUtils.createCampagne());
+        when(campagneService.runCampagne(anyString(), any(List.class), any(Institution.class), anyString())).thenReturn(TestUtils.createCampagne());
         when(excelService.readStudentsFromExcel(any(byte[].class))).thenReturn(listeOfStudents);
 
-        Institution returnInstitution = institutionService.uploadCertificationsToBlockChain(TestUtils.getExcelByteArray(), "123456",walletPassword,campagneName);
-        verify(campagneService).runCampagne(campagneNameCaptor.capture(),any(List.class),any(Institution.class),walletPasswordCaptor.capture());
+        Institution returnInstitution = institutionService.uploadCertificationsToBlockChain(TestUtils.getExcelByteArray(), "123456", walletPassword, campagneName);
+        verify(campagneService).runCampagne(campagneNameCaptor.capture(), any(List.class), any(Institution.class), walletPasswordCaptor.capture());
 
         List<String> walletPasswordCaptorAllValues = walletPasswordCaptor.getAllValues();
         List<String> campagneNameCaptorAllValues = campagneNameCaptor.getAllValues();
 
-        for(String name : campagneNameCaptorAllValues){
-            assertEquals(campagneName,name);
+        for (String name : campagneNameCaptorAllValues) {
+            assertEquals(campagneName, name);
         }
 
-        for(String password : walletPasswordCaptorAllValues){
-            assertEquals(walletPassword,password);
+        for (String password : walletPasswordCaptorAllValues) {
+            assertEquals(walletPassword, password);
         }
 
         TestUtils.assertCampagne(returnInstitution.getCampagnes().get(0));

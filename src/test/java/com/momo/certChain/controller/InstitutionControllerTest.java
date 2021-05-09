@@ -103,7 +103,7 @@ class InstitutionControllerTest {
         institution.setId(null);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/institution")
-                .content(objectMapper.writeValueAsString(new CreateInstitutionDTO(AddressMapper.instance.toDTO(address),InstitutionMapper.instance.toDTO(institution),"password")))
+                .content(objectMapper.writeValueAsString(new CreateInstitutionDTO(AddressMapper.instance.toDTO(address),InstitutionMapper.instance.toDTO(institution),"password","password")))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());

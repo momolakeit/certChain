@@ -19,4 +19,6 @@ public class CreateInstitutionDTO {
 
     private String walletPassord;
 
+    private String passwordConfirmation;
+
 }

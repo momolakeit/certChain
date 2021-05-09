@@ -34,7 +34,10 @@ public class InstitutionController extends BaseController {
                                                                              addressDTO.getPostalCode(),
                                                                              addressDTO.getCountry(),
                                                                              institutionDTO.getName(),
-                                                                             createInstitutionDTO.getWalletPassord()));
+                                                                             createInstitutionDTO.getWalletPassord(),
+                                                                             institutionDTO.getUsername(),
+                                                                             institutionDTO.getPassword(),
+                                                                             createInstitutionDTO.getPasswordConfirmation()));
     }
 
     @GetMapping("/{institutionId}")

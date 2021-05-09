@@ -1,6 +1,7 @@
 package com.momo.certChain.services;
 
 import com.momo.certChain.exception.ObjectNotFoundException;
+import com.momo.certChain.exception.PasswordNotMatchingException;
 import com.momo.certChain.mapping.InstitutionMapper;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.InstitutionDTO;
@@ -55,12 +56,25 @@ public class InstitutionService {
         this.keyPairService = keyPairService;
     }
 
-    public Institution createInstitution(String street, String city, String province, String postalCode, String country, String name, String walletPassword) throws NoSuchProviderException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, CipherException {
+    public Institution createInstitution(String street,
+                                         String city,
+                                         String province,
+                                         String postalCode,
+                                         String country,
+                                         String name,
+                                         String walletPassword,
+                                         String username,
+                                         String password,
+                                         String passwordConfirmation) throws NoSuchProviderException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, CipherException {
         Address address = addressService.createAddress(street, city, province, postalCode, country);
+
+        checkIfPasswordMatching(password, passwordConfirmation);
 
         Institution institution = new Institution();
         institution.setAddress(address);
         institution.setName(name);
+        institution.setPassword(password);
+        institution.setUsername(username);
         institution.setInstitutionWallet(walletService.createWallet(walletPassword));
 
         return saveInstitution(institution);
@@ -95,10 +109,6 @@ public class InstitutionService {
         return InstitutionMapper.instance.toDTO(institution);
     }
 
-    private Institution saveInstitution(Institution institution) {
-        return institutionRepository.save(institution);
-    }
-
     public Institution getInstitution(String uuid) {
         return institutionRepository.findById(uuid).orElseThrow(this::institutionNotFound);
     }
@@ -111,5 +121,15 @@ public class InstitutionService {
 
     private ObjectNotFoundException institutionNotFound() {
         return new ObjectNotFoundException("Institution");
+    }
+
+    private Institution saveInstitution(Institution institution) {
+        return institutionRepository.save(institution);
+    }
+
+    private void checkIfPasswordMatching(String password, String passwordConfirmation) {
+        if(!password.equals(passwordConfirmation)){
+            throw new PasswordNotMatchingException();
+        }
     }
 }
