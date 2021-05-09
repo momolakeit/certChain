@@ -1,9 +1,6 @@
 package com.momo.certChain.controller;
 
-import com.momo.certChain.exception.ObjectNotFoundException;
-import com.momo.certChain.exception.PasswordNotMatchingException;
-import com.momo.certChain.exception.ValidationException;
-import com.momo.certChain.exception.WrongKeyException;
+import com.momo.certChain.exception.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +12,7 @@ public abstract class BaseController {
         return new ResponseEntity<Object>(exception.getMessage(),new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(PasswordNotMatchingException.class)
+    @ExceptionHandler(AuthorizationException.class)
     public ResponseEntity<Object> handleNotFoundException(PasswordNotMatchingException exception){
         return new ResponseEntity<Object>(exception.getMessage(),new HttpHeaders(), HttpStatus.UNAUTHORIZED);
     }
