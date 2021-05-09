@@ -29,6 +29,7 @@ public class HumanUserService {
     }
 
     public HumanUser createHumanUser(HumanUser humanUser,String encryptionKey) throws MessagingException {
+        humanUser.setPasswordResseted(false);
         messageService.sendEmailToHumanUser(humanUser,encryptionKey);
 
         return saveUser(humanUser);

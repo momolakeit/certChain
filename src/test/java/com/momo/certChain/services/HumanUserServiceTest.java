@@ -54,6 +54,7 @@ class HumanUserServiceTest {
         verify(messageService, times(1)).sendEmailToHumanUser(any(HumanUser.class),encKeyPrivateKey.capture());
 
         assertEquals(privateKey,encKeyPrivateKey.getValue());
+        assertFalse(returnValue.isPasswordResseted());
         TestUtils.assertBaseUser(returnValue);
         TestUtils.assertInstitution(returnValue.getInstitution());
     }
@@ -69,6 +70,7 @@ class HumanUserServiceTest {
         verify(messageService, times(1)).sendEmailToHumanUser(any(HumanUser.class),encKeyPrivateKey.capture());
 
         assertEquals(privateKey,encKeyPrivateKey.getValue());
+        assertFalse(returnValue.isPasswordResseted());
         TestUtils.assertBaseUser(returnValue);
         TestUtils.assertInstitution(returnValue.getInstitution());
     }

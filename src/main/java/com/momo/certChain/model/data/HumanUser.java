@@ -15,6 +15,7 @@ import javax.persistence.ManyToOne;
 public class HumanUser extends User {
     private String prenom;
     private String nom;
+    private boolean passwordResseted;
     @ManyToOne
     private Institution institution;
 }

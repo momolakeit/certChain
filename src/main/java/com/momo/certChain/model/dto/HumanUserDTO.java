@@ -9,6 +9,7 @@ import lombok.Setter;
 public class HumanUserDTO extends UserDTO {
     private String prenom;
     private String nom;
+    private boolean passwordResseted;
 
     private InstitutionDTO institution;
 
