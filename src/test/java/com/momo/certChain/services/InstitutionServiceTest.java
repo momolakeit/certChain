@@ -8,6 +8,7 @@ import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.excel.ExcelService;
+import com.momo.certChain.services.messaging.MessageService;
 import com.momo.certChain.services.security.KeyPairService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.ECKeyPair;
 
+import javax.mail.MessagingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -54,6 +56,9 @@ class InstitutionServiceTest {
     @Mock
     private KeyPairService keyPairService;
 
+    @Mock
+    private MessageService messageService;
+
     @Captor
     private ArgumentCaptor<String> campagneNameCaptor;
 
@@ -61,7 +66,7 @@ class InstitutionServiceTest {
     private ArgumentCaptor<String> walletPasswordCaptor;
 
     @Test
-    public void createInstitutionTest() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException {
+    public void createInstitutionTest() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException, MessagingException {
         Address address = TestUtils.createAddress();
         Institution institution = TestUtils.createInstitution();
         InstitutionWallet institutionWallet = TestUtils.createInstitutionWallet();

@@ -8,14 +8,17 @@ import com.momo.certChain.model.dto.InstitutionDTO;
 import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.excel.ExcelService;
+import com.momo.certChain.services.messaging.MessageService;
 import com.momo.certChain.services.security.EncryptionService;
 import com.momo.certChain.services.security.KeyPairService;
 import com.momo.certChain.utils.ListUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.ECKeyPair;
 
+import javax.mail.MessagingException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
@@ -40,13 +43,16 @@ public class InstitutionService {
 
     private final KeyPairService keyPairService;
 
+    private final MessageService messageService;
+
     public InstitutionService(InstitutionRepository institutionRepository,
                               AddressService addressService,
                               ContractService contractService,
                               ExcelService excelService,
                               WalletService walletService,
                               CampagneService campagneService,
-                              KeyPairService keyPairService) {
+                              KeyPairService keyPairService,
+                              MessageService messageService) {
         this.institutionRepository = institutionRepository;
         this.addressService = addressService;
         this.contractService = contractService;
@@ -54,6 +60,7 @@ public class InstitutionService {
         this.walletService = walletService;
         this.campagneService = campagneService;
         this.keyPairService = keyPairService;
+        this.messageService = messageService;
     }
 
     public Institution createInstitution(String street,
@@ -65,17 +72,14 @@ public class InstitutionService {
                                          String walletPassword,
                                          String username,
                                          String password,
-                                         String passwordConfirmation) throws NoSuchProviderException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, CipherException {
+                                         String passwordConfirmation) throws NoSuchProviderException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, CipherException, MessagingException {
         Address address = addressService.createAddress(street, city, province, postalCode, country);
 
         checkIfPasswordMatching(password, passwordConfirmation);
 
-        Institution institution = new Institution();
-        institution.setAddress(address);
-        institution.setName(name);
-        institution.setPassword(password);
-        institution.setUsername(username);
-        institution.setInstitutionWallet(walletService.createWallet(walletPassword));
+        Institution institution = createInstitution(name, walletPassword, username, password, address);
+
+        messageService.sendApprouvalEmail(institution);
 
         return saveInstitution(institution);
     }
@@ -121,6 +125,16 @@ public class InstitutionService {
 
     private ObjectNotFoundException institutionNotFound() {
         return new ObjectNotFoundException("Institution");
+    }
+
+    private Institution createInstitution(String name, String walletPassword, String username, String password, Address address) throws NoSuchAlgorithmException, CipherException, InvalidAlgorithmParameterException, NoSuchProviderException {
+        Institution institution = new Institution();
+        institution.setAddress(address);
+        institution.setName(name);
+        institution.setPassword(password);
+        institution.setUsername(username);
+        institution.setInstitutionWallet(walletService.createWallet(walletPassword));
+        return institution;
     }
 
     private Institution saveInstitution(Institution institution) {

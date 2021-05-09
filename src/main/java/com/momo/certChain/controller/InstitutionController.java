@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.web3j.crypto.CipherException;
 
+import javax.mail.MessagingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -25,7 +26,7 @@ public class InstitutionController extends BaseController {
     }
 
     @PostMapping
-    public InstitutionDTO createInstitution(@RequestBody CreateInstitutionDTO createInstitutionDTO) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException {
+    public InstitutionDTO createInstitution(@RequestBody CreateInstitutionDTO createInstitutionDTO) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException, MessagingException {
         AddressDTO addressDTO = createInstitutionDTO.getAddressDTO();
         InstitutionDTO institutionDTO = createInstitutionDTO.getInstitutionDTO();
         return institutionService.toDTO(institutionService.createInstitution(addressDTO.getStreet(),
