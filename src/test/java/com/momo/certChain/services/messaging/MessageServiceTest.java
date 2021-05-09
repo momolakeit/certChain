@@ -1,6 +1,7 @@
 package com.momo.certChain.services.messaging;
 
 import com.momo.certChain.TestUtils;
+import com.momo.certChain.model.data.Institution;
 import com.momo.certChain.model.data.Student;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,7 +10,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.testcontainers.shaded.org.bouncycastle.cms.Recipient;
 
 import javax.mail.*;
 import javax.mail.internet.MimeMessage;
@@ -40,7 +40,6 @@ class MessageServiceTest {
     }
 
 
-    //todo fix test
     @Test
     public void sendMessage() throws MessagingException, IOException {
         Student student = TestUtils.createStudent();
@@ -50,10 +49,8 @@ class MessageServiceTest {
                                "This is the password, save it so you can retreive your diploma:"+privateKey;
         String from =  "certChain@"+student.getInstitution().getName()+".com";
 
-        Properties properties = System.getProperties();
-        properties.setProperty("mail.smtp.host","localhost");
-        when(javaMailSender.createMimeMessage()).thenReturn(new MimeMessage(Session.getDefaultInstance(properties)));
-        messageService.sendEmail(student,privateKey);
+        when(javaMailSender.createMimeMessage()).thenReturn(createMimeMessage());
+        messageService.sendEmailToHumanUser(student,privateKey);
         verify(javaMailSender).send(messageArgumentCaptor.capture());
 
         Message message = messageArgumentCaptor.getValue();
@@ -65,5 +62,29 @@ class MessageServiceTest {
         assertEquals(messageString,String.valueOf(message.getContent()));
 
     }
+
+    @Test
+    public void sendApprouvalMessage() throws MessagingException, IOException {
+        Institution institution = TestUtils.createInstitution();
+        String messageString ="L'institution " + institution.getName() + "a déposé une demande d'approbation";
+
+        when(javaMailSender.createMimeMessage()).thenReturn(createMimeMessage());
+        messageService.sendApprouvalEmail(institution);
+        verify(javaMailSender).send(messageArgumentCaptor.capture());
+
+        Message message = messageArgumentCaptor.getValue();
+        Address address = message.getRecipients(Message.RecipientType.TO)[0];
+        assertEquals("Validate institution",message.getSubject());
+        assertEquals("adminEmail",address.toString());
+        assertEquals(messageString,String.valueOf(message.getContent()));
+
+    }
+
+    private MimeMessage createMimeMessage(){
+        Properties properties = System.getProperties();
+        properties.setProperty("mail.smtp.host","localhost");
+        return new MimeMessage(Session.getDefaultInstance(properties));
+    }
+
 
 }

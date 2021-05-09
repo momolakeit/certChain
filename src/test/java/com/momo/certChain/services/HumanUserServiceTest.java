@@ -51,7 +51,7 @@ class HumanUserServiceTest {
 
         Student returnValue = (Student) humanUserService.createHumanUser(student,privateKey);
 
-        verify(messageService, times(1)).sendEmail(any(HumanUser.class),encKeyPrivateKey.capture());
+        verify(messageService, times(1)).sendEmailToHumanUser(any(HumanUser.class),encKeyPrivateKey.capture());
 
         assertEquals(privateKey,encKeyPrivateKey.getValue());
         TestUtils.assertBaseUser(returnValue);
@@ -66,7 +66,7 @@ class HumanUserServiceTest {
         when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         Employee returnValue = (Employee) humanUserService.createHumanUser(employe,privateKey);
-        verify(messageService, times(1)).sendEmail(any(HumanUser.class),encKeyPrivateKey.capture());
+        verify(messageService, times(1)).sendEmailToHumanUser(any(HumanUser.class),encKeyPrivateKey.capture());
 
         assertEquals(privateKey,encKeyPrivateKey.getValue());
         TestUtils.assertBaseUser(returnValue);

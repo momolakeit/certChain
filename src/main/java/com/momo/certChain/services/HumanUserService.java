@@ -3,7 +3,6 @@ package com.momo.certChain.services;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.PasswordNotMatchingException;
 import com.momo.certChain.model.data.HumanUser;
-import com.momo.certChain.model.data.User;
 import com.momo.certChain.repositories.HumanUserRepository;
 import com.momo.certChain.services.messaging.MessageService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,7 +29,7 @@ public class HumanUserService {
     }
 
     public HumanUser createHumanUser(HumanUser humanUser,String encryptionKey) throws MessagingException {
-        messageService.sendEmail(humanUser,encryptionKey);
+        messageService.sendEmailToHumanUser(humanUser,encryptionKey);
 
         return saveUser(humanUser);
     }

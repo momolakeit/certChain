@@ -1,6 +1,7 @@
 package com.momo.certChain.services.messaging;
 
 import com.momo.certChain.model.data.HumanUser;
+import com.momo.certChain.model.data.Institution;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -25,22 +26,41 @@ public class MessageService {
         this.javaMailSender = javaMailSender;
     }
 
-    public void sendEmail(HumanUser humanUser,String privateKey){
-        String from =  "certChain@"+humanUser.getInstitution().getName()+".com";
+    public void sendEmailToHumanUser(HumanUser humanUser, String privateKey) throws MessagingException {
+        String from = "certChain@" + humanUser.getInstitution().getName() + ".com";
 
-        try{
-            MimeMessage message = javaMailSender.createMimeMessage();
+        String subject = "Receive your diploma !";
+        String to = humanUser.getUsername();
+        String text = frontEndUrl + "createPassword/" + humanUser.getId() + ".com" +
+                "This is the password, save it so you can retreive your diploma:" + privateKey;
 
-            message.setFrom(new InternetAddress(from));
-            message.addRecipient(Message.RecipientType.TO,new InternetAddress(humanUser.getUsername()));
-            message.setSubject("Receive your diploma !");
-            message.setText(frontEndUrl+"createPassword/"+humanUser.getId()+".com"+
-                            "This is the password, save it so you can retreive your diploma:"+privateKey);
+        sendEmail(from, subject, to, text);
+    }
 
-            javaMailSender.send(message);
-            LOGGER.info("EMAIL WAS SENT SUCCESSFULLY!");
-        }catch (MessagingException messagingException){
-            messagingException.printStackTrace();
-        }
+
+    //on send un email a moi , le maitre du trucs pour que je review et approuved le institutions
+    public void sendApprouvalEmail(Institution institution) throws MessagingException {
+        String from = "certChain@institutionValidation.com";
+
+
+        String subject = "Validate institution";
+        //todo utiliser le email de l'admin en le cherchant dans le adminService
+        String to = "adminEmail";
+        String text = "L'institution " + institution.getName() + "a déposé une demande d'approbation";
+
+        sendEmail(from, subject, to, text);
+    }
+
+    private void sendEmail(String from, String subject, String to, String text) throws MessagingException {
+        MimeMessage message = javaMailSender.createMimeMessage();
+
+        message.setFrom(new InternetAddress(from));
+        message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+        message.setSubject(subject);
+        message.setText(text);
+
+        javaMailSender.send(message);
+
+        LOGGER.info("EMAIL WAS SENT SUCCESSFULLY!");
     }
 }
