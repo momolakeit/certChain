@@ -54,6 +54,7 @@ public class CertificationService {
         this.headerCatcherService = headerCatcherService;
     }
 
+    //todo associer certification a institution
     public Certification createCertificationTemplate(Certification certification, byte[] universityLogoBytes, byte[] universityStampBytes) {
         List<Signature> signatures = new ArrayList<>();
         for (Signature signature : certification.getSignatures()) {

@@ -1,12 +1,11 @@
 package com.momo.certChain.controller;
 
 import com.momo.certChain.TestUtils;
+import com.momo.certChain.jwt.JwtProvider;
 import com.momo.certChain.mapping.CertificationMapper;
-import com.momo.certChain.model.data.Address;
-import com.momo.certChain.model.data.Certification;
-import com.momo.certChain.model.data.Institution;
-import com.momo.certChain.model.data.InstitutionWallet;
+import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.CertificationRepository;
+import com.momo.certChain.repositories.UserRepository;
 import com.momo.certChain.repositories.WalletRepository;
 import com.momo.certChain.services.CertificationService;
 import com.momo.certChain.services.InstitutionService;
@@ -56,6 +55,9 @@ class CertificationControllerTest {
     @Autowired
     private CertificationRepository certificationRepository;
 
+    @Autowired
+    private JwtProvider jwtProvider;
+
     @MockBean
     private MessageService messageService;
 
@@ -95,6 +97,39 @@ class CertificationControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void testDeleteCertfication() throws Exception {
+        saveCertificationInBD();
+        mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", studentCertification.getId())
+                .header("Authorization",jwtProvider.generate(TestUtils.createStudent()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testDeleteCertificationNotFoundThrowException() throws Exception {
+        saveCertificationInBD();
+        mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", "5648979")
+                .header("Authorization",jwtProvider.generate(TestUtils.createStudent()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testDeleteCertificationUserNotAllowedThrowException() throws Exception {
+        saveCertificationInBD();
+        Student student = TestUtils.createStudent();
+        student.setId("789466");
+        mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", studentCertification.getId())
+                .header("Authorization",jwtProvider.generate(student))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
 
     private void uploadEncryptedCertificate() throws Exception {
         String walletPassword = "walletPassword";
