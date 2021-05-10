@@ -1,6 +1,7 @@
 package com.momo.certChain.services;
 
 import com.momo.certChain.TestUtils;
+import com.momo.certChain.exception.BadPasswordException;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.PasswordNotMatchingException;
 import com.momo.certChain.model.data.Employee;
@@ -107,9 +108,10 @@ class HumanUserServiceTest {
 
         when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(humanUserRepository.findById(anyString())).thenReturn(Optional.of(student));
+        when(passwordEncoder.matches(anyString(),anyString())).thenReturn(true);
         when(passwordEncoder.encode(anyString())).thenReturn(encodedString);
 
-        HumanUser user = humanUserService.setUpPassword("123456", "salut", "salut");
+        HumanUser user = humanUserService.modifyPassword("123456","password" ,"salut", "salut");
 
         assertEquals(encodedString, user.getPassword());
     }
@@ -118,10 +120,23 @@ class HumanUserServiceTest {
     public void setUpPasswordNotMatchingThrowsExeptionTest() {
         Student student = TestUtils.createStudent();
 
+        when(passwordEncoder.matches(anyString(),anyString())).thenReturn(true);
         when(humanUserRepository.findById(anyString())).thenReturn(Optional.of(student));
 
         Assertions.assertThrows(PasswordNotMatchingException.class, () -> {
-            humanUserService.setUpPassword("123456", "salut", "mec");
+            humanUserService.modifyPassword("123456","password" ,"salut", "mec");
+        });
+    }
+
+    @Test
+    public void setBadOldPasswordThrowsExeptionTest() {
+        Student student = TestUtils.createStudent();
+
+        when(passwordEncoder.matches(anyString(),anyString())).thenReturn(false);
+        when(humanUserRepository.findById(anyString())).thenReturn(Optional.of(student));
+
+        Assertions.assertThrows(BadPasswordException.class, () -> {
+            humanUserService.modifyPassword("123456","password" ,"salut", "mec");
         });
     }
 

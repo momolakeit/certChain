@@ -1,5 +1,6 @@
 package com.momo.certChain.services;
 
+import com.momo.certChain.exception.BadPasswordException;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.PasswordNotMatchingException;
 import com.momo.certChain.model.data.HumanUser;
@@ -40,12 +41,10 @@ public class HumanUserService {
     }
 
     //set up confirmer password dans le backend aussi pour securite accrue
-    public HumanUser setUpPassword(String uuid,String password,String passwordConfirmation) {
+    public HumanUser modifyPassword(String uuid, String oldPassword, String password, String passwordConfirmation) {
         HumanUser user = getUser(uuid);
 
-        if(!password.equals(passwordConfirmation)){
-            throw new PasswordNotMatchingException();
-        }
+        verifyPasswordConditions(oldPassword, password, passwordConfirmation, user);
 
         user.setPassword(passwordEncoder.encode(password));
 
@@ -68,4 +67,14 @@ public class HumanUserService {
         return new ObjectNotFoundException("User");
     }
 
+
+    private void verifyPasswordConditions(String oldPassword, String password, String passwordConfirmation, HumanUser user) {
+        if(!passwordEncoder.matches(oldPassword, user.getPassword())){
+            throw new BadPasswordException();
+        }
+
+        if(!password.equals(passwordConfirmation)){
+            throw new PasswordNotMatchingException();
+        }
+    }
 }
