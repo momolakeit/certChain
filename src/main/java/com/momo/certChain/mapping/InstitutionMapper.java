@@ -13,7 +13,6 @@ public interface InstitutionMapper {
     InstitutionDTO toDTO (Institution institution);
 
     @Mapping(target = "id",ignore = true)
-    @Mapping(target = "certifications",ignore = true)
     Institution toEntity (InstitutionDTO institution);
 
 }

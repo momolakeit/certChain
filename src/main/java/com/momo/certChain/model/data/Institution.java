@@ -18,10 +18,6 @@ public class Institution extends User {
 
     private boolean approuved;
 
-    //todo delete list certification
-    @OneToMany
-    private List<Certification> certifications;
-
     @OneToOne
     private Certification certificationTemplate;
 

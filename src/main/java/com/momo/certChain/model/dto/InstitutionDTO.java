@@ -15,8 +15,6 @@ public class InstitutionDTO extends UserDTO {
 
     private boolean approuved;
 
-    private List<CertificationDTO> certifications;
-
     private CertificationDTO certificationTemplate;
 
     private List<CampagneDTO> campagnes;

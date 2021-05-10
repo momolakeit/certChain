@@ -10,9 +10,14 @@ import org.mapstruct.factory.Mappers;
 public interface SimpleInstitutionMapper {
     SimpleInstitutionMapper instance = Mappers.getMapper(SimpleInstitutionMapper.class);
 
+    @Mapping(target = "campagnes",ignore = true)
+    @Mapping(target = "certificationTemplate",ignore = true)
+    @Mapping(target = "institutionWallet",ignore = true)
     InstitutionDTO toDTO (Institution institution);
 
-    @Mapping(target = "id",ignore = true)
+    @Mapping(target = "campagnes",ignore = true)
+    @Mapping(target = "certificationTemplate",ignore = true)
+    @Mapping(target = "institutionWallet",ignore = true)
     Institution toEntity (InstitutionDTO institution);
 
 }
