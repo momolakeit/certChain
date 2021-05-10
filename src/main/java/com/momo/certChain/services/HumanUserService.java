@@ -30,9 +30,11 @@ public class HumanUserService {
     }
 
     public HumanUser createHumanUser(HumanUser humanUser,String encryptionKey) throws MessagingException {
+        String generatedPassword = RandomStringUtils.randomAlphanumeric(10);
+
         humanUser.setPasswordResseted(false);
-        humanUser.setPassword(passwordEncoder.encode(RandomStringUtils.randomAlphanumeric(10)));
-        messageService.sendEmailToHumanUser(humanUser,encryptionKey);
+        humanUser.setPassword(passwordEncoder.encode(generatedPassword));
+        messageService.sendEmailToHumanUser(humanUser,encryptionKey,generatedPassword);
 
         return saveUser(humanUser);
     }

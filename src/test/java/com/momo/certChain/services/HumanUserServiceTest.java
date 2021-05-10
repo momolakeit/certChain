@@ -43,6 +43,9 @@ class HumanUserServiceTest {
     @Captor
     private ArgumentCaptor<String> encKeyPrivateKey;
 
+    @Captor
+    private ArgumentCaptor<String> passwordCaptor;
+
     MockedStatic<RandomStringUtils> randomStringUtilsMockedStatic;
 
     @BeforeEach
@@ -59,16 +62,18 @@ class HumanUserServiceTest {
     public void createStudentUserTest() throws MessagingException {
         String privateKey="superPrivate";
         Student student = TestUtils.createStudent();
+        String password = "password";
 
-        randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(10)).thenReturn("password");
+        randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(10)).thenReturn(password);
         when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         Student returnValue = (Student) humanUserService.createHumanUser(student,privateKey);
 
-        verify(messageService, times(1)).sendEmailToHumanUser(any(HumanUser.class),encKeyPrivateKey.capture());
+        verify(messageService, times(1)).sendEmailToHumanUser(any(HumanUser.class),encKeyPrivateKey.capture(),passwordCaptor.capture());
 
         assertEquals(privateKey,encKeyPrivateKey.getValue());
+        assertEquals(password,passwordCaptor.getValue());
         assertFalse(returnValue.isPasswordResseted());
         TestUtils.assertBaseUser(returnValue);
         TestUtils.assertInstitution(returnValue.getInstitution());
@@ -78,16 +83,18 @@ class HumanUserServiceTest {
     public void createEmployeeUserTest() throws MessagingException {
         Employee employe = TestUtils.createEmploye();
         String privateKey="superPrivate";
+        String password = "password";
 
-        randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(10)).thenReturn("password");
+        randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(10)).thenReturn(password);
         when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
 
         Employee returnValue = (Employee) humanUserService.createHumanUser(employe,privateKey);
-        verify(messageService, times(1)).sendEmailToHumanUser(any(HumanUser.class),encKeyPrivateKey.capture());
+        verify(messageService, times(1)).sendEmailToHumanUser(any(HumanUser.class),encKeyPrivateKey.capture(),passwordCaptor.capture());
 
         assertEquals(privateKey,encKeyPrivateKey.getValue());
+        assertEquals(password,passwordCaptor.getValue());
         assertFalse(returnValue.isPasswordResseted());
         TestUtils.assertBaseUser(returnValue);
         TestUtils.assertInstitution(returnValue.getInstitution());

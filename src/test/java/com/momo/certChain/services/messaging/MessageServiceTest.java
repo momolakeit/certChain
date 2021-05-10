@@ -45,12 +45,13 @@ class MessageServiceTest {
         Student student = TestUtils.createStudent();
         student.setId("123456");
         String privateKey ="superPrivate";
-        String messageString = frontEndUrl +"createPassword/" +student.getId()+".com"+
-                               "This is the password, save it so you can retreive your diploma:"+privateKey;
+        String password = "password";
+        String messageString = frontEndUrl + "/logIn.com.Veuillez vous connecter avec votre courriel et le ce mot de passe:"+password+
+                "This is the password, save it so you can retreive your diploma:" + privateKey;
         String from =  "certChain@"+student.getInstitution().getName()+".com";
 
         when(javaMailSender.createMimeMessage()).thenReturn(createMimeMessage());
-        messageService.sendEmailToHumanUser(student,privateKey);
+        messageService.sendEmailToHumanUser(student,privateKey,password);
         verify(javaMailSender).send(messageArgumentCaptor.capture());
 
         Message message = messageArgumentCaptor.getValue();

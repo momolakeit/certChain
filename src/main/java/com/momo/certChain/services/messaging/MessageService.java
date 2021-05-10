@@ -26,12 +26,12 @@ public class MessageService {
         this.javaMailSender = javaMailSender;
     }
 
-    public void sendEmailToHumanUser(HumanUser humanUser, String privateKey) throws MessagingException {
+    public void sendEmailToHumanUser(HumanUser humanUser, String privateKey,String password) throws MessagingException {
         String from = "certChain@" + humanUser.getInstitution().getName() + ".com";
 
         String subject = "Receive your diploma !";
         String to = humanUser.getUsername();
-        String text = frontEndUrl + "createPassword/" + humanUser.getId() + ".com" +
+        String text = frontEndUrl + "/logIn.com.Veuillez vous connecter avec votre courriel et le ce mot de passe:"+password+
                 "This is the password, save it so you can retreive your diploma:" + privateKey;
 
         sendEmail(from, subject, to, text);
