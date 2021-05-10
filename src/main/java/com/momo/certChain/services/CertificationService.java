@@ -1,5 +1,6 @@
 package com.momo.certChain.services;
 
+import com.momo.certChain.exception.CannotDeleteCertificateException;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.UserForgottenException;
 import com.momo.certChain.mapping.CertificationMapper;
@@ -10,16 +11,13 @@ import com.momo.certChain.model.data.Signature;
 import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.services.blockChain.ContractService;
-import com.momo.certChain.services.blockChain.ContractServiceImpl;
+import com.momo.certChain.services.request.HeaderCatcherService;
 import com.momo.certChain.services.security.EncryptionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -40,16 +38,20 @@ public class CertificationService {
 
     private final EncryptionService encryptionService;
 
+    private final HeaderCatcherService headerCatcherService;
+
     public CertificationService(CertificationRepository certificationRepository,
                                 ImageFileService imageFileService,
                                 SignatureService signatureService,
                                 ContractService contractService,
-                                EncryptionService encryptionService) {
+                                EncryptionService encryptionService,
+                                HeaderCatcherService headerCatcherService) {
         this.certificationRepository = certificationRepository;
         this.imageFileService = imageFileService;
         this.signatureService = signatureService;
         this.contractService = contractService;
         this.encryptionService = encryptionService;
+        this.headerCatcherService = headerCatcherService;
     }
 
     public Certification createCertificationTemplate(Certification certification, byte[] universityLogoBytes, byte[] universityStampBytes) {
@@ -103,6 +105,7 @@ public class CertificationService {
 
     public void forgetCertificate(String uuid){
         Certification certification = findCertification(uuid);
+        canUserDeleteCertificate(certification);
         certification.setSalt(null);
         saveCertification(certification);
     }
@@ -124,6 +127,13 @@ public class CertificationService {
                                 certificationTemplate.getUniversityStamp(),
                                 signatures);
         studentCertification.setCertificateText(certificationTemplate.getCertificateText());
+    }
+
+    private void canUserDeleteCertificate(Certification certification) {
+        String connectedUser = headerCatcherService.getUserId();
+        if(!certification.getStudent().getId().equals(connectedUser)){
+            throw new CannotDeleteCertificateException();
+        }
     }
 
     private void initCertificationFields(Certification certification, ImageFile imageFileUniversityLogo, ImageFile imageFileUniversityStamp, List<Signature> signatures) {

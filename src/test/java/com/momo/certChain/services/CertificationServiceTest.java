@@ -1,12 +1,14 @@
 package com.momo.certChain.services;
 
 import com.momo.certChain.TestUtils;
+import com.momo.certChain.exception.CannotDeleteCertificateException;
 import com.momo.certChain.exception.UserForgottenException;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.ImageFile;
 import com.momo.certChain.model.data.Signature;
 import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
+import com.momo.certChain.services.request.HeaderCatcherService;
 import com.momo.certChain.services.security.EncryptionService;
 import org.checkerframework.checker.nullness.Opt;
 import org.junit.jupiter.api.Assertions;
@@ -50,6 +52,9 @@ class CertificationServiceTest {
 
     @Mock
     private EncryptionService encryptionService;
+
+    @Mock
+    private HeaderCatcherService headerCatcherService;
 
     @Captor
     private ArgumentCaptor<Certification> certificationArgumentCaptor;
@@ -166,6 +171,7 @@ class CertificationServiceTest {
         certification.setSalt("salty");
 
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
+        when(headerCatcherService.getUserId()).thenReturn(certification.getStudent().getId());
 
         certificationService.forgetCertificate("123456");
 
@@ -175,6 +181,20 @@ class CertificationServiceTest {
 
         assertNotNull(returnValCertification);
         assertNull(returnValCertification.getSalt());
+    }
+
+    @Test
+    public void forgetNotOwnerThrowsExceptionTest(){
+        Certification certification =  TestUtils.createCertification();
+        certification.setSalt("salty");
+
+        when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
+        when(headerCatcherService.getUserId()).thenReturn("badId");
+
+        Assertions.assertThrows(CannotDeleteCertificateException.class,()->{
+            certificationService.forgetCertificate("123456");
+        });
+
     }
 
 
