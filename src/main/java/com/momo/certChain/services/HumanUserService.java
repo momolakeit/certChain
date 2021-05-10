@@ -5,6 +5,7 @@ import com.momo.certChain.exception.PasswordNotMatchingException;
 import com.momo.certChain.model.data.HumanUser;
 import com.momo.certChain.repositories.HumanUserRepository;
 import com.momo.certChain.services.messaging.MessageService;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ public class HumanUserService {
 
     public HumanUser createHumanUser(HumanUser humanUser,String encryptionKey) throws MessagingException {
         humanUser.setPasswordResseted(false);
+        humanUser.setPassword(passwordEncoder.encode(RandomStringUtils.randomAlphanumeric(10)));
         messageService.sendEmailToHumanUser(humanUser,encryptionKey);
 
         return saveUser(humanUser);

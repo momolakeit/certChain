@@ -8,13 +8,13 @@ import com.momo.certChain.model.data.HumanUser;
 import com.momo.certChain.model.data.Student;
 import com.momo.certChain.repositories.HumanUserRepository;
 import com.momo.certChain.services.messaging.MessageService;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -43,11 +43,26 @@ class HumanUserServiceTest {
     @Captor
     private ArgumentCaptor<String> encKeyPrivateKey;
 
+    MockedStatic<RandomStringUtils> randomStringUtilsMockedStatic;
+
+    @BeforeEach
+    public void init(){
+        randomStringUtilsMockedStatic = mockStatic(RandomStringUtils.class);
+    }
+
+    @AfterEach
+    public void destroy(){
+        randomStringUtilsMockedStatic.closeOnDemand();
+    }
+
     @Test
     public void createStudentUserTest() throws MessagingException {
-        when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         String privateKey="superPrivate";
         Student student = TestUtils.createStudent();
+
+        randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(10)).thenReturn("password");
+        when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         Student returnValue = (Student) humanUserService.createHumanUser(student,privateKey);
 
@@ -64,7 +79,10 @@ class HumanUserServiceTest {
         Employee employe = TestUtils.createEmploye();
         String privateKey="superPrivate";
 
+        randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(10)).thenReturn("password");
         when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
 
         Employee returnValue = (Employee) humanUserService.createHumanUser(employe,privateKey);
         verify(messageService, times(1)).sendEmailToHumanUser(any(HumanUser.class),encKeyPrivateKey.capture());
