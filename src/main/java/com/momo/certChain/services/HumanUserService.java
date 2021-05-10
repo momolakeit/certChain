@@ -3,7 +3,12 @@ package com.momo.certChain.services;
 import com.momo.certChain.exception.BadPasswordException;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.PasswordNotMatchingException;
+import com.momo.certChain.mapping.EmployeeMapper;
+import com.momo.certChain.mapping.StudentMapper;
+import com.momo.certChain.model.data.Employee;
 import com.momo.certChain.model.data.HumanUser;
+import com.momo.certChain.model.data.Student;
+import com.momo.certChain.model.dto.HumanUserDTO;
 import com.momo.certChain.repositories.HumanUserRepository;
 import com.momo.certChain.services.messaging.MessageService;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -53,6 +58,18 @@ public class HumanUserService {
 
     public HumanUser getUser(String uuid) {
         return humanUserRepository.findById(uuid).orElseThrow(this::humanUserNotFound);
+    }
+
+    //todo test that
+    public HumanUserDTO toDTO (HumanUser humanUser){
+        if(humanUser instanceof Student){
+            return StudentMapper.instance.toDTO((Student) humanUser);
+        }
+        else if (humanUser instanceof Employee){
+            return EmployeeMapper.instance.toDTO((Employee) humanUser);
+        }
+        throw new ClassCastException();
+
     }
 
     public HumanUser saveUser(HumanUser user){

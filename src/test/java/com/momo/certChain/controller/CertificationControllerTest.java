@@ -66,22 +66,22 @@ class CertificationControllerTest {
     Certification studentCertification;
 
     @BeforeEach
-    public void init(){
+    public void init() {
         mockMvc = MockMvcBuilders.standaloneSetup(certificationController).build();
     }
 
     @Test
     public void testCreateCertificationTemplate() throws Exception {
         MockMultipartFile universityLogo = new MockMultipartFile("universityLogo", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
-        MockMultipartFile universityStamp= new MockMultipartFile("universityStamp", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
+        MockMultipartFile universityStamp = new MockMultipartFile("universityStamp", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
 
         Certification certification = TestUtils.createCertificationTemplate();
         certification.setId(null);
 
         mockMvc.perform(MockMvcRequestBuilders.multipart("/certification/createTemplate")
-                .file("universityLogo",universityLogo.getBytes())
-                .file("universityStamp",universityStamp.getBytes())
-                .param("certificationDTO",objectMapper.writeValueAsString(CertificationMapper.instance.toDTO(certification)))
+                .file("universityLogo", universityLogo.getBytes())
+                .file("universityStamp", universityStamp.getBytes())
+                .param("certificationDTO", objectMapper.writeValueAsString(CertificationMapper.instance.toDTO(certification)))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -90,7 +90,7 @@ class CertificationControllerTest {
     @Test
     public void testGetCertification() throws Exception {
         uploadEncryptedCertificate();
-        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{id}/{key}",studentCertification.getId(),"walletPassword")
+        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{id}/{key}", studentCertification.getId(), "walletPassword")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -99,25 +99,25 @@ class CertificationControllerTest {
     private void uploadEncryptedCertificate() throws Exception {
         String walletPassword = "walletPassword";
         Address address = TestUtils.createAddress();
-        Institution institution = institutionService.createInstitution( address.getStreet(),
-                                                                        address.getCity(),
-                                                                        address.getProvince(),
-                                                                        address.getPostalCode(),
-                                                                        address.getCountry(),
-                                                                        "name",
-                                                                        walletPassword,
-                                                                        "username",
-                                                                        "password",
-                                                                        "password");
-        String privateKey = encryptionService.decryptData(walletPassword,institution.getInstitutionWallet().getPrivateKey(),institution.getInstitutionWallet().getSalt());
-        String publicKey = encryptionService.decryptData(walletPassword,institution.getInstitutionWallet().getPublicKey(),institution.getInstitutionWallet().getSalt());
-        ECKeyPair ecKeyPair = new ECKeyPair(new BigInteger(privateKey),new BigInteger(publicKey));
+        Institution institution = institutionService.createInstitution(address.getStreet(),
+                address.getCity(),
+                address.getProvince(),
+                address.getPostalCode(),
+                address.getCountry(),
+                "name",
+                walletPassword,
+                "username",
+                "password",
+                "password");
+        String privateKey = encryptionService.decryptData(walletPassword, institution.getInstitutionWallet().getPrivateKey(), institution.getInstitutionWallet().getSalt());
+        String publicKey = encryptionService.decryptData(walletPassword, institution.getInstitutionWallet().getPublicKey(), institution.getInstitutionWallet().getSalt());
+        ECKeyPair ecKeyPair = new ECKeyPair(new BigInteger(privateKey), new BigInteger(publicKey));
 
-        institution = institutionService.uploadCertificateContract(institution.getId(),walletPassword);
+        institution = institutionService.uploadCertificateContract(institution.getId(), walletPassword);
 
         saveCertificationInBD();
 
-        certificationService.uploadCertificationToBlockChain(studentCertification,initCertificationTemplate(institution),institution.getContractAddress(),ecKeyPair,"walletPassword");
+        certificationService.uploadCertificationToBlockChain(studentCertification, initCertificationTemplate(institution), institution.getContractAddress(), ecKeyPair, "walletPassword");
 
     }
 

@@ -7,6 +7,8 @@ import com.momo.certChain.exception.PasswordNotMatchingException;
 import com.momo.certChain.model.data.Employee;
 import com.momo.certChain.model.data.HumanUser;
 import com.momo.certChain.model.data.Student;
+import com.momo.certChain.model.dto.EmployeesDTO;
+import com.momo.certChain.model.dto.StudentDTO;
 import com.momo.certChain.repositories.HumanUserRepository;
 import com.momo.certChain.services.messaging.MessageService;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -172,5 +174,28 @@ class HumanUserServiceTest {
         });
     }
 
+    @Test
+    public void studentToDTO(){
+        Student student = TestUtils.createStudent();
+
+        StudentDTO studentDTO = (StudentDTO) humanUserService.toDTO(student);
+        assertEquals(studentDTO.getNom(),student.getNom());
+        assertEquals(studentDTO.getPrenom(),student.getPrenom());
+        assertEquals(studentDTO.getUsername(),student.getUsername());
+        assertEquals(studentDTO.getId(),student.getId());
+        assertEquals(studentDTO.getPrenom(),student.getPrenom());
+    }
+
+    @Test
+    public void employeeToDTO(){
+        Employee employee = TestUtils.createEmploye();
+
+        EmployeesDTO employeeDTO = (EmployeesDTO) humanUserService.toDTO(employee);
+        assertEquals(employeeDTO.getNom(),employee.getNom());
+        assertEquals(employeeDTO.getPrenom(),employee.getPrenom());
+        assertEquals(employeeDTO.getUsername(),employee.getUsername());
+        assertEquals(employeeDTO.getId(),employee.getId());
+        assertEquals(employeeDTO.getPrenom(),employee.getPrenom());
+    }
 
 }
