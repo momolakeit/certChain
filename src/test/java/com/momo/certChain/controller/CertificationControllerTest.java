@@ -83,7 +83,7 @@ class CertificationControllerTest {
 
     @Test
     public void testDeleteCertfication() throws Exception {
-        saveCertificationInBD(null);
+        saveCertificationInBD();
         mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", studentCertification.getId())
                 .header("Authorization",jwtProvider.generate(TestUtils.createStudent()))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -93,7 +93,7 @@ class CertificationControllerTest {
 
     @Test
     public void testDeleteCertificationNotFoundThrowException() throws Exception {
-        saveCertificationInBD(null);
+        saveCertificationInBD();
         mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", "5648979")
                 .header("Authorization",jwtProvider.generate(TestUtils.createStudent()))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -103,7 +103,7 @@ class CertificationControllerTest {
 
     @Test
     public void testDeleteCertificationUserNotAllowedThrowException() throws Exception {
-        saveCertificationInBD(null);
+        saveCertificationInBD();
         Student student = TestUtils.createStudent();
         student.setId("789466");
         mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", studentCertification.getId())
@@ -133,7 +133,7 @@ class CertificationControllerTest {
 
         institution = institutionService.uploadCertificateContract(institution.getId(), walletPassword);
 
-        saveCertificationInBD(institution);
+        saveCertificationInBD();
 
         certificationService.uploadCertificationToBlockChain(studentCertification, initCertificationTemplate(institution), institution.getContractAddress(), ecKeyPair, "walletPassword");
 
@@ -146,11 +146,10 @@ class CertificationControllerTest {
         return certificationTemplate;
     }
 
-    private void saveCertificationInBD(Institution institution) {
+    private void saveCertificationInBD() {
         studentCertification = TestUtils.createCertification();
         studentCertification.setId(null);
         studentCertification.setSalt(KeyGenerators.string().generateKey());
-        //studentCertification.setInstitution(institution);
         studentCertification = certificationRepository.save(studentCertification);
     }
 }
