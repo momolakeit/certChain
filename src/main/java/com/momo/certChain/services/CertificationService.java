@@ -7,6 +7,7 @@ import com.momo.certChain.mapping.CertificationMapper;
 import com.momo.certChain.mapping.SignatureMapper;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.ImageFile;
+import com.momo.certChain.model.data.Institution;
 import com.momo.certChain.model.data.Signature;
 import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.repositories.CertificationRepository;
@@ -54,26 +55,26 @@ public class CertificationService {
         this.headerCatcherService = headerCatcherService;
     }
 
-    //todo associer certification a institution
-    public Certification createCertificationTemplate(Certification certification, byte[] universityLogoBytes, byte[] universityStampBytes) {
+    public Certification createCertificationTemplate(Certification certification, byte[] universityLogoBytes, byte[] universityStampBytes, Institution institution) {
         List<Signature> signatures = new ArrayList<>();
         for (Signature signature : certification.getSignatures()) {
             signatures.add(signatureService.createSignature(signature.getAuthorName()));
         }
         initCertificationFields(certification,
                                 imageFileService.createImageFile(universityLogoBytes),
-                                imageFileService.createImageFile(universityStampBytes), signatures);
+                                imageFileService.createImageFile(universityStampBytes),
+                                signatures,
+                                institution);
         return saveCertification(certification);
     }
 
     //todo test that
 
     public void uploadCertificationToBlockChain(Certification studentCertification, Certification certificationTemplate, String contractAdress, ECKeyPair ecKeyPair, String encryptionKey) throws Exception {
-        studentCertification.setInstitution(certificationTemplate.getInstitution());
         studentCertification = saveCertification(studentCertification);
         certificationTemplate = CertificationMapper.instance.toSimple(certificationTemplate);
 
-        mapCertificateTemplateToStudentCertification(studentCertification, certificationTemplate);
+        mapCertificateTemplateToStudentCertification(studentCertification, certificationTemplate,certificationTemplate.getInstitution());
 
         contractService.uploadCertificate(studentCertification, contractAdress, ecKeyPair, encryptionKey);
     }
@@ -119,14 +120,15 @@ public class CertificationService {
         return new ObjectNotFoundException("Certification");
     }
 
-    private void mapCertificateTemplateToStudentCertification(Certification studentCertification, Certification certificationTemplate) {
+    private void mapCertificateTemplateToStudentCertification(Certification studentCertification, Certification certificationTemplate,Institution institution) {
         List<Signature> signatures = certificationTemplate.getSignatures().stream()
                                                           .map(SignatureMapper.instance::toSimpleSignature)
                                                           .collect(Collectors.toList());
         initCertificationFields(studentCertification,
                                 certificationTemplate.getUniversityLogo(),
                                 certificationTemplate.getUniversityStamp(),
-                                signatures);
+                                signatures,
+                                institution);
         studentCertification.setCertificateText(certificationTemplate.getCertificateText());
     }
 
@@ -137,9 +139,10 @@ public class CertificationService {
         }
     }
 
-    private void initCertificationFields(Certification certification, ImageFile imageFileUniversityLogo, ImageFile imageFileUniversityStamp, List<Signature> signatures) {
+    private void initCertificationFields(Certification certification, ImageFile imageFileUniversityLogo, ImageFile imageFileUniversityStamp, List<Signature> signatures,Institution institution) {
         certification.setSignatures(signatures);
         certification.setUniversityLogo(imageFileUniversityLogo);
         certification.setUniversityStamp(imageFileUniversityStamp);
+        certification.setInstitution(institution);
     }
 }

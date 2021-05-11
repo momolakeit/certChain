@@ -73,23 +73,6 @@ class CertificationControllerTest {
     }
 
     @Test
-    public void testCreateCertificationTemplate() throws Exception {
-        MockMultipartFile universityLogo = new MockMultipartFile("universityLogo", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
-        MockMultipartFile universityStamp = new MockMultipartFile("universityStamp", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
-
-        Certification certification = TestUtils.createCertificationTemplate();
-        certification.setId(null);
-
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/certification/createTemplate")
-                .file("universityLogo", universityLogo.getBytes())
-                .file("universityStamp", universityStamp.getBytes())
-                .param("certificationDTO", objectMapper.writeValueAsString(CertificationMapper.instance.toDTO(certification)))
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
-    @Test
     public void testGetCertification() throws Exception {
         uploadEncryptedCertificate();
         mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{id}/{key}", studentCertification.getId(), "walletPassword")
@@ -100,7 +83,7 @@ class CertificationControllerTest {
 
     @Test
     public void testDeleteCertfication() throws Exception {
-        saveCertificationInBD();
+        saveCertificationInBD(null);
         mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", studentCertification.getId())
                 .header("Authorization",jwtProvider.generate(TestUtils.createStudent()))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -110,7 +93,7 @@ class CertificationControllerTest {
 
     @Test
     public void testDeleteCertificationNotFoundThrowException() throws Exception {
-        saveCertificationInBD();
+        saveCertificationInBD(null);
         mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", "5648979")
                 .header("Authorization",jwtProvider.generate(TestUtils.createStudent()))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -120,7 +103,7 @@ class CertificationControllerTest {
 
     @Test
     public void testDeleteCertificationUserNotAllowedThrowException() throws Exception {
-        saveCertificationInBD();
+        saveCertificationInBD(null);
         Student student = TestUtils.createStudent();
         student.setId("789466");
         mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", studentCertification.getId())
@@ -150,7 +133,7 @@ class CertificationControllerTest {
 
         institution = institutionService.uploadCertificateContract(institution.getId(), walletPassword);
 
-        saveCertificationInBD();
+        saveCertificationInBD(institution);
 
         certificationService.uploadCertificationToBlockChain(studentCertification, initCertificationTemplate(institution), institution.getContractAddress(), ecKeyPair, "walletPassword");
 
@@ -163,10 +146,11 @@ class CertificationControllerTest {
         return certificationTemplate;
     }
 
-    private void saveCertificationInBD() {
+    private void saveCertificationInBD(Institution institution) {
         studentCertification = TestUtils.createCertification();
         studentCertification.setId(null);
         studentCertification.setSalt(KeyGenerators.string().generateKey());
+        //studentCertification.setInstitution(institution);
         studentCertification = certificationRepository.save(studentCertification);
     }
 }

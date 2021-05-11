@@ -19,6 +19,7 @@ import org.web3j.crypto.CipherException;
 import org.web3j.crypto.ECKeyPair;
 
 import javax.mail.MessagingException;
+import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -52,6 +53,9 @@ class InstitutionServiceTest {
 
     @Mock
     private WalletService walletService;
+
+    @Mock
+    private CertificationService certificationService;
 
     @Mock
     private KeyPairService keyPairService;
@@ -94,6 +98,18 @@ class InstitutionServiceTest {
         assertFalse(institution.isApprouved());
         TestUtils.assertAddress(returnVal.getAddress());
         assertInstitution(institution, returnVal);
+
+    }
+
+    @Test
+    public void testCreateTemplate() throws IOException {
+        when(institutionRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createInstitution()));
+        when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(certificationService.createCertificationTemplate(any(Certification.class),any(byte[].class),any(byte[].class),any(Institution.class))).thenReturn(TestUtils.createCertificationTemplate());
+
+        Institution institution = institutionService.createInstitutionCertificateTemplate("123456",TestUtils.createCertificationTemplate(),TestUtils.getExcelByteArray(),TestUtils.getExcelByteArray());
+
+        TestUtils.assertCertificationInstitution(institution.getCertificationTemplate());
 
     }
 

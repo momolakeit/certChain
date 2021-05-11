@@ -2,6 +2,7 @@ package com.momo.certChain.controller;
 
 import com.momo.certChain.TestUtils;
 import com.momo.certChain.mapping.AddressMapper;
+import com.momo.certChain.mapping.CertificationMapper;
 import com.momo.certChain.mapping.InstitutionMapper;
 import com.momo.certChain.model.data.Address;
 import com.momo.certChain.model.data.Certification;
@@ -12,7 +13,6 @@ import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.repositories.WalletRepository;
 import com.momo.certChain.services.blockChain.ContractService;
-import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.messaging.MessageService;
 import com.momo.certChain.services.security.EncryptionService;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +63,7 @@ class InstitutionControllerTest {
     @MockBean
     private MessageService messageService;
 
-    private String conversationId;
+    private String institutionId;
 
     private MockMvc mockMvc;
 
@@ -91,8 +91,45 @@ class InstitutionControllerTest {
 
         institution.setCertificationTemplate(certificationRepository.save(certification));
         institution.setInstitutionWallet(walletRepository.save(institutionWallet));
-        conversationId = institutionRepository.save(institution).getId();
+        institutionId = institutionRepository.save(institution).getId();
     }
+
+    @Test
+    public void testCreateCertificationTemplate() throws Exception {
+        MockMultipartFile universityLogo = new MockMultipartFile("universityLogo", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
+        MockMultipartFile universityStamp = new MockMultipartFile("universityStamp", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
+
+        Certification certification = TestUtils.createCertificationTemplate();
+        certification.setId(null);
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/createTemplate")
+                .file("universityLogo", universityLogo.getBytes())
+                .file("universityStamp", universityStamp.getBytes())
+                .param("certificationDTO", objectMapper.writeValueAsString(CertificationMapper.instance.toDTO(certification)))
+                .param("institutionId",institutionId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testCreateCertificationTemplateInstitutionNotFound() throws Exception {
+        MockMultipartFile universityLogo = new MockMultipartFile("universityLogo", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
+        MockMultipartFile universityStamp = new MockMultipartFile("universityStamp", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
+
+        Certification certification = TestUtils.createCertificationTemplate();
+        certification.setId(null);
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/createTemplate")
+                .file("universityLogo", universityLogo.getBytes())
+                .file("universityStamp", universityStamp.getBytes())
+                .param("certificationDTO", objectMapper.writeValueAsString(CertificationMapper.instance.toDTO(certification)))
+                .param("institutionId","789456")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
 
     @Test
     public void testCreateInstitution() throws Exception {
@@ -111,7 +148,7 @@ class InstitutionControllerTest {
 
     @Test
     public void testGetInstitution() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/institution/{institutionId}",conversationId)
+        mockMvc.perform(MockMvcRequestBuilders.get("/institution/{institutionId}", institutionId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -129,7 +166,7 @@ class InstitutionControllerTest {
     public void testUploadCertificationToBlockchain() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/uploadCertification/{institutionId}",conversationId)
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/uploadCertification/{institutionId}", institutionId)
                 .file(file)
                 .param("walletPassword",encryptionKey)
                 .param("campagneName",campagneName)

@@ -90,7 +90,7 @@ class CertificationServiceTest {
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(imageFileService.createImageFile(any(byte[].class))).thenReturn(TestUtils.createImageFile());
 
-        Certification returnValueCertification = certificationService.createCertificationTemplate(certification,TestUtils.getExcelByteArray(),TestUtils.getExcelByteArray());
+        Certification returnValueCertification = certificationService.createCertificationTemplate(certification,TestUtils.getExcelByteArray(),TestUtils.getExcelByteArray(),TestUtils.createInstitution());
 
         assertEquals(certification.getCertificateText(), returnValueCertification.getCertificateText());
         assertEquals(signaturesList.get(0).getAuthorName(), returnValueCertification.getSignatures().get(0).getAuthorName());
@@ -98,6 +98,7 @@ class CertificationServiceTest {
         assertEquals(signaturesList.get(2).getAuthorName(), returnValueCertification.getSignatures().get(2).getAuthorName());
         assertNotNull(returnValueCertification.getUniversityStamp().getBytes());
         assertNotNull(returnValueCertification.getUniversityLogo().getBytes());
+        TestUtils.assertInstitution(returnValueCertification.getInstitution());
     }
 
     @Test

@@ -45,6 +45,8 @@ public class InstitutionService {
 
     private final MessageService messageService;
 
+    private final CertificationService certificationService;
+
     public InstitutionService(InstitutionRepository institutionRepository,
                               AddressService addressService,
                               ContractService contractService,
@@ -52,7 +54,8 @@ public class InstitutionService {
                               WalletService walletService,
                               CampagneService campagneService,
                               KeyPairService keyPairService,
-                              MessageService messageService) {
+                              MessageService messageService,
+                              CertificationService certificationService) {
         this.institutionRepository = institutionRepository;
         this.addressService = addressService;
         this.contractService = contractService;
@@ -61,6 +64,7 @@ public class InstitutionService {
         this.campagneService = campagneService;
         this.keyPairService = keyPairService;
         this.messageService = messageService;
+        this.certificationService = certificationService;
     }
 
     public Institution createInstitution(String street,
@@ -92,6 +96,12 @@ public class InstitutionService {
                                                             institution.getInstitutionWallet().getSalt(),
                                                             walletPassword);
         institution.setContractAddress(contractService.uploadContract(keyPair));
+        return saveInstitution(institution);
+    }
+
+    public Institution createInstitutionCertificateTemplate(String institutionId,Certification certification, byte[] universityLogoBytes, byte[] universityStampBytes){
+        Institution institution = getInstitution(institutionId);
+        institution.setCertificationTemplate(certificationService.createCertificationTemplate(certification,universityLogoBytes,universityStampBytes,institution));
         return saveInstitution(institution);
     }
 
