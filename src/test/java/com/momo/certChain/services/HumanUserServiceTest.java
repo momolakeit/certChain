@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.mail.MessagingException;
+import java.io.IOException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -62,7 +63,7 @@ class HumanUserServiceTest {
     }
 
     @Test
-    public void createStudentUserTest() throws MessagingException {
+    public void createStudentUserTest() throws MessagingException, IOException {
         String privateKey="superPrivate";
         Student student = TestUtils.createStudent();
         String password = "password";
@@ -83,7 +84,7 @@ class HumanUserServiceTest {
     }
 
     @Test
-    public void createEmployeeUserTest() throws MessagingException {
+    public void createEmployeeUserTest() throws MessagingException, IOException {
         Employee employe = TestUtils.createEmploye();
         String privateKey="superPrivate";
         String password = "password";

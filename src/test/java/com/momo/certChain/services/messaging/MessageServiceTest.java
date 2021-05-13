@@ -43,6 +43,8 @@ class MessageServiceTest {
     @Test
     public void sendMessage() throws MessagingException, IOException {
         Student student = TestUtils.createStudent();
+        student.setPrenom("prenom");
+        student.setNom("nom");
         student.setId("123456");
         String privateKey ="superPrivate";
         String password = "password";
@@ -60,8 +62,10 @@ class MessageServiceTest {
         assertEquals(student.getUsername(),address.toString());
         assertEquals(from,message.getFrom()[0].toString());
         assertEquals(from,message.getFrom()[0].toString());
-        assertEquals(messageString,String.valueOf(message.getContent()));
-
+        assertTrue(String.valueOf(message.getContent()).contains(student.getNom()));
+        assertTrue(String.valueOf(message.getContent()).contains(student.getPrenom()));
+        assertTrue(String.valueOf(message.getContent()).contains(privateKey));
+        assertTrue(String.valueOf(message.getContent()).contains(frontEndUrl+"logIn.com."));
     }
 
     @Test

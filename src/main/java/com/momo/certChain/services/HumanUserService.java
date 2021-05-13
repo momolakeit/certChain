@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -35,7 +36,7 @@ public class HumanUserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public HumanUser createHumanUser(HumanUser humanUser,String encryptionKey) throws MessagingException {
+    public HumanUser createHumanUser(HumanUser humanUser,String encryptionKey) throws MessagingException, IOException {
         String generatedPassword = RandomStringUtils.randomAlphanumeric(10);
 
         humanUser.setPasswordResseted(false);
