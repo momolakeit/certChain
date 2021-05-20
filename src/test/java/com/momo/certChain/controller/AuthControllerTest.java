@@ -1,7 +1,9 @@
 package com.momo.certChain.controller;
 
 import com.momo.certChain.TestUtils;
+import com.momo.certChain.model.data.Admin;
 import com.momo.certChain.model.data.Student;
+import com.momo.certChain.model.dto.request.CreateUserDTO;
 import com.momo.certChain.model.dto.request.LogInDTO;
 import com.momo.certChain.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,6 +59,7 @@ class AuthControllerTest {
         userRepository.save(student);
 
         mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
+
     }
 
     @Test
@@ -76,6 +79,34 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(401));
+    }
+
+    @Test
+    public void createAdminTest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/auth/admin")
+                .content(objectMapper.writeValueAsString(new CreateUserDTO("email@mail.com","password","password")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void createAdminAlreadyExistTest() throws Exception {
+        userRepository.save(new Admin());
+        mockMvc.perform(MockMvcRequestBuilders.post("/auth/admin")
+                .content(objectMapper.writeValueAsString(new CreateUserDTO("email@mail.com","password","password")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createAdminBadPasswordConfirmationTest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/auth/admin")
+                .content(objectMapper.writeValueAsString(new CreateUserDTO("email@mail.com","password","passwordNotMatch")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
     }
 
 

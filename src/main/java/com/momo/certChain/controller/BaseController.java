@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 public abstract class BaseController {
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<Object> handleNotFoundException(ObjectNotFoundException exception){
+    public ResponseEntity<Object> handleNotFoundException(ValidationException exception){
         return new ResponseEntity<Object>(exception.getMessage(),new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
