@@ -179,7 +179,6 @@ class InstitutionServiceTest {
 
     @Test
     public void uploadContractToBlockchainInstitutionNotApproved() throws Exception {
-        String contractAddress = "contractAddress";
         Institution institution = TestUtils.createInstitutionWithWallet();
         institution.setApprouved(false);
         String walletPassword = "walletPassword";
@@ -187,9 +186,8 @@ class InstitutionServiceTest {
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
 
         Assertions.assertThrows(ValidationException.class,()->{
-            
-        })
-        institutionService.uploadCertificateContract("123456", walletPassword);
+            institutionService.uploadCertificateContract("123456", walletPassword);
+        });
 
     }
 
@@ -207,7 +205,7 @@ class InstitutionServiceTest {
     }
 
     @Test
-    public void uploadCertification() throws Exception {
+    public void uploadCertificationTemplate() throws Exception {
         int nbDeStudents = 100;
         List<HumanUser> listeOfStudents = initStudentsList(nbDeStudents);
         String campagneName = "campagneName";
@@ -233,6 +231,20 @@ class InstitutionServiceTest {
         }
 
         TestUtils.assertCampagne(returnInstitution.getCampagnes().get(0));
+    }
+
+    @Test
+    public void uploadCertificationTemplateInstitutionNotApprouved() throws Exception {
+        String campagneName = "campagneName";
+        String walletPassword = "walletPassword";
+
+        Institution institution =TestUtils.createInstitutionWithWallet();
+        institution.setApprouved(false);
+        when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
+
+        Assertions.assertThrows(ValidationException.class,()->{
+            institutionService.uploadCertificationsToBlockChain(TestUtils.getExcelByteArray(), "123456", walletPassword, campagneName);
+        });
     }
 
     private List<HumanUser> initStudentsList(int nbDeStudents) {
