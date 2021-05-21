@@ -11,6 +11,7 @@ import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.excel.ExcelService;
 import com.momo.certChain.services.messaging.MessageService;
 import com.momo.certChain.services.security.KeyPairService;
+import jnr.ffi.annotations.In;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -158,6 +159,28 @@ class InstitutionServiceTest {
             institutionService.getInstitution("dsa48");
         });
     }
+
+    @Test
+    public void findNonApprouvedInstitutions() {
+        when(institutionService.findNonApprouvedInstitutions()).thenReturn(Arrays.asList(TestUtils.createInstitution(),TestUtils.createInstitution()));
+
+        List<Institution> institutions = institutionService.findNonApprouvedInstitutions();
+
+        assertEquals(2,institutions.size());
+        for(Institution institution : institutions){
+            TestUtils.assertInstitution(institution);
+        }
+    }
+
+    @Test
+    public void findNonApprouvedInstitutionsNonFound() {
+        when(institutionService.findNonApprouvedInstitutions()).thenReturn(Collections.emptyList());
+
+        List<Institution> institutions = institutionService.findNonApprouvedInstitutions();
+
+        assertEquals(0,institutions.size());
+    }
+
 
     @Test
     public void uploadContractToBlockchain() throws Exception {

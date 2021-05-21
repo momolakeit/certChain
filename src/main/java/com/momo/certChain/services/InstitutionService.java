@@ -142,6 +142,10 @@ public class InstitutionService {
         return saveInstitution(institution);
     }
 
+    public List<Institution> findNonApprouvedInstitutions(){
+        return institutionRepository.findNonApprouvedInstitution();
+    }
+
     private void linkInstitutionAndStudents(Institution institution, List<HumanUser> students) {
         for (HumanUser student : students) {
             student.setInstitution(institution);
