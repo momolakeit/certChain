@@ -4,6 +4,7 @@ import com.momo.certChain.TestUtils;
 import com.momo.certChain.exception.BadPasswordException;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.PasswordNotMatchingException;
+import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
@@ -95,9 +96,9 @@ class InstitutionServiceTest {
         assertEquals(institutionWallet.getPrivateKey(), returnVal.getInstitutionWallet().getPrivateKey());
         assertEquals(institutionWallet.getPublicAddress(), returnVal.getInstitutionWallet().getPublicAddress());
         assertEquals(institutionWallet.getPublicKey(), returnVal.getInstitutionWallet().getPublicKey());
-        assertFalse(institution.isApprouved());
+        assertFalse(returnVal.isApprouved());
         TestUtils.assertAddress(returnVal.getAddress());
-        assertInstitution(institution, returnVal);
+        TestUtils.assertInstitution(returnVal);
 
     }
 
@@ -174,6 +175,35 @@ class InstitutionServiceTest {
 
         assertEquals(contractAddress, returnVal.getContractAddress());
 
+    }
+
+    @Test
+    public void uploadContractToBlockchainInstitutionNotApproved() throws Exception {
+        String contractAddress = "contractAddress";
+        Institution institution = TestUtils.createInstitutionWithWallet();
+        institution.setApprouved(false);
+        String walletPassword = "walletPassword";
+
+        when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
+
+        Assertions.assertThrows(ValidationException.class,()->{
+            
+        })
+        institutionService.uploadCertificateContract("123456", walletPassword);
+
+    }
+
+    @Test
+    public void approveInstitution(){
+        Institution institution = TestUtils.createInstitution();
+        institution.setApprouved(false);
+        when(institutionRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createInstitution()));
+        when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        Institution institutionReturnValue = institutionService.approveInstitution("123456");
+
+        assertTrue(institutionReturnValue.isApprouved());
+        TestUtils.assertInstitution(institutionReturnValue);
     }
 
     @Test

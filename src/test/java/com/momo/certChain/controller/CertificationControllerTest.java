@@ -127,6 +127,7 @@ class CertificationControllerTest {
                 "username",
                 "password",
                 "password");
+        institutionService.approveInstitution(institution.getId());
         String privateKey = encryptionService.decryptData(walletPassword, institution.getInstitutionWallet().getPrivateKey(), institution.getInstitutionWallet().getSalt());
         String publicKey = encryptionService.decryptData(walletPassword, institution.getInstitutionWallet().getPublicKey(), institution.getInstitutionWallet().getSalt());
         ECKeyPair ecKeyPair = new ECKeyPair(new BigInteger(privateKey), new BigInteger(publicKey));

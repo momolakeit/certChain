@@ -2,6 +2,7 @@ package com.momo.certChain.services;
 
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.PasswordNotMatchingException;
+import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.mapping.InstitutionMapper;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.InstitutionDTO;
@@ -91,6 +92,8 @@ public class InstitutionService {
     public Institution uploadCertificateContract(String uuid,String walletPassword) throws Exception {
         Institution institution = getInstitution(uuid);
 
+        checkIfInstitutionApproved(institution);
+
         ECKeyPair keyPair = keyPairService.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
                                                             institution.getInstitutionWallet().getPublicKey(),
                                                             institution.getInstitutionWallet().getSalt(),
@@ -101,7 +104,11 @@ public class InstitutionService {
 
     public Institution createInstitutionCertificateTemplate(String institutionId,Certification certification, byte[] universityLogoBytes, byte[] universityStampBytes){
         Institution institution = getInstitution(institutionId);
+
+        checkIfInstitutionApproved(institution);
+
         institution.setCertificationTemplate(certificationService.createCertificationTemplate(certification,universityLogoBytes,universityStampBytes,institution));
+
         return saveInstitution(institution);
     }
 
@@ -109,6 +116,8 @@ public class InstitutionService {
         List<HumanUser> studentList = excelService.readStudentsFromExcel(bytes);
 
         Institution institution = getInstitution(uuid);
+
+        checkIfInstitutionApproved(institution);
 
         linkInstitutionAndStudents(institution, studentList);
 
@@ -125,6 +134,12 @@ public class InstitutionService {
 
     public Institution getInstitution(String uuid) {
         return institutionRepository.findById(uuid).orElseThrow(this::institutionNotFound);
+    }
+
+    public Institution approveInstitution(String uuid){
+        Institution institution = getInstitution(uuid);
+        institution.setApprouved(true);
+        return saveInstitution(institution);
     }
 
     private void linkInstitutionAndStudents(Institution institution, List<HumanUser> students) {
@@ -146,6 +161,12 @@ public class InstitutionService {
         institution.setApprouved(false);
         institution.setInstitutionWallet(walletService.createWallet(walletPassword));
         return institution;
+    }
+
+    private void checkIfInstitutionApproved(Institution institution){
+        if(!institution.isApprouved()){
+            throw new ValidationException("L'institution n'est pas encore approuvé par l'admin");
+        }
     }
 
     private Institution saveInstitution(Institution institution) {

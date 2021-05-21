@@ -116,12 +116,12 @@ public class TestUtils {
     public static Institution createInstitution() {
         Institution institution = (Institution) initBasicUser(new Institution());
         institution.setName(institutionName);
+        institution.setApprouved(true);
         institution.setContractAddress(contractAddress);
         return institution;
     }
     public static Institution createInstitutionWithWallet() throws NoSuchAlgorithmException, CipherException, InvalidAlgorithmParameterException, NoSuchProviderException {
-        Institution institution = (Institution) initBasicUser(new Institution());
-        institution.setName(institutionName);
+        Institution institution = createInstitution();
         institution.setInstitutionWallet(createInstitutionWallet());
         return institution;
     }
