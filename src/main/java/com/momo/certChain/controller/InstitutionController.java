@@ -74,4 +74,8 @@ public class InstitutionController extends BaseController {
         return institutionService.toDTO(institution);
     }
 
+    @PutMapping("/approuveInstitution/{institutionId}")
+    public InstitutionDTO approuveInstitution(@PathVariable String institutionId){
+        return institutionService.toDTO(institutionService.approveInstitution(institutionId));
+    }
 }

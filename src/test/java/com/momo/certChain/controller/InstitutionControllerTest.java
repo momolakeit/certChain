@@ -113,6 +113,32 @@ class InstitutionControllerTest {
     }
 
     @Test
+    public void testCreateCertificationTemplateInstitutionNotApprouved() throws Exception {
+        MockMultipartFile universityLogo = new MockMultipartFile("universityLogo", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
+        MockMultipartFile universityStamp = new MockMultipartFile("universityStamp", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
+
+        createInstitutionNotApprouved();
+
+        Certification certification = TestUtils.createCertificationTemplate();
+        certification.setId(null);
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/createTemplate")
+                .file("universityLogo", universityLogo.getBytes())
+                .file("universityStamp", universityStamp.getBytes())
+                .param("certificationDTO", objectMapper.writeValueAsString(CertificationMapper.instance.toDTO(certification)))
+                .param("institutionId",institutionId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    private void createInstitutionNotApprouved() {
+        Institution institution = TestUtils.createInstitution();
+        institution.setApprouved(false);
+        institutionId = institutionRepository.save(institution).getId();
+    }
+
+    @Test
     public void testCreateCertificationTemplateInstitutionNotFound() throws Exception {
         MockMultipartFile universityLogo = new MockMultipartFile("universityLogo", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
         MockMultipartFile universityStamp = new MockMultipartFile("universityStamp", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
@@ -162,6 +188,15 @@ class InstitutionControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+
+    @Test
+    public void testApprouveInstitution() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.put("/institution/approuveInstitution/{institutionId}",institutionId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
     @Test
     public void testUploadCertificationToBlockchain() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
@@ -174,6 +209,22 @@ class InstitutionControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void testUploadCertificationToBlockchainInstitutionNotApprouved() throws Exception {
+        MockMultipartFile file = new MockMultipartFile("file", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
+
+        createInstitutionNotApprouved();
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/uploadCertification/{institutionId}", institutionId)
+                .file(file)
+                .param("walletPassword",encryptionKey)
+                .param("campagneName",campagneName)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
 
 
 }
