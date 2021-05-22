@@ -15,10 +15,13 @@ public class InstitutionWallet {
     @GenericGenerator(name="system-uuid", strategy = "uuid")
     private String id;
 
+    @Column( length = 100000 )
     private String privateKey;
 
+    @Column( length = 100000 )
     private String publicKey;
 
+    @Column( length = 100000 )
     private String publicAddress;
 
     private String salt;

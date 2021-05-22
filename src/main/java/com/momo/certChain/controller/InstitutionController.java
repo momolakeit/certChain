@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/institution")
@@ -75,7 +77,14 @@ public class InstitutionController extends BaseController {
     }
 
     @PutMapping("/approuveInstitution/{institutionId}")
-    public InstitutionDTO approuveInstitution(@PathVariable String institutionId){
+    public InstitutionDTO approuveInstitution(@PathVariable String institutionId) {
         return institutionService.toDTO(institutionService.approveInstitution(institutionId));
+    }
+
+    @GetMapping("/getNonApprouvedInstitutions")
+    public List<InstitutionDTO> findNonApprouvedInstitutions() {
+        return institutionService.findNonApprouvedInstitutions().stream()
+                .map(institutionService::toDTO)
+                .collect(Collectors.toList());
     }
 }

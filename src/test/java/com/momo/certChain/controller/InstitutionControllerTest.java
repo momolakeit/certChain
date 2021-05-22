@@ -4,17 +4,13 @@ import com.momo.certChain.TestUtils;
 import com.momo.certChain.mapping.AddressMapper;
 import com.momo.certChain.mapping.CertificationMapper;
 import com.momo.certChain.mapping.InstitutionMapper;
-import com.momo.certChain.model.data.Address;
-import com.momo.certChain.model.data.Certification;
-import com.momo.certChain.model.data.Institution;
-import com.momo.certChain.model.data.InstitutionWallet;
+import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.request.CreateInstitutionDTO;
-import com.momo.certChain.repositories.CertificationRepository;
-import com.momo.certChain.repositories.InstitutionRepository;
-import com.momo.certChain.repositories.WalletRepository;
+import com.momo.certChain.repositories.*;
 import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.messaging.MessageService;
 import com.momo.certChain.services.security.EncryptionService;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +29,8 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.web3j.crypto.ECKeyPair;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,6 +48,12 @@ class InstitutionControllerTest {
 
     @Autowired
     private WalletRepository walletRepository;
+
+    @Autowired
+    private ImageFileRepository imageFileRepository;
+
+    @Autowired
+    private SignatureRepository signatureRepository;
 
     @Autowired
     private ContractService contractService;
@@ -77,9 +81,21 @@ class InstitutionControllerTest {
     public void init() throws Exception {
         mockMvc = MockMvcBuilders.standaloneSetup(institutionController).build();
 
-        Institution institution = TestUtils.createInstitution();
-        Certification certification = TestUtils.createCertificationTemplate();
+        Institution institution = getInstitution();
+
         InstitutionWallet institutionWallet = TestUtils.createInstitutionWallet();
+
+        Certification certification = TestUtils.createCertificationTemplate();
+        certification.setInstitution(null);
+        certification.setUniversityStamp(imageFileRepository.save(certification.getUniversityStamp()));
+        certification.setUniversityLogo(imageFileRepository.save(certification.getUniversityLogo()));
+        List<Signature> signatures = certification.getSignatures();
+        certification.setSignatures(new ArrayList<>());
+        for(Signature signature : signatures){
+            signature.setSignatureImage(imageFileRepository.save(signature.getSignatureImage()));
+            certification.getSignatures().add(signatureRepository.save(signature));
+        }
+        certification.setStudent(null);
 
         certification.setId(null);
 
@@ -226,5 +242,18 @@ class InstitutionControllerTest {
     }
 
 
+    @Test
+    public void findNonApprouvedInstitutions() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/institution/getNonApprouvedInstitutions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 
+
+    private Institution getInstitution() {
+        Institution institution = TestUtils.createInstitution();
+        institution.setAddress(null);
+        return institution;
+    }
 }
