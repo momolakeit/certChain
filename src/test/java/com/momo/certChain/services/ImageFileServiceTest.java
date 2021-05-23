@@ -1,19 +1,16 @@
 package com.momo.certChain.services;
 
-import com.momo.certChain.TestUtils;
+import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.model.data.ImageFile;
 import com.momo.certChain.repositories.ImageFileRepository;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 

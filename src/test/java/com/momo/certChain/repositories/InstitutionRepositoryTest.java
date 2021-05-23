@@ -1,8 +1,7 @@
 package com.momo.certChain.repositories;
 
-import com.momo.certChain.TestUtils;
+import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.model.data.Institution;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

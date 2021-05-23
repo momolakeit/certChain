@@ -1,7 +1,7 @@
 package com.momo.certChain.services.blockChain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.momo.certChain.TestUtils;
+import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Student;
 import com.momo.certChain.services.blockChain.contract.SavingDiploma;

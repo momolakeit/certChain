@@ -1,17 +1,13 @@
 package com.momo.certChain.controller;
 
-import com.momo.certChain.TestUtils;
+import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.jwt.JwtProvider;
-import com.momo.certChain.mapping.CertificationMapper;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.CertificationRepository;
-import com.momo.certChain.repositories.UserRepository;
-import com.momo.certChain.repositories.WalletRepository;
 import com.momo.certChain.services.CertificationService;
 import com.momo.certChain.services.InstitutionService;
 import com.momo.certChain.services.messaging.MessageService;
 import com.momo.certChain.services.security.EncryptionService;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;

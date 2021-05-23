@@ -1,6 +1,7 @@
 package com.momo.certChain.controller;
 
-import com.momo.certChain.TestUtils;
+import com.momo.certChain.Utils.InitEnvService;
+import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.mapping.AddressMapper;
 import com.momo.certChain.mapping.CertificationMapper;
 import com.momo.certChain.mapping.InstitutionMapper;
@@ -10,7 +11,6 @@ import com.momo.certChain.repositories.*;
 import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.messaging.MessageService;
 import com.momo.certChain.services.security.EncryptionService;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,23 +46,9 @@ class InstitutionControllerTest {
     @Autowired
     private InstitutionRepository institutionRepository;
 
-    @Autowired
-    private WalletRepository walletRepository;
 
     @Autowired
-    private ImageFileRepository imageFileRepository;
-
-    @Autowired
-    private SignatureRepository signatureRepository;
-
-    @Autowired
-    private ContractService contractService;
-
-    @Autowired
-    private EncryptionService encryptionService;
-
-    @Autowired
-    private CertificationRepository certificationRepository;
+    private InitEnvService initEnvService;
 
     @MockBean
     private MessageService messageService;
@@ -81,33 +67,7 @@ class InstitutionControllerTest {
     public void init() throws Exception {
         mockMvc = MockMvcBuilders.standaloneSetup(institutionController).build();
 
-        Institution institution = getInstitution();
-
-        InstitutionWallet institutionWallet = TestUtils.createInstitutionWallet();
-
-        Certification certification = TestUtils.createCertificationTemplate();
-        certification.setInstitution(null);
-        certification.setUniversityStamp(imageFileRepository.save(certification.getUniversityStamp()));
-        certification.setUniversityLogo(imageFileRepository.save(certification.getUniversityLogo()));
-        List<Signature> signatures = certification.getSignatures();
-        certification.setSignatures(new ArrayList<>());
-        for(Signature signature : signatures){
-            signature.setSignatureImage(imageFileRepository.save(signature.getSignatureImage()));
-            certification.getSignatures().add(signatureRepository.save(signature));
-        }
-        certification.setStudent(null);
-
-        certification.setId(null);
-
-        institution.setContractAddress(contractService.uploadContract(new ECKeyPair(new BigInteger(institutionWallet.getPrivateKey()),new BigInteger(institutionWallet.getPublicKey()))));
-
-        institutionWallet.setSalt(encryptionService.generateSalt());
-        institutionWallet.setPrivateKey(encryptionService.encryptData(encryptionKey,institutionWallet.getPrivateKey(),institutionWallet.getSalt()));
-        institutionWallet.setPublicKey(encryptionService.encryptData(encryptionKey,institutionWallet.getPublicKey(),institutionWallet.getSalt()));
-
-        institution.setCertificationTemplate(certificationRepository.save(certification));
-        institution.setInstitutionWallet(walletRepository.save(institutionWallet));
-        institutionId = institutionRepository.save(institution).getId();
+        institutionId = initEnvService.initEnv();
     }
 
     @Test
@@ -219,7 +179,7 @@ class InstitutionControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/prepareCampagne/{institutionId}", institutionId)
                 .file(file)
-                .param("walletPassword",encryptionKey)
+                .param("walletPassword",InitEnvService.encryptionKey)
                 .param("campagneName",campagneName)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -248,12 +208,5 @@ class InstitutionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-    }
-
-
-    private Institution getInstitution() {
-        Institution institution = TestUtils.createInstitution();
-        institution.setAddress(null);
-        return institution;
     }
 }

@@ -1,6 +1,6 @@
 package com.momo.certChain.services.messaging;
 
-import com.momo.certChain.TestUtils;
+import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.model.data.Institution;
 import com.momo.certChain.model.data.Student;
 import org.junit.jupiter.api.BeforeEach;

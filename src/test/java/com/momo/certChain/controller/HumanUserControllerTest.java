@@ -1,6 +1,6 @@
 package com.momo.certChain.controller;
 
-import com.momo.certChain.TestUtils;
+import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.model.data.Student;
 import com.momo.certChain.model.dto.request.ModifyPasswordDTO;
 import com.momo.certChain.repositories.HumanUserRepository;

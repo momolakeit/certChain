@@ -1,16 +1,14 @@
 package com.momo.certChain.services;
 
-import com.momo.certChain.TestUtils;
+import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.exception.CannotDeleteCertificateException;
 import com.momo.certChain.exception.UserForgottenException;
 import com.momo.certChain.model.data.Certification;
-import com.momo.certChain.model.data.ImageFile;
 import com.momo.certChain.model.data.Signature;
 import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.request.HeaderCatcherService;
 import com.momo.certChain.services.security.EncryptionService;
-import org.checkerframework.checker.nullness.Opt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
