@@ -21,6 +21,8 @@ public class Campagne {
 
     private Date date;
 
+    private boolean runned;
+
     @OneToMany
     private List<HumanUser> studentList;
 

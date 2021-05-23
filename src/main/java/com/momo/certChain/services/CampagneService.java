@@ -2,20 +2,15 @@ package com.momo.certChain.services;
 
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.CampagneRepository;
-import com.momo.certChain.services.blockChain.ContractService;
-import com.momo.certChain.services.security.EncryptionService;
 import com.momo.certChain.services.security.KeyPairService;
 import com.momo.certChain.utils.ListUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.math3.stat.inference.TestUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.ECKeyPair;
 
-import javax.mail.MessagingException;
-import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CampagneService {
@@ -43,11 +38,14 @@ public class CampagneService {
         return createCampagne(studentList,name,institution);
     }
 
-    private Campagne createCampagne(List<HumanUser> studentList,String name,Institution institution) {
+    public Campagne createCampagne(List<HumanUser> studentList,String name,Institution institution) {
         Campagne campagne = new Campagne();
         campagne.setName(name);
         campagne.setDate(new Date(System.currentTimeMillis()));
-        campagne.setStudentList(ListUtils.ajouterListAListe(studentList,campagne.getStudentList()));
+        campagne.setStudentList(ListUtils.ajouterListAListe(studentList.stream()
+                                                                        .map(humanUser -> userService.createHumanUser(humanUser,""))
+                                                                        .collect(Collectors.toList()),
+                                                            campagne.getStudentList()));
         campagne.setInstitution(institution);
         return saveCampagne(campagne);
     }

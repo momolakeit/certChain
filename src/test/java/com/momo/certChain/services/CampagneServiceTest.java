@@ -106,9 +106,11 @@ class CampagneServiceTest {
         assertEquals(nbDeStudents,campagne.getStudentList().size());
         assertEquals(campagneName,campagne.getName());
         TestUtils.assertInstitution(campagne.getInstitution());
+        assertFalse(campagne.isRunned());
 
         for(HumanUser humanUser: campagne.getStudentList()){
            Student student = (Student)humanUser;
+           TestUtils.assertBaseUser(student);
            TestUtils.assertCertification(student.getCertifications().get(0));
         }
         for (Certification cert : studentsCertifications) {
@@ -123,6 +125,26 @@ class CampagneServiceTest {
         for (String val : encKeySentByEmail) {
             assertEquals(randomString, val);
         }
+    }
+
+    @Test
+    public void createCampagne(){
+        int nbDeStudents = 100;
+        List<HumanUser> listeOfStudents = initStudentsList(nbDeStudents);
+        String campagneName = "campagne1";
+
+        when(campagneRepository.save(any(Campagne.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(userService.createHumanUser(any(HumanUser.class),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        Campagne campagne = campagneService.createCampagne(listeOfStudents,campagneName,TestUtils.createInstitution());
+
+        assertEquals(campagneName,campagne.getName());
+        assertEquals(nbDeStudents,campagne.getStudentList().size());
+        for(HumanUser humanUser: campagne.getStudentList()){
+            Student student = (Student)humanUser;
+            TestUtils.assertBaseUser(student);
+            TestUtils.assertCertification(student.getCertifications().get(0));
+        };
     }
 
     private List<HumanUser> initStudentsList(int nbDeStudents) {

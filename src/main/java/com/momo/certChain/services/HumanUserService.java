@@ -1,6 +1,7 @@
 package com.momo.certChain.services;
 
 import com.momo.certChain.exception.BadPasswordException;
+import com.momo.certChain.exception.CustomMessagingException;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.PasswordNotMatchingException;
 import com.momo.certChain.mapping.EmployeeMapper;
@@ -36,13 +37,17 @@ public class HumanUserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public HumanUser createHumanUser(HumanUser humanUser,String encryptionKey) throws MessagingException, IOException {
+    //todo tester le cas ou on lance la custom messaging exception
+    public HumanUser createHumanUser(HumanUser humanUser,String encryptionKey) {
         String generatedPassword = RandomStringUtils.randomAlphanumeric(10);
 
         humanUser.setPasswordResseted(false);
         humanUser.setPassword(passwordEncoder.encode(generatedPassword));
-        messageService.sendEmailToHumanUser(humanUser,encryptionKey,generatedPassword);
-
+        try{
+            messageService.sendEmailToHumanUser(humanUser,encryptionKey,generatedPassword);
+        }catch (MessagingException | IOException e) {
+            throw new CustomMessagingException();
+        }
         return saveUser(humanUser);
     }
 
