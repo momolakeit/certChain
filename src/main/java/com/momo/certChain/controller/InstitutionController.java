@@ -55,10 +55,10 @@ public class InstitutionController extends BaseController {
     }
 
     @PostMapping("/prepareCampagne/{institutionId}")
-    public ResponseEntity uploadCertifications(@RequestParam("file") MultipartFile file,
-                                               @RequestParam("walletPassword") String walletPassword,
-                                               @PathVariable String institutionId,
-                                               @RequestParam("campagneName") String campagneName) throws Exception {
+    public ResponseEntity prepareCampagne(@RequestParam("file") MultipartFile file,
+                                          @RequestParam("walletPassword") String walletPassword,
+                                          @PathVariable String institutionId,
+                                          @RequestParam("campagneName") String campagneName) throws Exception {
         institutionService.prepareCampagne(file.getBytes(), institutionId, walletPassword, campagneName);
         return ResponseEntity.ok().build();
     }
