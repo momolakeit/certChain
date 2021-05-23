@@ -71,7 +71,6 @@ class CertificationServiceTest {
     @Captor
     private ArgumentCaptor<String> saltArgumentCaptor;
 
-
     @BeforeEach
     public void init() throws IOException {
         createListOfSignatures();

@@ -21,4 +21,12 @@ public interface CertificationMapper {
 
     Certification toSimple (Certification certification);
 
+    @Mapping(target = "program",ignore = true)
+    @Mapping(target = "dateOfIssuing",ignore = true)
+    @Mapping(target = "certificateText",ignore = true)
+    @Mapping(target = "student",ignore = true)
+    @Mapping(target = "universityLogo",ignore = true)
+    @Mapping(target = "universityStamp",ignore = true)
+    @Mapping(target = "signatures",ignore = true)
+    Certification stripValuesToSave(Certification certification);
 }

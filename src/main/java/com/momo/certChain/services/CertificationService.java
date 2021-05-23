@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -40,6 +42,7 @@ public class CertificationService {
     private final EncryptionService encryptionService;
 
     private final HeaderCatcherService headerCatcherService;
+
 
     public CertificationService(CertificationRepository certificationRepository,
                                 ImageFileService imageFileService,
@@ -72,11 +75,14 @@ public class CertificationService {
 
     public void uploadCertificationToBlockChain(Certification studentCertification, Certification certificationTemplate, String contractAdress, ECKeyPair ecKeyPair, String encryptionKey) throws Exception {
         studentCertification = saveCertification(studentCertification);
+
         certificationTemplate = CertificationMapper.instance.toSimple(certificationTemplate);
 
         mapCertificateTemplateToStudentCertification(studentCertification, certificationTemplate,certificationTemplate.getInstitution());
 
         contractService.uploadCertificate(studentCertification, contractAdress, ecKeyPair, encryptionKey);
+
+        saveCertification(CertificationMapper.instance.stripValuesToSave(studentCertification));
     }
 
     public CertificationDTO toDTO(Certification certification) {
