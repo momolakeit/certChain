@@ -112,7 +112,7 @@ public class InstitutionService {
         return saveInstitution(institution);
     }
 
-    public Institution uploadCertificationsToBlockChain(byte[] bytes, String uuid,String walletPassword,String campagneName) throws Exception {
+    public Institution prepareCampagne(byte[] bytes, String uuid, String walletPassword, String campagneName) throws Exception {
         List<HumanUser> studentList = excelService.readStudentsFromExcel(bytes);
 
         Institution institution = getInstitution(uuid);
@@ -121,7 +121,7 @@ public class InstitutionService {
 
         linkInstitutionAndStudents(institution, studentList);
 
-        Campagne campagne = campagneService.runCampagne(campagneName,studentList,institution,walletPassword);
+        Campagne campagne = campagneService.createCampagne(studentList,campagneName,institution);
 
         institution.setCampagnes(ListUtils.ajouterObjectAListe(campagne,institution.getCampagnes()));
 

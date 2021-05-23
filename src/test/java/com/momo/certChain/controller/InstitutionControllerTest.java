@@ -217,7 +217,7 @@ class InstitutionControllerTest {
     public void testUploadCertificationToBlockchain() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/uploadCertification/{institutionId}", institutionId)
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/prepareCampagne/{institutionId}", institutionId)
                 .file(file)
                 .param("walletPassword",encryptionKey)
                 .param("campagneName",campagneName)
@@ -232,7 +232,7 @@ class InstitutionControllerTest {
 
         createInstitutionNotApprouved();
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/uploadCertification/{institutionId}", institutionId)
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/prepareCampagne/{institutionId}", institutionId)
                 .file(file)
                 .param("walletPassword",encryptionKey)
                 .param("campagneName",campagneName)

@@ -1,7 +1,6 @@
 package com.momo.certChain.services;
 
 import com.momo.certChain.TestUtils;
-import com.momo.certChain.exception.BadPasswordException;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.PasswordNotMatchingException;
 import com.momo.certChain.exception.ValidationException;
@@ -11,7 +10,6 @@ import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.excel.ExcelService;
 import com.momo.certChain.services.messaging.MessageService;
 import com.momo.certChain.services.security.KeyPairService;
-import jnr.ffi.annotations.In;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -236,21 +234,16 @@ class InstitutionServiceTest {
 
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createInstitutionWithWallet()));
         when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        when(campagneService.runCampagne(anyString(), any(List.class), any(Institution.class), anyString())).thenReturn(TestUtils.createCampagne());
+        when(campagneService.createCampagne(any(List.class),anyString(), any(Institution.class))).thenReturn(TestUtils.createCampagne());
         when(excelService.readStudentsFromExcel(any(byte[].class))).thenReturn(listeOfStudents);
 
-        Institution returnInstitution = institutionService.uploadCertificationsToBlockChain(TestUtils.getExcelByteArray(), "123456", walletPassword, campagneName);
-        verify(campagneService).runCampagne(campagneNameCaptor.capture(), any(List.class), any(Institution.class), walletPasswordCaptor.capture());
+        Institution returnInstitution = institutionService.prepareCampagne(TestUtils.getExcelByteArray(), "123456", walletPassword, campagneName);
+        verify(campagneService).createCampagne(any(List.class),campagneNameCaptor.capture(), any(Institution.class));
 
-        List<String> walletPasswordCaptorAllValues = walletPasswordCaptor.getAllValues();
         List<String> campagneNameCaptorAllValues = campagneNameCaptor.getAllValues();
 
         for (String name : campagneNameCaptorAllValues) {
             assertEquals(campagneName, name);
-        }
-
-        for (String password : walletPasswordCaptorAllValues) {
-            assertEquals(walletPassword, password);
         }
 
         TestUtils.assertCampagne(returnInstitution.getCampagnes().get(0));
@@ -266,7 +259,7 @@ class InstitutionServiceTest {
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
 
         Assertions.assertThrows(ValidationException.class,()->{
-            institutionService.uploadCertificationsToBlockChain(TestUtils.getExcelByteArray(), "123456", walletPassword, campagneName);
+            institutionService.prepareCampagne(TestUtils.getExcelByteArray(), "123456", walletPassword, campagneName);
         });
     }
 

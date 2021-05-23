@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Institution;
 import com.momo.certChain.model.dto.AddressDTO;
-import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.model.dto.InstitutionDTO;
 import com.momo.certChain.model.dto.request.CreateInstitutionDTO;
 import com.momo.certChain.services.InstitutionService;
@@ -55,12 +54,12 @@ public class InstitutionController extends BaseController {
         return institutionService.toDTO(institutionService.getInstitution(institutionId));
     }
 
-    @PostMapping("/uploadCertification/{institutionId}")
+    @PostMapping("/prepareCampagne/{institutionId}")
     public ResponseEntity uploadCertifications(@RequestParam("file") MultipartFile file,
                                                @RequestParam("walletPassword") String walletPassword,
                                                @PathVariable String institutionId,
                                                @RequestParam("campagneName") String campagneName) throws Exception {
-        institutionService.uploadCertificationsToBlockChain(file.getBytes(), institutionId, walletPassword, campagneName);
+        institutionService.prepareCampagne(file.getBytes(), institutionId, walletPassword, campagneName);
         return ResponseEntity.ok().build();
     }
 

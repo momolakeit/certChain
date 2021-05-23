@@ -1,21 +1,30 @@
 package com.momo.certChain.services;
 
 import com.momo.certChain.TestUtils;
+import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.CampagneRepository;
 import com.momo.certChain.services.security.KeyPairService;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.web3j.crypto.CipherException;
 import org.web3j.crypto.ECKeyPair;
 
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -76,43 +85,30 @@ class CampagneServiceTest {
     public void uploadCertification() throws Exception {
         int nbDeStudents = 100;
         String randomString = "random";
-        String campagneName = "Genie informatique concordia";
-        List<HumanUser> listeOfStudents = initStudentsList(nbDeStudents);
-        Institution institution = TestUtils.createInstitutionWithWallet();
-        institution.setCertificationTemplate(TestUtils.createCertificationTemplate());
-        institution.getInstitutionWallet().setSalt("salt");
+
+
+        Institution institution = createInstitutionWithWallet();
+
+        Campagne campagne = createCampagne(nbDeStudents, institution);
 
         when(keyPairService.createKeyPair(anyString(), anyString(), anyString(),anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
                                                                                                                                     institution.getInstitutionWallet().getPublicKey()));
-
-        when(userService.createHumanUser(any(HumanUser.class), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        when(campagneRepository.save(any(Campagne.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(campagneRepository.findById(anyString())).thenReturn(Optional.of(campagne));
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(10)).thenReturn(randomString);
 
-        Campagne campagne = campagneService.runCampagne(campagneName,listeOfStudents,institution,"walletPassword");
+        campagneService.runCampagne("123456","walletPassword");
 
         verify(certificationService, times(nbDeStudents)).uploadCertificationToBlockChain(studentCertificateArgumentCaptor.capture(),
                 institutionTemplateCertificateArgumentCaptor.capture(),
                 addressArgumentCaptor.capture(),
                 KeyPairArgumentCaptor.capture(),
                 encKeyPrivateKeyCaptor.capture());
-        verify(userService, times(nbDeStudents)).createHumanUser(any(HumanUser.class), encKeySentByEmailCaptor.capture());
 
         List<Certification> studentsCertifications = studentCertificateArgumentCaptor.getAllValues();
         List<Certification> institutionCertificationTemplates = institutionTemplateCertificateArgumentCaptor.getAllValues();
         List<String> encKeys = encKeyPrivateKeyCaptor.getAllValues();
         List<String> encKeySentByEmail = this.encKeySentByEmailCaptor.getAllValues();
 
-        assertEquals(nbDeStudents,campagne.getStudentList().size());
-        assertEquals(campagneName,campagne.getName());
-        TestUtils.assertInstitution(campagne.getInstitution());
-        assertFalse(campagne.isRunned());
-
-        for(HumanUser humanUser: campagne.getStudentList()){
-           Student student = (Student)humanUser;
-           TestUtils.assertBaseUser(student);
-           TestUtils.assertCertification(student.getCertifications().get(0));
-        }
         for (Certification cert : studentsCertifications) {
             TestUtils.assertCertification(cert);
         }
@@ -131,7 +127,7 @@ class CampagneServiceTest {
     public void createCampagne(){
         int nbDeStudents = 100;
         List<HumanUser> listeOfStudents = initStudentsList(nbDeStudents);
-        String campagneName = "campagne1";
+        String campagneName = "Genie informatique concordia";
 
         when(campagneRepository.save(any(Campagne.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(userService.createHumanUser(any(HumanUser.class),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
@@ -147,6 +143,24 @@ class CampagneServiceTest {
         };
     }
 
+    @Test
+    public void getCampagne() throws IOException {
+        when(campagneRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createCampagne()));
+
+        Campagne returnCampagneValue = campagneService.getCampagne("123456");
+
+        TestUtils.assertCampagne(returnCampagneValue);
+    }
+
+    @Test
+    public void getCampagneNotFound() throws IOException {
+        when(campagneRepository.findById(anyString())).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(ObjectNotFoundException.class,()->{
+            campagneService.getCampagne("123456");
+        });
+    }
+
     private List<HumanUser> initStudentsList(int nbDeStudents) {
         List<HumanUser> students = new ArrayList<>();
         for (int i = 0; i < nbDeStudents; i++) {
@@ -155,5 +169,19 @@ class CampagneServiceTest {
             students.add(singleStudent);
         }
         return students;
+    }
+
+    private Campagne createCampagne(int nbDeStudents, Institution institution) {
+        Campagne campagne = TestUtils.createCampagne();
+        campagne.setStudentList(initStudentsList(nbDeStudents));
+        campagne.setInstitution(institution);
+        return campagne;
+    }
+
+    private Institution createInstitutionWithWallet() throws NoSuchAlgorithmException, CipherException, InvalidAlgorithmParameterException, NoSuchProviderException, IOException {
+        Institution institution = TestUtils.createInstitutionWithWallet();
+        institution.setCertificationTemplate(TestUtils.createCertificationTemplate());
+        institution.getInstitutionWallet().setSalt("salt");
+        return institution;
     }
 }

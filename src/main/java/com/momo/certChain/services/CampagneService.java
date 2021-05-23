@@ -1,5 +1,6 @@
 package com.momo.certChain.services;
 
+import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.CampagneRepository;
 import com.momo.certChain.services.security.KeyPairService;
@@ -33,9 +34,9 @@ public class CampagneService {
         this.keyPairService = keyPairService;
     }
 
-    public Campagne runCampagne(String name, List<HumanUser> studentList, Institution institution, String walletPassword) throws Exception {
-        uploadCertificatesToBlockChain(studentList, institution, walletPassword);
-        return createCampagne(studentList,name,institution);
+    public void runCampagne(String campagneId ,String walletPassword) throws Exception {
+        Campagne campagne = getCampagne(campagneId);
+        uploadCertificatesToBlockChain(campagne.getStudentList(), campagne.getInstitution(), walletPassword);
     }
 
     public Campagne createCampagne(List<HumanUser> studentList,String name,Institution institution) {
@@ -50,6 +51,10 @@ public class CampagneService {
         return saveCampagne(campagne);
     }
 
+    public Campagne getCampagne(String campagneId){
+        return campagneRepository.findById(campagneId).orElseThrow(()->new ObjectNotFoundException("Campagne"));
+    }
+
     private Campagne saveCampagne(Campagne campagne) {
         return campagneRepository.save(campagne);
     }
@@ -62,7 +67,7 @@ public class CampagneService {
 
         for(HumanUser humanUser : studentList){
             String generatedString = RandomStringUtils.randomAlphanumeric(10);
-            Student student = (Student) userService.createHumanUser(humanUser,generatedString);
+            Student student = (Student) humanUser;
             certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0),
                                                                  institution.getCertificationTemplate(),
                                                                  institution.getContractAddress(),
