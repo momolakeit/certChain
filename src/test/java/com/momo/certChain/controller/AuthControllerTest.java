@@ -1,6 +1,5 @@
 package com.momo.certChain.controller;
 
-import com.momo.certChain.TestUtils;
 import com.momo.certChain.model.data.Admin;
 import com.momo.certChain.model.data.Student;
 import com.momo.certChain.model.dto.request.CreateUserDTO;
@@ -19,10 +18,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest

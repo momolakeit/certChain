@@ -7,9 +7,7 @@ import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.services.CertificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/certification")

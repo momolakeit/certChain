@@ -1,7 +1,9 @@
 package com.momo.certChain.services;
 
 import com.momo.certChain.exception.ObjectNotFoundException;
+import com.momo.certChain.mapping.CampagneMapper;
 import com.momo.certChain.model.data.*;
+import com.momo.certChain.model.dto.CampagneDTO;
 import com.momo.certChain.repositories.CampagneRepository;
 import com.momo.certChain.services.security.KeyPairService;
 import com.momo.certChain.utils.ListUtils;
@@ -36,7 +38,12 @@ public class CampagneService {
 
     public void runCampagne(String campagneId ,String walletPassword) throws Exception {
         Campagne campagne = getCampagne(campagneId);
+
         uploadCertificatesToBlockChain(campagne.getStudentList(), campagne.getInstitution(), walletPassword);
+
+        campagne.setRunned(true);
+
+        saveCampagne(campagne);
     }
 
     public Campagne createCampagne(List<HumanUser> studentList,String name,Institution institution) {
@@ -55,6 +62,9 @@ public class CampagneService {
         return campagneRepository.findById(campagneId).orElseThrow(()->new ObjectNotFoundException("Campagne"));
     }
 
+    public CampagneDTO toDTO(Campagne campagne){
+        return CampagneMapper.instance.toDTO(campagne);
+    }
     private Campagne saveCampagne(Campagne campagne) {
         return campagneRepository.save(campagne);
     }
