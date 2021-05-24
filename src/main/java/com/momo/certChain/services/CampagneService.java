@@ -1,10 +1,12 @@
 package com.momo.certChain.services;
 
+import com.momo.certChain.exception.AuthorizationException;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.mapping.CampagneMapper;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.CampagneDTO;
 import com.momo.certChain.repositories.CampagneRepository;
+import com.momo.certChain.services.request.HeaderCatcherService;
 import com.momo.certChain.services.security.KeyPairService;
 import com.momo.certChain.utils.ListUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -26,18 +28,24 @@ public class CampagneService {
 
     private final KeyPairService keyPairService;
 
+    private final HeaderCatcherService headerCatcherService;
+
     public CampagneService(CertificationService certificationService,
                            CampagneRepository campagneRepository,
                            HumanUserService userService,
-                           KeyPairService keyPairService) {
+                           KeyPairService keyPairService,
+                           HeaderCatcherService headerCatcherService) {
         this.certificationService = certificationService;
         this.campagneRepository = campagneRepository;
         this.userService = userService;
         this.keyPairService = keyPairService;
+        this.headerCatcherService = headerCatcherService;
     }
 
-    public void runCampagne(String campagneId ,String walletPassword) throws Exception {
+    public void runCampagne(String campagneId , String walletPassword) throws Exception {
         Campagne campagne = getCampagne(campagneId);
+
+        isUserAllowedToRunCampagne(campagne);
 
         uploadCertificatesToBlockChain(campagne.getStudentList(), campagne.getInstitution(), walletPassword);
 
@@ -65,10 +73,10 @@ public class CampagneService {
     public CampagneDTO toDTO(Campagne campagne){
         return CampagneMapper.instance.toDTO(campagne);
     }
+
     private Campagne saveCampagne(Campagne campagne) {
         return campagneRepository.save(campagne);
     }
-
     private void uploadCertificatesToBlockChain(List<HumanUser> studentList, Institution institution, String walletPassword) throws Exception {
         ECKeyPair keyPair = keyPairService.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
                                                             institution.getInstitutionWallet().getPublicKey(),
@@ -83,6 +91,12 @@ public class CampagneService {
                                                                  institution.getContractAddress(),
                                                                  keyPair,
                                                                  generatedString);
+        }
+    }
+
+    private void isUserAllowedToRunCampagne(Campagne campagne) {
+        if(!campagne.getInstitution().getId().equals(headerCatcherService.getUserId())){
+            throw new AuthorizationException("Vous ne pouvez pas rouler cette campagne");
         }
     }
 }

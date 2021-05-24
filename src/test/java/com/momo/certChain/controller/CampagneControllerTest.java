@@ -2,6 +2,7 @@ package com.momo.certChain.controller;
 
 import com.momo.certChain.Utils.InitEnvService;
 import com.momo.certChain.Utils.TestUtils;
+import com.momo.certChain.jwt.JwtProvider;
 import com.momo.certChain.mapping.SimpleStudentMapper;
 import com.momo.certChain.mapping.StudentMapper;
 import com.momo.certChain.model.data.*;
@@ -49,11 +50,18 @@ class CampagneControllerTest {
     @Autowired
     private InitEnvService initEnvService;
 
+    @Autowired
+    private JwtProvider jwtProvider;
+
     private MockMvc mockMvc;
 
     private String campagneId;
 
     ObjectMapper objectMapper = new ObjectMapper();
+
+    private String jwt;
+
+    private final String AUTHORIZATION_HEADER="Authorization";
 
     @BeforeEach
     public void init() throws Exception {
@@ -62,6 +70,8 @@ class CampagneControllerTest {
         List<HumanUser> students  = userRepository.saveAll(Arrays.asList(createStudent(),createStudent()));
 
         Institution institution = (Institution) userRepository.findById(initEnvService.initEnv()).get();
+
+        jwt = jwtProvider.generate(institution);
 
         Campagne campagne = TestUtils.createCampagne();
         campagne.setStudentList(students);
@@ -90,10 +100,24 @@ class CampagneControllerTest {
     public void runCampagne() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.put("/campagne/runCampagne")
                 .content(objectMapper.writeValueAsString(new RunCampagneDTO(campagneId,InitEnvService.encryptionKey)))
+                .header(AUTHORIZATION_HEADER,"Bearer "+jwt)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void runCampagneInstitutionNotAllowed() throws Exception {
+        jwt =  jwtProvider.generate(userRepository.save(new User()));
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/campagne/runCampagne")
+                .content(objectMapper.writeValueAsString(new RunCampagneDTO(campagneId,InitEnvService.encryptionKey)))
+                .header(AUTHORIZATION_HEADER,"Bearer "+jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
     private Student createStudent(){
         Student student = SimpleStudentMapper.instance.toSimple(TestUtils.createStudent());
         student.setCertifications(Collections.singletonList(createCertification()));

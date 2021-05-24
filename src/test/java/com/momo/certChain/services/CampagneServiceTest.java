@@ -1,9 +1,11 @@
 package com.momo.certChain.services;
 
 import com.momo.certChain.Utils.TestUtils;
+import com.momo.certChain.exception.AuthorizationException;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.CampagneRepository;
+import com.momo.certChain.services.request.HeaderCatcherService;
 import com.momo.certChain.services.security.KeyPairService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -47,6 +49,9 @@ class CampagneServiceTest {
     private KeyPairService keyPairService;
 
     @Mock
+    private HeaderCatcherService headerCatcherService;
+
+    @Mock
     private CertificationService certificationService;
 
     @Captor
@@ -81,7 +86,7 @@ class CampagneServiceTest {
 
 
     @Test
-    public void uploadCertification() throws Exception {
+    public void runCampagne() throws Exception {
         int nbDeStudents = 100;
         String randomString = "random";
 
@@ -93,6 +98,7 @@ class CampagneServiceTest {
         when(keyPairService.createKeyPair(anyString(), anyString(), anyString(),anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
                                                                                                                                     institution.getInstitutionWallet().getPublicKey()));
         when(campagneRepository.findById(anyString())).thenReturn(Optional.of(campagne));
+        when(headerCatcherService.getUserId()).thenReturn("123456");
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(10)).thenReturn(randomString);
 
         campagneService.runCampagne("123456","walletPassword");
@@ -120,6 +126,21 @@ class CampagneServiceTest {
         for (String val : encKeySentByEmail) {
             assertEquals(randomString, val);
         }
+    }
+
+    @Test
+    public void runCampagneNotAllowed() throws Exception {
+        int nbDeStudents = 100;
+        Institution institution = createInstitutionWithWallet();
+
+        Campagne campagne = createCampagne(nbDeStudents, institution);
+
+        when(campagneRepository.findById(anyString())).thenReturn(Optional.of(campagne));
+        when(headerCatcherService.getUserId()).thenReturn("654321");
+
+        Assertions.assertThrows(AuthorizationException.class,()->{
+            campagneService.runCampagne("123456","walletPassword");
+        });
     }
 
     @Test
