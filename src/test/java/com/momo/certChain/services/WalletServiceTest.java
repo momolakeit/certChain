@@ -47,14 +47,14 @@ class WalletServiceTest {
 
         InstitutionWallet institutionWallet = walletService.createWallet(password);
 
-        verify(encryptionService,times(3)).encryptData(anyString(),anyString(),anyString());
+        verify(encryptionService,times(2)).encryptData(anyString(),anyString(),anyString());
 
         WalletFile walletFile = createWalletFile(new BigInteger(institutionWallet.getPrivateKey()),new BigInteger(institutionWallet.getPublicKey()),password);
 
         assertNotNull(institutionWallet.getPrivateKey());
         assertNotNull(institutionWallet.getPublicAddress());
         assertNotNull(institutionWallet.getPublicKey());
-        assertEquals(walletFile.getAddress(),institutionWallet.getPublicAddress());
+        assertEquals("0x"+walletFile.getAddress(),institutionWallet.getPublicAddress());
 
     }
 

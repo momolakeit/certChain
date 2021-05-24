@@ -6,6 +6,7 @@ import com.momo.certChain.services.security.EncryptionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.*;
+import org.web3j.utils.Numeric;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
@@ -29,7 +30,6 @@ public class WalletService {
 
         institutionWallet.setSalt(encryptionService.generateSalt());
         institutionWallet.setPrivateKey(encryptionService.encryptData(walletPassword, institutionWallet.getPrivateKey(), institutionWallet.getSalt()));
-        institutionWallet.setPublicAddress(encryptionService.encryptData(walletPassword, institutionWallet.getPublicAddress(), institutionWallet.getSalt()));
         institutionWallet.setPublicKey(encryptionService.encryptData(walletPassword, institutionWallet.getPublicKey(), institutionWallet.getSalt()));
 
         return saveWallet(institutionWallet);
@@ -43,7 +43,8 @@ public class WalletService {
 
         WalletFile walletFile = Wallet.createStandard(password, ecKeyPair);
         InstitutionWallet institutionWallet = new InstitutionWallet();
-        institutionWallet.setPublicAddress(walletFile.getAddress());
+        institutionWallet.setPublicAddress(Numeric.prependHexPrefix(walletFile.getAddress()));
+        Credentials.create(ecKeyPair);
         institutionWallet.setPrivateKey(ecKeyPair.getPrivateKey().toString());
         institutionWallet.setPublicKey(ecKeyPair.getPublicKey().toString());
 
