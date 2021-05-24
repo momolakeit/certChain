@@ -84,7 +84,7 @@ public class CampagneService {
                                                             walletPassword);
 
         for(HumanUser humanUser : studentList){
-            String generatedString = RandomStringUtils.randomAlphanumeric(10);
+            String generatedString = RandomStringUtils.randomAlphanumeric(11);
             Student student = (Student) humanUser;
             certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0),
                                                                  institution.getCertificationTemplate(),

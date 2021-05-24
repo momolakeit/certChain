@@ -99,7 +99,7 @@ class CampagneServiceTest {
                                                                                                                                     institution.getInstitutionWallet().getPublicKey()));
         when(campagneRepository.findById(anyString())).thenReturn(Optional.of(campagne));
         when(headerCatcherService.getUserId()).thenReturn("123456");
-        randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(10)).thenReturn(randomString);
+        randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(randomString);
 
         campagneService.runCampagne("123456","walletPassword");
 

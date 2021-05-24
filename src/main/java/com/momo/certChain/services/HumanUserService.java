@@ -39,7 +39,7 @@ public class HumanUserService {
 
     //todo tester le cas ou on lance la custom messaging exception
     public HumanUser createHumanUser(HumanUser humanUser,String encryptionKey) {
-        String generatedPassword = RandomStringUtils.randomAlphanumeric(10);
+        String generatedPassword = RandomStringUtils.randomAlphanumeric(11);
 
         humanUser.setPasswordResseted(false);
         humanUser.setPassword(passwordEncoder.encode(generatedPassword));
