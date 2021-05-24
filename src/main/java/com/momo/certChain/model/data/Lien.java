@@ -18,8 +18,11 @@ public class Lien {
     @GenericGenerator(name="system-uuid", strategy = "uuid")
     private String id;
 
+    //this value is encrypted
     private String certificateEncKey;
 
     private Date dateExpiration;
+
+    private String salt;
 
 }
