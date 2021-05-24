@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 @Mapper
 public interface AdminMapper {
 
-    AdminDTO toDto (Admin admin);
+    AdminDTO toDTO(Admin admin);
 
     Admin toEntity (AdminDTO adminDTO);
 }

@@ -9,7 +9,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses ={AddressMapper.class,SimpleStudentMapper.class,SignatureMapper.class,SimpleInstitutionMapper.class,ImageFileMapper.class})
+@Mapper(uses ={AddressMapper.class,SimpleStudentMapper.class,SignatureMapper.class,SimpleInstitutionMapper.class,ImageFileMapper.class,LienMapper.class})
 public interface CertificationMapper {
 
     CertificationMapper instance = Mappers.getMapper(CertificationMapper.class);

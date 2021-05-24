@@ -40,4 +40,6 @@ public class Certification {
     @OneToMany
     private List<Signature> signatures;
 
+    @OneToMany
+    private List<Lien> liens;
 }
