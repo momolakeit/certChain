@@ -2,6 +2,7 @@ package com.momo.certChain.services;
 
 import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.exception.BadPasswordException;
+import com.momo.certChain.exception.CustomMessagingException;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.PasswordNotMatchingException;
 import com.momo.certChain.model.data.Employee;
@@ -102,6 +103,36 @@ class HumanUserServiceTest {
         assertFalse(returnValue.isPasswordResseted());
         TestUtils.assertBaseUser(returnValue);
         TestUtils.assertInstitution(returnValue.getInstitution());
+    }
+
+    @Test
+    public void createStudentUserThrowMessagingExceptionTest() throws MessagingException, IOException {
+        String privateKey="superPrivate";
+        Student student = TestUtils.createStudent();
+        String password = "password";
+
+        randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
+        when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        doThrow(new MessagingException()).when(messageService).sendEmailToHumanUser(any(HumanUser.class),anyString(),anyString());
+
+        Assertions.assertThrows(CustomMessagingException.class,()->{
+            humanUserService.createHumanUser(student,privateKey);
+        });
+    }
+
+    @Test
+    public void createStudentUserThrowIOExceptionTest() throws MessagingException, IOException {
+        String privateKey="superPrivate";
+        Student student = TestUtils.createStudent();
+        String password = "password";
+
+        randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
+        when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        doThrow(new IOException()).when(messageService).sendEmailToHumanUser(any(HumanUser.class),anyString(),anyString());
+
+        Assertions.assertThrows(CustomMessagingException.class,()->{
+            humanUserService.createHumanUser(student,privateKey);
+        });
     }
 
     @Test
