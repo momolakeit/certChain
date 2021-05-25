@@ -3,6 +3,7 @@ package com.momo.certChain.services;
 import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.exception.CannotDeleteCertificateException;
 import com.momo.certChain.exception.UserForgottenException;
+import com.momo.certChain.model.CreatedLien;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Signature;
 import com.momo.certChain.repositories.CertificationRepository;
@@ -23,6 +24,7 @@ import org.web3j.crypto.ECKeyPair;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +52,9 @@ class CertificationServiceTest {
 
     @Mock
     private EncryptionService encryptionService;
+
+    @Mock
+    private LienService lienService;
 
     @Mock
     private HeaderCatcherService headerCatcherService;
@@ -237,6 +242,22 @@ class CertificationServiceTest {
         Assertions.assertThrows(UserForgottenException.class,()->{
             certificationService.getUploadedCertification("123456",privateKey);
         });
+    }
+
+    @Test
+    public void createLienTest() throws Exception {
+        String generatedLienPassword = "generatedPassword";
+
+        when(certificationRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createCertification()));
+        when(contractServiceImpl.getCertificate(anyString(),anyString(),any(ECKeyPair.class),anyString(),anyString())).thenReturn(TestUtils.createCertification());
+        when(lienService.createLien(anyString(),any(Date.class))).thenReturn(new CreatedLien(TestUtils.createLien(),generatedLienPassword));
+
+        String generatedPasswordResponse = certificationService.createLien("123456","password",new Date());
+
+        verify(certificationRepository).save(certificationArgumentCaptor.capture());
+
+        assertEquals(generatedLienPassword,generatedPasswordResponse);
+        TestUtils.assertLien(certificationArgumentCaptor.getValue().getLiens().get(0));
     }
 
 

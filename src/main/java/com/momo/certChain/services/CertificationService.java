@@ -5,15 +5,14 @@ import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.UserForgottenException;
 import com.momo.certChain.mapping.CertificationMapper;
 import com.momo.certChain.mapping.SignatureMapper;
-import com.momo.certChain.model.data.Certification;
-import com.momo.certChain.model.data.ImageFile;
-import com.momo.certChain.model.data.Institution;
-import com.momo.certChain.model.data.Signature;
+import com.momo.certChain.model.CreatedLien;
+import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.request.HeaderCatcherService;
 import com.momo.certChain.services.security.EncryptionService;
+import com.momo.certChain.utils.ListUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.ECKeyPair;
@@ -22,6 +21,7 @@ import org.web3j.crypto.Keys;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -43,19 +43,23 @@ public class CertificationService {
 
     private final HeaderCatcherService headerCatcherService;
 
+    private final LienService lienService;
+
 
     public CertificationService(CertificationRepository certificationRepository,
                                 ImageFileService imageFileService,
                                 SignatureService signatureService,
                                 ContractService contractService,
                                 EncryptionService encryptionService,
-                                HeaderCatcherService headerCatcherService) {
+                                HeaderCatcherService headerCatcherService,
+                                LienService lienService) {
         this.certificationRepository = certificationRepository;
         this.imageFileService = imageFileService;
         this.signatureService = signatureService;
         this.contractService = contractService;
         this.encryptionService = encryptionService;
         this.headerCatcherService = headerCatcherService;
+        this.lienService = lienService;
     }
 
     public Certification createCertificationTemplate(Certification certification, byte[] universityLogoBytes, byte[] universityStampBytes, Institution institution) {
@@ -103,6 +107,20 @@ public class CertificationService {
 
     }
 
+    public String createLien(String certificateId, String certificatePassword, Date dateExpiration) throws Exception {
+        //permet de s'assurer qu'on a le bon password
+        getUploadedCertification(certificateId,certificatePassword);
+
+        Certification certification = findCertification(certificateId);
+
+        CreatedLien createdLien = lienService.createLien(certificatePassword,dateExpiration);
+
+        certification.setLiens(ListUtils.ajouterObjectAListe(createdLien.getLien(),certification.getLiens()));
+
+        saveCertification(certification);
+        
+        return createdLien.getGeneratedPassword();
+    }
 
     public Certification saveCertification(Certification certification) {
         if (Objects.isNull(certification.getSalt())) {
