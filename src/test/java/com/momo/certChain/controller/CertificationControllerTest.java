@@ -58,9 +58,9 @@ class CertificationControllerTest {
 
     private MockMvc mockMvc;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private Certification studentCertification;
 
-    Certification studentCertification;
+    private final String encKey ="superSecure";
 
     @BeforeEach
     public void init() {
@@ -70,10 +70,19 @@ class CertificationControllerTest {
     @Test
     public void testGetCertification() throws Exception {
         uploadEncryptedCertificate();
-        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{id}/{key}", studentCertification.getId(), "walletPassword")
+        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{id}/{key}", studentCertification.getId(), encKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testGetCertificationWrongKey() throws Exception {
+        uploadEncryptedCertificate();
+        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{id}/{key}", studentCertification.getId(), "encKey")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -131,7 +140,7 @@ class CertificationControllerTest {
 
         saveCertificationInBD();
 
-        certificationService.uploadCertificationToBlockChain(studentCertification, initCertificationTemplate(institution), institution.getContractAddress(), ecKeyPair, "walletPassword");
+        certificationService.uploadCertificationToBlockChain(studentCertification, initCertificationTemplate(institution), institution.getContractAddress(), ecKeyPair, encKey);
 
     }
 
