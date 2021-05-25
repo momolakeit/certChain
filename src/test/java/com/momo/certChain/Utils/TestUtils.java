@@ -46,6 +46,10 @@ public class TestUtils {
 
     private static final String campagneName="genie logiciel hiver";
 
+    private static final String encKey="encKey";
+
+    private static final Long premierJanvier2020 = 1577854800000L;
+
 
     public static void assertAddress(Address returnVal){
         Address address = createAddress();
@@ -90,6 +94,14 @@ public class TestUtils {
         assertEquals(returnCampagne.getDate().getMonth(),campagne.getDate().getMonth());
         assertEquals(returnCampagne.getName(),campagne.getName());
         assertEquals(returnCampagne.getId(),campagne.getId());
+    }
+
+    public static void assertLien(Lien lien) {
+        Lien returnLien = createLien();
+        assertEquals(returnLien.getDateExpiration(),lien.getDateExpiration());
+        assertEquals(returnLien.getCertificateEncKey(),lien.getCertificateEncKey());
+        assertEquals(returnLien.getSalt(),lien.getSalt());
+        assertEquals(returnLien.getId(),lien.getId());
     }
 
     public static Address createAddress() {
@@ -179,6 +191,17 @@ public class TestUtils {
         campagne.setName(campagneName);
         campagne.setDate(new Date(System.currentTimeMillis()));
         return campagne;
+    }
+
+    public static Lien createLien(){
+        Lien lien = new Lien();
+
+        lien.setId(id);
+        lien.setCertificateEncKey(encKey);
+        lien.setDateExpiration(new Date(premierJanvier2020));
+        lien.setSalt(salt);
+
+        return lien;
     }
 
     public static ECKeyPair createKeyPair(String privateKey, String publicKey){

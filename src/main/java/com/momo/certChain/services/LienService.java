@@ -1,5 +1,6 @@
 package com.momo.certChain.services;
 
+import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.model.data.Lien;
 import com.momo.certChain.repositories.LienRepository;
@@ -32,6 +33,14 @@ public class LienService {
         saveLien(createLien(encKey, generatedPassword, salt,date));
 
         return generatedPassword;
+    }
+
+    public Lien getLien(String lienId,String password){
+        Lien lien = lienRepository.findById(lienId).orElseThrow(()->new ObjectNotFoundException("Lien"));
+
+        lien.setCertificateEncKey(encryptionService.decryptData(password,lien.getCertificateEncKey(),lien.getSalt()));
+
+        return lien;
     }
 
     private Lien createLien(String encKey, String generatedPassword, String salt,Date date) {
