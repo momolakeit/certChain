@@ -3,6 +3,7 @@ package com.momo.certChain.services;
 import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.ValidationException;
+import com.momo.certChain.model.CreatedLien;
 import com.momo.certChain.model.data.Lien;
 import com.momo.certChain.repositories.LienRepository;
 import com.momo.certChain.services.security.EncryptionService;
@@ -65,16 +66,15 @@ class LienServiceTest {
         when(lienRepository.save(any(Lien.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(newEncKey);
 
-        String generatedEncKey = lienService.createLien(encKeyToEncrypt, dateFin);
+        CreatedLien createdLien = lienService.createLien(encKeyToEncrypt, dateFin);
 
-        verify(lienRepository).save(lienArgumentCaptor.capture());
 
-        Lien lien = lienArgumentCaptor.getValue();
+        Lien lien = createdLien.getLien();
 
         assertEquals(salt, lien.getSalt());
         assertEquals(encKeyToEncrypt, lien.getCertificateEncKey());
         assertEquals(dateFin, lien.getDateExpiration());
-        assertEquals(newEncKey, generatedEncKey);
+        assertEquals(newEncKey, createdLien.getGeneratedPassword());
     }
 
     @Test

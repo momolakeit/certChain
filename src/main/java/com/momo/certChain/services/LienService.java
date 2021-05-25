@@ -2,6 +2,7 @@ package com.momo.certChain.services;
 
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.ValidationException;
+import com.momo.certChain.model.CreatedLien;
 import com.momo.certChain.model.data.Lien;
 import com.momo.certChain.repositories.LienRepository;
 import com.momo.certChain.services.security.EncryptionService;
@@ -23,16 +24,16 @@ public class LienService {
         this.encryptionService = encryptionService;
     }
 
-    public String createLien(String encKey, Date date){
+    public CreatedLien createLien(String encKey, Date date){
         isDateBeforeNow(date);
 
         String generatedPassword = RandomStringUtils.randomAlphanumeric(11);
 
         String salt = encryptionService.generateSalt();
 
-        saveLien(createLien(encKey, generatedPassword, salt,date));
+        Lien lien = saveLien(createLien(encKey, generatedPassword, salt,date));
 
-        return generatedPassword;
+        return new CreatedLien(lien,generatedPassword);
     }
 
     public Lien getLien(String lienId,String password){
