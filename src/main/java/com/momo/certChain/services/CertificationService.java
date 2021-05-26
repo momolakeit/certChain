@@ -94,28 +94,28 @@ public class CertificationService {
     }
 
     //todo utiliser un wallet pour tout les get
-    public Certification getUploadedCertification(String uuid,String privateKey) throws Exception {
+    //todo utiliser un wallet pour tout les get
+
+    public Certification getUploadedCertification(String uuid,String privateKey,String lienId) throws Exception {
         Certification certification = findCertification(uuid);
-        return contractService.getCertificate(uuid,
-                                              certification.getInstitution().getContractAddress(),
-                                              Keys.createEcKeyPair(),
-                                              privateKey,
-                                              certification.getSalt());
 
+        Lien lien = lienService.getLien(lienId,privateKey);
+
+        return getUploadedCertification(certification,lien.getCertificateEncKey());
     }
-
     public String createLien(String certificateId, String certificatePassword, Date dateExpiration) throws Exception {
         //permet de s'assurer qu'on a le bon password
-        getUploadedCertification(certificateId,certificatePassword);
 
         Certification certification = findCertification(certificateId);
+
+        getUploadedCertification(certification,certificatePassword);
 
         CreatedLien createdLien = lienService.createLien(certificatePassword,dateExpiration);
 
         certification.setLiens(ListUtils.ajouterObjectAListe(createdLien.getLien(),certification.getLiens()));
 
         saveCertification(certification);
-        
+
         return createdLien.getGeneratedPassword();
     }
 
@@ -169,5 +169,14 @@ public class CertificationService {
         certification.setUniversityLogo(imageFileUniversityLogo);
         certification.setUniversityStamp(imageFileUniversityStamp);
         certification.setInstitution(institution);
+    }
+
+    private Certification getUploadedCertification(Certification certification,String privateKey) throws Exception {
+        return contractService.getCertificate(certification.getId(),
+                certification.getInstitution().getContractAddress(),
+                Keys.createEcKeyPair(),
+                privateKey,
+                certification.getSalt());
+
     }
 }

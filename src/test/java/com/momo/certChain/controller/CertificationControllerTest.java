@@ -6,6 +6,7 @@ import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.request.CreateLienDTO;
 import com.momo.certChain.model.dto.request.CreateUserDTO;
 import com.momo.certChain.repositories.CertificationRepository;
+import com.momo.certChain.repositories.LienRepository;
 import com.momo.certChain.services.CertificationService;
 import com.momo.certChain.services.InstitutionService;
 import com.momo.certChain.services.messaging.MessageService;
@@ -51,6 +52,9 @@ class CertificationControllerTest {
     private EncryptionService encryptionService;
 
     @Autowired
+    private LienRepository lienRepository;
+
+    @Autowired
     private CertificationRepository certificationRepository;
 
     @Autowired
@@ -67,6 +71,9 @@ class CertificationControllerTest {
 
     private final String encKey ="superSecure";
 
+    private final String lienEncKey ="superSecureLien";
+
+
     private final Long anneeEnMilliseconde = 31536000000L;
 
     @BeforeEach
@@ -77,7 +84,7 @@ class CertificationControllerTest {
     @Test
     public void testGetCertification() throws Exception {
         uploadEncryptedCertificate();
-        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{id}/{key}", studentCertification.getId(), encKey)
+        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{certificateId}/{lienId}/{key}", studentCertification.getId(),createLien().getId(), lienEncKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -86,7 +93,7 @@ class CertificationControllerTest {
     @Test
     public void testGetCertificationWrongKey() throws Exception {
         uploadEncryptedCertificate();
-        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{id}/{key}", studentCertification.getId(), "encKey")
+        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{certificateId}/{lienId}/{key}", studentCertification.getId(),createLien().getId(), "encKey")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -169,6 +176,13 @@ class CertificationControllerTest {
 
         certificationService.uploadCertificationToBlockChain(studentCertification, initCertificationTemplate(institution), institution.getContractAddress(), ecKeyPair, encKey);
 
+    }
+
+    private Lien createLien(){
+        Lien lien = new Lien();
+        lien.setSalt(encryptionService.generateSalt());
+        lien.setCertificateEncKey(encryptionService.encryptData(lienEncKey,encKey,lien.getSalt()));
+        return lienRepository.save(lien);
     }
 
     private Certification initCertificationTemplate(Institution institution) throws IOException {

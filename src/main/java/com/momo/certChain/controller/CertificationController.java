@@ -24,9 +24,9 @@ public class CertificationController extends BaseController {
     }
 
 
-    @GetMapping("/fetchCertificate/{id}/{key}")
-    public CertificationDTO certificationDTO(@PathVariable String id, @PathVariable String key) throws Exception {
-        Certification certification = certificationService.getUploadedCertification(id, key);
+    @GetMapping("/fetchCertificate/{certificateId}/{lienId}/{key}")
+    public CertificationDTO certificationDTO(@PathVariable String certificateId,@PathVariable String lienId, @PathVariable String key) throws Exception {
+        Certification certification = certificationService.getUploadedCertification(certificateId, key,lienId);
         return certificationService.toDTO(certification);
     }
 

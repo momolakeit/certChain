@@ -5,6 +5,7 @@ import com.momo.certChain.exception.CannotDeleteCertificateException;
 import com.momo.certChain.exception.UserForgottenException;
 import com.momo.certChain.model.CreatedLien;
 import com.momo.certChain.model.data.Certification;
+import com.momo.certChain.model.data.Lien;
 import com.momo.certChain.model.data.Signature;
 import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
@@ -205,9 +206,14 @@ class CertificationServiceTest {
     public void getUploadedCertificate() throws Exception {
         String privateKey = "privateKey";
         String salt = "salt";
+
         Certification certification =  TestUtils.createCertification();
         certification.setInstitution(TestUtils.createInstitution());
 
+        Lien lien = TestUtils.createLien();
+        lien.setCertificateEncKey(privateKey);
+
+        when(lienService.getLien(anyString(),anyString())).thenReturn(lien);
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
         when(contractServiceImpl.getCertificate(anyString(),
                                                 anyString(),
@@ -216,7 +222,7 @@ class CertificationServiceTest {
                                                 anyString()))
                                                 .thenReturn(certification);
 
-        certificationService.getUploadedCertification("123456",privateKey);
+        certificationService.getUploadedCertification("123456",privateKey,"123456");
 
         verify(contractServiceImpl).getCertificate(anyString(),
                                                    addressArgumentCaptor.capture(),
@@ -240,7 +246,7 @@ class CertificationServiceTest {
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
 
         Assertions.assertThrows(UserForgottenException.class,()->{
-            certificationService.getUploadedCertification("123456",privateKey);
+            certificationService.getUploadedCertification("123456",privateKey,"123456");
         });
     }
 
