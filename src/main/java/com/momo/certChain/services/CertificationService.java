@@ -96,9 +96,6 @@ public class CertificationService {
     //todo utiliser un wallet pour tout les get
     public Certification getUploadedCertification(String uuid,String privateKey) throws Exception {
         Certification certification = findCertification(uuid);
-        if(Objects.isNull(certification.getSalt())){
-            throw new UserForgottenException();
-        }
         return contractService.getCertificate(uuid,
                                               certification.getInstitution().getContractAddress(),
                                               Keys.createEcKeyPair(),
@@ -137,7 +134,11 @@ public class CertificationService {
     }
 
     private Certification findCertification(String uuid) {
-        return certificationRepository.findById(uuid).orElseThrow(this::certificationNotFound);
+        Certification certification = certificationRepository.findById(uuid).orElseThrow(this::certificationNotFound);
+        if(Objects.isNull(certification.getSalt())){
+            throw new UserForgottenException();
+        }
+        return certification;
     }
 
     private ObjectNotFoundException certificationNotFound() {
