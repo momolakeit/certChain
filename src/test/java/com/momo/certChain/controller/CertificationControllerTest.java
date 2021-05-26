@@ -3,6 +3,8 @@ package com.momo.certChain.controller;
 import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.jwt.JwtProvider;
 import com.momo.certChain.model.data.*;
+import com.momo.certChain.model.dto.request.CreateLienDTO;
+import com.momo.certChain.model.dto.request.CreateUserDTO;
 import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.services.CertificationService;
 import com.momo.certChain.services.InstitutionService;
@@ -27,6 +29,7 @@ import org.web3j.crypto.ECKeyPair;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Date;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -56,11 +59,15 @@ class CertificationControllerTest {
     @MockBean
     private MessageService messageService;
 
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     private MockMvc mockMvc;
 
     private Certification studentCertification;
 
     private final String encKey ="superSecure";
+
+    private final Long anneeEnMilliseconde = 31536000000L;
 
     @BeforeEach
     public void init() {
@@ -80,6 +87,26 @@ class CertificationControllerTest {
     public void testGetCertificationWrongKey() throws Exception {
         uploadEncryptedCertificate();
         mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{id}/{key}", studentCertification.getId(), "encKey")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testCreateCertificateLienExpirationDansLeFuture() throws Exception {
+        uploadEncryptedCertificate();
+        mockMvc.perform(MockMvcRequestBuilders.post("/certification/createLien")
+                .content(objectMapper.writeValueAsString(new CreateLienDTO(studentCertification.getId(),encKey,new Date(System.currentTimeMillis()+anneeEnMilliseconde))))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testCreateCertificateLienExpirationDansLePass4e() throws Exception {
+        uploadEncryptedCertificate();
+        mockMvc.perform(MockMvcRequestBuilders.post("/certification/createLien")
+                .content(objectMapper.writeValueAsString(new CreateLienDTO(studentCertification.getId(),encKey,new Date(System.currentTimeMillis()-anneeEnMilliseconde))))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
