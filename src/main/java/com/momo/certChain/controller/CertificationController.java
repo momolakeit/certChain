@@ -7,6 +7,7 @@ import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.model.dto.request.CreateLienDTO;
 import com.momo.certChain.services.CertificationService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -30,6 +31,7 @@ public class CertificationController extends BaseController {
         return certificationService.toDTO(certification);
     }
 
+    @PreAuthorize("hasAuthority('ROLE_STUDENT')")
     @PostMapping("/createLien")
     public String createLien(@RequestBody CreateLienDTO createLienDTO) throws Exception {
         return certificationService.createLien(
@@ -38,6 +40,7 @@ public class CertificationController extends BaseController {
                 createLienDTO.getDateExpriration());
     }
 
+    @PreAuthorize("hasAuthority('ROLE_STUDENT')")
     @DeleteMapping("/forgetCertificate/{certificateId}")
     public ResponseEntity forgetCertificate(@PathVariable String certificateId) {
         certificationService.forgetCertificate(certificateId);

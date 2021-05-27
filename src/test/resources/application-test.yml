@@ -1,3 +1,1 @@
-blockchain:
-  ethereum:
-    inputUrl : "http://localhost:7545"
+config.securite.active: false

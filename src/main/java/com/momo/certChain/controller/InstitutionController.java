@@ -8,6 +8,7 @@ import com.momo.certChain.model.dto.InstitutionDTO;
 import com.momo.certChain.model.dto.request.CreateInstitutionDTO;
 import com.momo.certChain.services.InstitutionService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.web3j.crypto.CipherException;
@@ -33,6 +34,7 @@ public class InstitutionController extends BaseController {
         this.objectMapper = objectMapper;
     }
 
+    @PreAuthorize("hasAuthority('ROLE_INSTITUTION')")
     @PostMapping
     public InstitutionDTO createInstitution(@RequestBody CreateInstitutionDTO createInstitutionDTO) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException, MessagingException {
         AddressDTO addressDTO = createInstitutionDTO.getAddressDTO();
@@ -49,11 +51,13 @@ public class InstitutionController extends BaseController {
                 createInstitutionDTO.getPasswordConfirmation()));
     }
 
+    @PreAuthorize("hasAuthority('ROLE_INSTITUTION')")
     @GetMapping("/{institutionId}")
     public InstitutionDTO getInstitution(@PathVariable String institutionId) {
         return institutionService.toDTO(institutionService.getInstitution(institutionId));
     }
 
+    @PreAuthorize("hasAuthority('ROLE_INSTITUTION')")
     @PostMapping("/prepareCampagne/{institutionId}")
     public ResponseEntity prepareCampagne(@RequestParam("file") MultipartFile file,
                                           @RequestParam("walletPassword") String walletPassword,
@@ -63,6 +67,7 @@ public class InstitutionController extends BaseController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasAuthority('ROLE_INSTITUTION')")
     @PostMapping("/createTemplate")
     public InstitutionDTO createCertificationTemplate(@RequestParam("universityLogo") MultipartFile universityLogo,
                                                       @RequestParam("universityStamp") MultipartFile universityStamp,
@@ -75,11 +80,13 @@ public class InstitutionController extends BaseController {
         return institutionService.toDTO(institution);
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/approuveInstitution/{institutionId}")
     public InstitutionDTO approuveInstitution(@PathVariable String institutionId) {
         return institutionService.toDTO(institutionService.approveInstitution(institutionId));
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/getNonApprouvedInstitutions")
     public List<InstitutionDTO> findNonApprouvedInstitutions() {
         return institutionService.findNonApprouvedInstitutions().stream()

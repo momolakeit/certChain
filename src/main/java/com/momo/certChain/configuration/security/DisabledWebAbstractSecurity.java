@@ -23,8 +23,8 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@ConditionalOnProperty(name = "config.securite.active", havingValue = "true", matchIfMissing = true)
-public class EnabledWebAbstractSecurity extends WebSecurityConfigurerAdapter implements WebSecurityConfigInterface {
+@ConditionalOnProperty(name = "config.securite.active", havingValue = "true")
+public class DisabledWebAbstractSecurity extends WebSecurityConfigurerAdapter implements WebSecurityConfigInterface {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;

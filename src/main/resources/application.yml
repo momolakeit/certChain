@@ -22,6 +22,11 @@ spring:
 
 front-end-url: "http://localhost:4200/"
 
+blockchain:
+  ethereum:
+    inputUrl : "http://localhost:7545"
+
+
 security:
   jwt:
     duration: 5
