@@ -20,7 +20,7 @@ spring:
           starttls:
             enable: true
 
-front-end-url: "http://localhost:4200/"
+front-end-url: "http://localhost:4200"
 
 blockchain:
   ethereum:

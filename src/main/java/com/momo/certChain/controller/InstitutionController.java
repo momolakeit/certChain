@@ -34,7 +34,6 @@ public class InstitutionController extends BaseController {
         this.objectMapper = objectMapper;
     }
 
-    @PreAuthorize("hasAuthority('ROLE_INSTITUTION')")
     @PostMapping
     public InstitutionDTO createInstitution(@RequestBody CreateInstitutionDTO createInstitutionDTO) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException, MessagingException {
         AddressDTO addressDTO = createInstitutionDTO.getAddressDTO();

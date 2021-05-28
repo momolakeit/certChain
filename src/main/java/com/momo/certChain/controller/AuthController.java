@@ -25,7 +25,7 @@ public class AuthController extends BaseController {
 
     @PostMapping
     public JWTResponse logIn(@RequestBody LogInDTO logInDTO) {
-        return authService.logInUser(logInDTO.getEmailAdress(), logInDTO.getPassword());
+        return authService.logInUser(logInDTO.getEmailAddress(), logInDTO.getPassword());
     }
 
     @PostMapping("/admin")
