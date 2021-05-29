@@ -15,5 +15,7 @@ public class InstitutionWalletDTO {
 
     private String privateKey;
 
+    private String publicKey;
+
     private String publicAddress;
 }

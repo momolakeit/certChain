@@ -1,7 +1,7 @@
 package com.momo.certChain.controller;
 
 import com.momo.certChain.model.data.Admin;
-import com.momo.certChain.model.dto.JWTResponse;
+import com.momo.certChain.model.dto.response.JWTResponse;
 import com.momo.certChain.model.dto.request.CreateUserDTO;
 import com.momo.certChain.model.dto.request.LogInDTO;
 import com.momo.certChain.services.AdminService;

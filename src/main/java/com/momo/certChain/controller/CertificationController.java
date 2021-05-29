@@ -1,7 +1,6 @@
 package com.momo.certChain.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.momo.certChain.mapping.CertificationMapper;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.model.dto.request.CreateLienDTO;
@@ -37,7 +36,7 @@ public class CertificationController extends BaseController {
         return certificationService.createLien(
                 createLienDTO.getCertificationId(),
                 createLienDTO.certificationPassword,
-                createLienDTO.getDateExpriration());
+                createLienDTO.getDateExpiration());
     }
 
     @PreAuthorize("hasAuthority('ROLE_STUDENT')")

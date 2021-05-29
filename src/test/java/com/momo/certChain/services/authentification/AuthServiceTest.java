@@ -5,7 +5,7 @@ import com.momo.certChain.exception.BadPasswordException;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.jwt.JwtProvider;
 import com.momo.certChain.model.data.User;
-import com.momo.certChain.model.dto.JWTResponse;
+import com.momo.certChain.model.dto.response.JWTResponse;
 import com.momo.certChain.repositories.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

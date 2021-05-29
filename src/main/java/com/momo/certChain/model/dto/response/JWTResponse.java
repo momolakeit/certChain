@@ -1,4 +1,4 @@
-package com.momo.certChain.model.dto;
+package com.momo.certChain.model.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

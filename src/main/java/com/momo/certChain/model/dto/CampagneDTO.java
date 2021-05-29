@@ -20,5 +20,4 @@ public class CampagneDTO {
 
     private InstitutionDTO institution;
 
-    private List<CampagneDTO> campagnes;
 }

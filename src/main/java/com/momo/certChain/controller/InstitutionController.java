@@ -44,7 +44,7 @@ public class InstitutionController extends BaseController {
                 addressDTO.getPostalCode(),
                 addressDTO.getCountry(),
                 institutionDTO.getName(),
-                createInstitutionDTO.getWalletPassord(),
+                createInstitutionDTO.getWalletPassword(),
                 institutionDTO.getUsername(),
                 institutionDTO.getPassword(),
                 createInstitutionDTO.getPasswordConfirmation()));

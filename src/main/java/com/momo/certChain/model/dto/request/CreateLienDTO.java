@@ -17,5 +17,5 @@ public class CreateLienDTO {
 
     public String certificationPassword;
 
-    private Date dateExpriration;
+    private Date dateExpiration;
 }

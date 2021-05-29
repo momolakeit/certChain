@@ -17,7 +17,7 @@ public class CreateInstitutionDTO {
 
     private InstitutionDTO institutionDTO;
 
-    private String walletPassord;
+    private String walletPassword;
 
     private String passwordConfirmation;
 
