@@ -6,7 +6,9 @@ import com.momo.certChain.model.data.Institution;
 import com.momo.certChain.model.dto.AddressDTO;
 import com.momo.certChain.model.dto.InstitutionDTO;
 import com.momo.certChain.model.dto.request.CreateInstitutionDTO;
+import com.momo.certChain.model.dto.response.JWTResponse;
 import com.momo.certChain.services.InstitutionService;
+import com.momo.certChain.services.authentification.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -27,18 +29,23 @@ public class InstitutionController extends BaseController {
 
     private final InstitutionService institutionService;
 
+    private final AuthService authService;
+
     private final ObjectMapper objectMapper;
 
-    public InstitutionController(InstitutionService institutionService, ObjectMapper objectMapper) {
+    public InstitutionController(InstitutionService institutionService, ObjectMapper objectMapper, AuthService authService) {
         this.institutionService = institutionService;
         this.objectMapper = objectMapper;
+        this.authService = authService;
     }
 
     @PostMapping
-    public InstitutionDTO createInstitution(@RequestBody CreateInstitutionDTO createInstitutionDTO) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException, MessagingException {
+    public JWTResponse createInstitution(@RequestBody CreateInstitutionDTO createInstitutionDTO) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException, MessagingException {
         AddressDTO addressDTO = createInstitutionDTO.getAddressDTO();
         InstitutionDTO institutionDTO = createInstitutionDTO.getInstitutionDTO();
-        return institutionService.toDTO(institutionService.createInstitution(addressDTO.getStreet(),
+
+
+        Institution institution = institutionService.createInstitution(addressDTO.getStreet(),
                 addressDTO.getCity(),
                 addressDTO.getProvince(),
                 addressDTO.getPostalCode(),
@@ -47,7 +54,9 @@ public class InstitutionController extends BaseController {
                 createInstitutionDTO.getWalletPassword(),
                 institutionDTO.getUsername(),
                 institutionDTO.getPassword(),
-                createInstitutionDTO.getPasswordConfirmation()));
+                createInstitutionDTO.getPasswordConfirmation());
+
+        return authService.logInUser(institution.getUsername(),createInstitutionDTO.getInstitutionDTO().getPassword());
     }
 
     @PreAuthorize("hasAuthority('ROLE_INSTITUTION')")

@@ -49,6 +49,7 @@ public class InstitutionRepositoryTest {
 
     private Institution getInstitution() {
         Institution institution = TestUtils.createInstitution();
+        institution.setUsername(null);
         institution.setAddress(null);
         return institution;
     }

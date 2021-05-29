@@ -140,6 +140,7 @@ class InstitutionControllerTest {
 
         Institution institution = TestUtils.createInstitution();
         institution.setId(null);
+        institution.setUsername("customEmail@mail.com");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/institution")
                 .content(objectMapper.writeValueAsString(new CreateInstitutionDTO(AddressMapper.instance.toDTO(address),InstitutionMapper.instance.toDTO(institution),"password","password")))

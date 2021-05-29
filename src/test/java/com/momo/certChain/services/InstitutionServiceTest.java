@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.ECKeyPair;
 
@@ -61,6 +62,9 @@ class InstitutionServiceTest {
     private KeyPairService keyPairService;
 
     @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
     private MessageService messageService;
 
     @Captor
@@ -77,6 +81,7 @@ class InstitutionServiceTest {
         String username = "username";
         String password = "password";
 
+        when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(addressService.createAddress(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(TestUtils.createAddress());
         when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(walletService.createWallet(anyString())).thenReturn(institutionWallet);

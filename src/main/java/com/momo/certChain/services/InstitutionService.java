@@ -14,6 +14,7 @@ import com.momo.certChain.services.security.EncryptionService;
 import com.momo.certChain.services.security.KeyPairService;
 import com.momo.certChain.utils.ListUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.CipherException;
@@ -48,6 +49,8 @@ public class InstitutionService {
 
     private final CertificationService certificationService;
 
+    private final PasswordEncoder passwordEncoder;
+
     public InstitutionService(InstitutionRepository institutionRepository,
                               AddressService addressService,
                               ContractService contractService,
@@ -56,7 +59,8 @@ public class InstitutionService {
                               CampagneService campagneService,
                               KeyPairService keyPairService,
                               MessageService messageService,
-                              CertificationService certificationService) {
+                              CertificationService certificationService,
+                              PasswordEncoder passwordEncoder) {
         this.institutionRepository = institutionRepository;
         this.addressService = addressService;
         this.contractService = contractService;
@@ -66,6 +70,7 @@ public class InstitutionService {
         this.keyPairService = keyPairService;
         this.messageService = messageService;
         this.certificationService = certificationService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Institution createInstitution(String street,
@@ -160,7 +165,7 @@ public class InstitutionService {
         Institution institution = new Institution();
         institution.setAddress(address);
         institution.setName(name);
-        institution.setPassword(password);
+        institution.setPassword(passwordEncoder.encode(password));
         institution.setUsername(username);
         institution.setApprouved(false);
         institution.setInstitutionWallet(walletService.createWallet(walletPassword));
