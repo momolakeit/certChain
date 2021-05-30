@@ -8,6 +8,7 @@ import com.momo.certChain.exception.PasswordNotMatchingException;
 import com.momo.certChain.model.data.Employee;
 import com.momo.certChain.model.data.HumanUser;
 import com.momo.certChain.model.data.Student;
+import com.momo.certChain.model.data.User;
 import com.momo.certChain.model.dto.EmployeesDTO;
 import com.momo.certChain.model.dto.StudentDTO;
 import com.momo.certChain.repositories.HumanUserRepository;
@@ -40,6 +41,9 @@ class HumanUserServiceTest {
     private HumanUserRepository humanUserRepository;
 
     @Mock
+    private UserService userService;
+
+    @Mock
     private MessageService messageService;
 
     @Mock
@@ -70,7 +74,7 @@ class HumanUserServiceTest {
         String password = "password";
 
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
-        when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(userService.createUser(any(User.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         Student returnValue = (Student) humanUserService.createHumanUser(student,privateKey);
@@ -91,7 +95,7 @@ class HumanUserServiceTest {
         String password = "password";
 
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
-        when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(userService.createUser(any(User.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
 

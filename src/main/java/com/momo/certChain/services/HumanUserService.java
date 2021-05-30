@@ -31,10 +31,13 @@ public class HumanUserService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public HumanUserService(HumanUserRepository humanUserRepository, MessageService messageService, PasswordEncoder passwordEncoder) {
+    private final UserService userService;
+
+    public HumanUserService(HumanUserRepository humanUserRepository, MessageService messageService, PasswordEncoder passwordEncoder, UserService userService) {
         this.humanUserRepository = humanUserRepository;
         this.messageService = messageService;
         this.passwordEncoder = passwordEncoder;
+        this.userService = userService;
     }
 
     //todo tester le cas ou on lance la custom messaging exception
@@ -48,7 +51,7 @@ public class HumanUserService {
         }catch (MessagingException | IOException e) {
             throw new CustomMessagingException();
         }
-        return saveUser(humanUser);
+        return (HumanUser) userService.createUser(humanUser);
     }
 
     //set up confirmer password dans le backend aussi pour securite accrue
@@ -62,6 +65,7 @@ public class HumanUserService {
         return saveUser(user);
     }
 
+    //todo remplacer dans user service
     public HumanUser getUser(String uuid) {
         return humanUserRepository.findById(uuid).orElseThrow(this::humanUserNotFound);
     }

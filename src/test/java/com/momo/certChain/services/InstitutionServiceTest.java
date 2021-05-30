@@ -53,6 +53,9 @@ class InstitutionServiceTest {
     private ExcelService excelService;
 
     @Mock
+    private UserService userService;
+
+    @Mock
     private WalletService walletService;
 
     @Mock
@@ -83,7 +86,7 @@ class InstitutionServiceTest {
 
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(addressService.createAddress(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(TestUtils.createAddress());
-        when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(userService.createUser(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(walletService.createWallet(anyString())).thenReturn(institutionWallet);
 
         Institution returnVal = institutionService.createInstitution(address.getStreet(),

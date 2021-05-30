@@ -49,6 +49,8 @@ public class InstitutionService {
 
     private final CertificationService certificationService;
 
+    private final UserService userService;
+
     private final PasswordEncoder passwordEncoder;
 
     public InstitutionService(InstitutionRepository institutionRepository,
@@ -60,6 +62,7 @@ public class InstitutionService {
                               KeyPairService keyPairService,
                               MessageService messageService,
                               CertificationService certificationService,
+                              UserService userService,
                               PasswordEncoder passwordEncoder) {
         this.institutionRepository = institutionRepository;
         this.addressService = addressService;
@@ -70,6 +73,7 @@ public class InstitutionService {
         this.keyPairService = keyPairService;
         this.messageService = messageService;
         this.certificationService = certificationService;
+        this.userService = userService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -91,7 +95,7 @@ public class InstitutionService {
 
         messageService.sendApprouvalEmail(institution);
 
-        return saveInstitution(institution);
+        return (Institution) userService.createUser(institution);
     }
 
     public Institution uploadCertificateContract(String uuid,String walletPassword) throws Exception {

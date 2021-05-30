@@ -5,10 +5,12 @@ import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.model.data.User;
 import com.momo.certChain.repositories.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
 @Service
+@Transactional
 public class UserService {
     private final UserRepository userRepository;
 
