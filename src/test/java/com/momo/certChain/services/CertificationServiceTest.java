@@ -145,7 +145,7 @@ class CertificationServiceTest {
 
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-        Certification returnValueCertification = certificationService.saveCertification(certification);
+        Certification returnValueCertification = certificationService.saveCertificationWithSalt(certification);
 
         verify(encryptionService,times(0)).generateSalt();
 
@@ -161,7 +161,7 @@ class CertificationServiceTest {
         when(encryptionService.generateSalt()).thenReturn(salt);
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-        Certification returnValueCertification = certificationService.saveCertification(certification);
+        Certification returnValueCertification = certificationService.saveCertificationWithSalt(certification);
 
         verify(encryptionService,times(1)).generateSalt();
 

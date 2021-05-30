@@ -13,13 +13,12 @@ import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.request.HeaderCatcherService;
 import com.momo.certChain.services.security.EncryptionService;
 import com.momo.certChain.utils.ListUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -72,13 +71,13 @@ public class CertificationService {
                                 imageFileService.createImageFile(universityStampBytes),
                                 signatures,
                                 institution);
-        return saveCertification(certification);
+        return saveCertificationWithSalt(certification);
     }
 
     //todo test that
 
     public void uploadCertificationToBlockChain(Certification studentCertification, Certification certificationTemplate, String contractAdress, ECKeyPair ecKeyPair, String encryptionKey) throws Exception {
-        studentCertification = saveCertification(studentCertification);
+        studentCertification = saveCertificationWithSalt(studentCertification);
 
         certificationTemplate = CertificationMapper.instance.toSimple(certificationTemplate);
 
@@ -119,11 +118,11 @@ public class CertificationService {
         return createdLien.getGeneratedPassword();
     }
 
-    public Certification saveCertification(Certification certification) {
+    public Certification saveCertificationWithSalt(Certification certification) {
         if (Objects.isNull(certification.getSalt())) {
             certification.setSalt(encryptionService.generateSalt());
         }
-        return certificationRepository.save(certification);
+        return saveCertification(certification);
     }
 
     public void forgetCertificate(String uuid){
@@ -139,6 +138,10 @@ public class CertificationService {
             throw new UserForgottenException();
         }
         return certification;
+    }
+
+    private Certification saveCertification(Certification certification) {
+        return certificationRepository.save(certification);
     }
 
     private ObjectNotFoundException certificationNotFound() {
