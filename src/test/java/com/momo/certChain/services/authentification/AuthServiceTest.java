@@ -6,7 +6,7 @@ import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.jwt.JwtProvider;
 import com.momo.certChain.model.data.User;
 import com.momo.certChain.model.dto.response.JWTResponse;
-import com.momo.certChain.repositories.UserRepository;
+import com.momo.certChain.services.UserService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +28,7 @@ class AuthServiceTest {
     private AuthService authService;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -40,7 +40,7 @@ class AuthServiceTest {
     public void testLogInUser(){
         String token = "token";
 
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(TestUtils.createStudent()));
+        when(userService.findUserByEmail(anyString())).thenReturn(TestUtils.createStudent());
         when(passwordEncoder.matches(anyString(),anyString())).thenReturn(true);
         when(jwtProvider.generate(any(User.class))).thenReturn(token);
 
@@ -52,21 +52,10 @@ class AuthServiceTest {
     @Test
     public void testLogInUserPasswordNotMatchingThrowsException(){
 
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(TestUtils.createStudent()));
+        when(userService.findUserByEmail(anyString())).thenReturn(TestUtils.createStudent());
         when(passwordEncoder.matches(anyString(),anyString())).thenReturn(false);
 
         Assertions.assertThrows(BadPasswordException.class,()->{
-            authService.logInUser("email","password");
-        });
-
-    }
-
-    @Test
-    public void testLogInUserNotFoundThrowsException(){
-
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
-
-        Assertions.assertThrows(ObjectNotFoundException.class,()->{
             authService.logInUser("email","password");
         });
 

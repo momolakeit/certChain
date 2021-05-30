@@ -6,6 +6,7 @@ import com.momo.certChain.jwt.JwtProvider;
 import com.momo.certChain.model.data.User;
 import com.momo.certChain.model.dto.response.JWTResponse;
 import com.momo.certChain.repositories.UserRepository;
+import com.momo.certChain.services.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,22 +15,20 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AuthService {
 
-    private final UserRepository userRepository;
+    private UserService userService;
 
     private final PasswordEncoder passwordEncoder;
 
     private final JwtProvider jwtProvider;
 
-    public AuthService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,
-                       JwtProvider jwtProvider) {
-        this.userRepository = userRepository;
+    public AuthService(UserService userService, PasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
+        this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.jwtProvider = jwtProvider;
     }
 
-    public JWTResponse logInUser(String username,String password){
-        User user = userRepository.findByUsername(username).orElseThrow(this::userNotFound);
+    public JWTResponse logInUser(String username, String password){
+        User user = userService.findUserByEmail(username);
         if(!passwordEncoder.matches(password,user.getPassword())){
             throw new BadPasswordException();
         }
@@ -43,7 +42,4 @@ public class AuthService {
         return jwtResponse;
     }
 
-    private ObjectNotFoundException userNotFound() {
-        return new ObjectNotFoundException("User");
-    }
 }
