@@ -184,7 +184,7 @@ class InstitutionControllerTest {
                 .param("campagneName",campagneName)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                    .andExpect(status().isOk());
     }
 
     @Test

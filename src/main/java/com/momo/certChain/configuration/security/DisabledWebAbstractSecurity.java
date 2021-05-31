@@ -22,8 +22,7 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-@ConditionalOnProperty(name = "config.securite.active", havingValue = "true")
+@ConditionalOnProperty(name = "config.securite.active", havingValue = "false")
 public class DisabledWebAbstractSecurity extends WebSecurityConfigurerAdapter implements WebSecurityConfigInterface {
 
     @Autowired
@@ -37,9 +36,9 @@ public class DisabledWebAbstractSecurity extends WebSecurityConfigurerAdapter im
 
         http.cors().configurationSource(corsConfigurationSource())
                 .and().csrf().disable()
-                .authorizeRequests().antMatchers( "/auth***","/fetchCertificate****").permitAll()
+                .authorizeRequests().antMatchers( "****").permitAll()
 
-                .anyRequest().authenticated().and().httpBasic()
+                .and().httpBasic()
 
                 // Handle exceptions
 
