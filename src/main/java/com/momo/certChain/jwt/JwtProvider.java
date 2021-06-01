@@ -27,6 +27,8 @@ public class JwtProvider {
 
     private final String ROLE_CLAIM = "role";
 
+    private final String ROLE_CLAIM_PREFIX = "ROLE_";
+
     public JwtProvider(@Value("${security.jwt.duration}") long durationHours, @Value("${security.jwt.secret}") String secret) {
         this.SECRET = secret;
         algorithm = Algorithm.HMAC256(secret);
@@ -39,7 +41,7 @@ public class JwtProvider {
 
         return JWT.create()
                 .withSubject(user.getId())
-                .withClaim(ROLE_CLAIM, user.getClass().getSimpleName().toUpperCase())
+                .withClaim(ROLE_CLAIM, ROLE_CLAIM_PREFIX + user.getClass().getSimpleName().toUpperCase())
                 .withIssuedAt(new Date(time))
                 .withExpiresAt(new Date(time + duration))
                 .sign(algorithm);
@@ -56,7 +58,7 @@ public class JwtProvider {
     }
 
     public String getUserRoleFromToken(String token) throws JWTVerificationException {
-        DecodedJWT decodedJWT= verify(token);
+        DecodedJWT decodedJWT = verify(token);
         return decodedJWT.getClaim(ROLE_CLAIM).asString();
     }
 
