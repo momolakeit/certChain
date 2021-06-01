@@ -32,7 +32,7 @@ public class MessageService {
 
     public void sendEmailToHumanUser(HumanUser humanUser, String privateKey, String password) throws MessagingException, IOException {
         String from = "certChain@" + humanUser.getInstitution().getName() + ".com";
-
+        from = from.replaceAll("\\s","-");
         String subject = "Receive your diploma !";
         String to = humanUser.getUsername();
         String contentType = "text/html";

@@ -48,8 +48,6 @@ class MessageServiceTest {
         student.setId("123456");
         String privateKey ="superPrivate";
         String password = "password";
-        String messageString = frontEndUrl + "/logIn.com.Veuillez vous connecter avec votre courriel et le ce mot de passe:"+password+
-                "This is the password, save it so you can retreive your diploma:" + privateKey;
         String from =  "certChain@"+student.getInstitution().getName()+".com";
 
         when(javaMailSender.createMimeMessage()).thenReturn(createMimeMessage());
@@ -67,6 +65,23 @@ class MessageServiceTest {
         assertTrue(String.valueOf(message.getContent()).contains(privateKey));
         assertTrue(String.valueOf(message.getContent()).contains(frontEndUrl+"logIn.com."));
     }
+
+    @Test
+    public void sendMessageSpaceInInstitutionName() throws MessagingException, IOException {
+        Student student = TestUtils.createStudent();
+        student.getInstitution().setName("U laval");
+
+        String privateKey ="superPrivate";
+        String password = "password";
+
+        when(javaMailSender.createMimeMessage()).thenReturn(createMimeMessage());
+        messageService.sendEmailToHumanUser(student,privateKey,password);
+        verify(javaMailSender).send(messageArgumentCaptor.capture());
+
+        Message message = messageArgumentCaptor.getValue();
+        assertEquals("certChain@U-laval.com",message.getFrom()[0].toString());
+    }
+
 
     @Test
     public void sendApprouvalMessage() throws MessagingException, IOException {
