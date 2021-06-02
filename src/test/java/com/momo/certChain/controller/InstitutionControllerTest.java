@@ -8,9 +8,7 @@ import com.momo.certChain.mapping.InstitutionMapper;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.request.CreateInstitutionDTO;
 import com.momo.certChain.repositories.*;
-import com.momo.certChain.services.blockChain.ContractService;
-import com.momo.certChain.services.messaging.MessageService;
-import com.momo.certChain.services.security.EncryptionService;
+import com.momo.certChain.services.messaging.MessageServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,11 +24,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
-import org.web3j.crypto.ECKeyPair;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -49,9 +42,6 @@ class InstitutionControllerTest {
 
     @Autowired
     private InitEnvService initEnvService;
-
-    @MockBean
-    private MessageService messageService;
 
     private String institutionId;
 
@@ -110,6 +100,7 @@ class InstitutionControllerTest {
 
     private void createInstitutionNotApprouved() {
         Institution institution = TestUtils.createInstitution();
+        institution.setUsername("je ne sais guere");
         institution.setApprouved(false);
         institutionId = institutionRepository.save(institution).getId();
     }

@@ -4,12 +4,11 @@ import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.jwt.JwtProvider;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.request.CreateLienDTO;
-import com.momo.certChain.model.dto.request.CreateUserDTO;
 import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.repositories.LienRepository;
 import com.momo.certChain.services.CertificationService;
 import com.momo.certChain.services.InstitutionService;
-import com.momo.certChain.services.messaging.MessageService;
+import com.momo.certChain.services.messaging.MessageServiceImpl;
 import com.momo.certChain.services.security.EncryptionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,9 +58,6 @@ class CertificationControllerTest {
 
     @Autowired
     private JwtProvider jwtProvider;
-
-    @MockBean
-    private MessageService messageService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 

@@ -21,10 +21,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class MessageServiceTest {
+class MessageServiceImplTest {
 
     @InjectMocks
-    private MessageService messageService;
+    private MessageServiceImpl messageServiceImpl;
 
     @Mock
     private JavaMailSender javaMailSender;
@@ -36,7 +36,7 @@ class MessageServiceTest {
 
     @BeforeEach
     public void init(){
-        ReflectionTestUtils.setField(messageService,"frontEndUrl",frontEndUrl);
+        ReflectionTestUtils.setField(messageServiceImpl,"frontEndUrl",frontEndUrl);
     }
 
 
@@ -51,7 +51,7 @@ class MessageServiceTest {
         String from =  "certChain@"+student.getInstitution().getName()+".com";
 
         when(javaMailSender.createMimeMessage()).thenReturn(createMimeMessage());
-        messageService.sendEmailToHumanUser(student,privateKey,password);
+        messageServiceImpl.sendEmailToHumanUser(student,privateKey,password);
         verify(javaMailSender).send(messageArgumentCaptor.capture());
 
         Message message = messageArgumentCaptor.getValue();
@@ -75,7 +75,7 @@ class MessageServiceTest {
         String password = "password";
 
         when(javaMailSender.createMimeMessage()).thenReturn(createMimeMessage());
-        messageService.sendEmailToHumanUser(student,privateKey,password);
+        messageServiceImpl.sendEmailToHumanUser(student,privateKey,password);
         verify(javaMailSender).send(messageArgumentCaptor.capture());
 
         Message message = messageArgumentCaptor.getValue();
@@ -89,7 +89,7 @@ class MessageServiceTest {
         String messageString ="L'institution " + institution.getName() + "a déposé une demande d'approbation";
 
         when(javaMailSender.createMimeMessage()).thenReturn(createMimeMessage());
-        messageService.sendApprouvalEmail(institution);
+        messageServiceImpl.sendApprouvalEmail(institution);
         verify(javaMailSender).send(messageArgumentCaptor.capture());
 
         Message message = messageArgumentCaptor.getValue();

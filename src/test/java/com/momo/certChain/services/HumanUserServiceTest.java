@@ -12,7 +12,7 @@ import com.momo.certChain.model.data.User;
 import com.momo.certChain.model.dto.EmployeesDTO;
 import com.momo.certChain.model.dto.StudentDTO;
 import com.momo.certChain.repositories.HumanUserRepository;
-import com.momo.certChain.services.messaging.MessageService;
+import com.momo.certChain.services.messaging.MessageServiceImpl;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -44,7 +44,7 @@ class HumanUserServiceTest {
     private UserService userService;
 
     @Mock
-    private MessageService messageService;
+    private MessageServiceImpl messageServiceImpl;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -79,7 +79,7 @@ class HumanUserServiceTest {
 
         Student returnValue = (Student) humanUserService.createHumanUser(student,privateKey);
 
-        verify(messageService, times(1)).sendEmailToHumanUser(any(HumanUser.class),encKeyPrivateKey.capture(),passwordCaptor.capture());
+        verify(messageServiceImpl, times(1)).sendEmailToHumanUser(any(HumanUser.class),encKeyPrivateKey.capture(),passwordCaptor.capture());
 
         assertEquals(privateKey,encKeyPrivateKey.getValue());
         assertEquals(password,passwordCaptor.getValue());
@@ -100,7 +100,7 @@ class HumanUserServiceTest {
 
 
         Employee returnValue = (Employee) humanUserService.createHumanUser(employe,privateKey);
-        verify(messageService, times(1)).sendEmailToHumanUser(any(HumanUser.class),encKeyPrivateKey.capture(),passwordCaptor.capture());
+        verify(messageServiceImpl, times(1)).sendEmailToHumanUser(any(HumanUser.class),encKeyPrivateKey.capture(),passwordCaptor.capture());
 
         assertEquals(privateKey,encKeyPrivateKey.getValue());
         assertEquals(password,passwordCaptor.getValue());
@@ -117,7 +117,7 @@ class HumanUserServiceTest {
 
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        doThrow(new MessagingException()).when(messageService).sendEmailToHumanUser(any(HumanUser.class),anyString(),anyString());
+        doThrow(new MessagingException()).when(messageServiceImpl).sendEmailToHumanUser(any(HumanUser.class),anyString(),anyString());
 
         Assertions.assertThrows(CustomMessagingException.class,()->{
             humanUserService.createHumanUser(student,privateKey);
@@ -132,7 +132,7 @@ class HumanUserServiceTest {
 
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        doThrow(new IOException()).when(messageService).sendEmailToHumanUser(any(HumanUser.class),anyString(),anyString());
+        doThrow(new IOException()).when(messageServiceImpl).sendEmailToHumanUser(any(HumanUser.class),anyString(),anyString());
 
         Assertions.assertThrows(CustomMessagingException.class,()->{
             humanUserService.createHumanUser(student,privateKey);

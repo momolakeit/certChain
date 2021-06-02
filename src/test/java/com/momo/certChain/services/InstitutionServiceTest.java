@@ -8,7 +8,7 @@ import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.excel.ExcelService;
-import com.momo.certChain.services.messaging.MessageService;
+import com.momo.certChain.services.messaging.MessageServiceImpl;
 import com.momo.certChain.services.security.KeyPairService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -68,7 +68,7 @@ class InstitutionServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private MessageService messageService;
+    private MessageServiceImpl messageServiceImpl;
 
     @Captor
     private ArgumentCaptor<String> campagneNameCaptor;
