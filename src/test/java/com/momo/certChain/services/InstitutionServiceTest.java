@@ -245,7 +245,7 @@ class InstitutionServiceTest {
         when(campagneService.createCampagne(any(List.class),anyString(), any(Institution.class))).thenReturn(TestUtils.createCampagne());
         when(excelService.readStudentsFromExcel(any(byte[].class))).thenReturn(listeOfStudents);
 
-        Campagne campagne = institutionService.prepareCampagne(TestUtils.getExcelByteArray(), "123456", walletPassword, campagneName);
+        Campagne campagne = institutionService.prepareCampagne(TestUtils.getExcelByteArray(), "123456", campagneName);
         verify(campagneService).createCampagne(any(List.class),campagneNameCaptor.capture(), any(Institution.class));
 
         List<String> campagneNameCaptorAllValues = campagneNameCaptor.getAllValues();
@@ -267,7 +267,7 @@ class InstitutionServiceTest {
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
 
         Assertions.assertThrows(ValidationException.class,()->{
-            institutionService.prepareCampagne(TestUtils.getExcelByteArray(), "123456", walletPassword, campagneName);
+            institutionService.prepareCampagne(TestUtils.getExcelByteArray(), "123456", campagneName);
         });
     }
 
