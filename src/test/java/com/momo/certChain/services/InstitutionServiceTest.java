@@ -234,7 +234,7 @@ class InstitutionServiceTest {
     }
 
     @Test
-    public void uploadCertificationTemplate() throws Exception {
+    public void prepareCampagne() throws Exception {
         int nbDeStudents = 100;
         List<HumanUser> listeOfStudents = initStudentsList(nbDeStudents);
         String campagneName = "campagneName";
@@ -245,7 +245,7 @@ class InstitutionServiceTest {
         when(campagneService.createCampagne(any(List.class),anyString(), any(Institution.class))).thenReturn(TestUtils.createCampagne());
         when(excelService.readStudentsFromExcel(any(byte[].class))).thenReturn(listeOfStudents);
 
-        Institution returnInstitution = institutionService.prepareCampagne(TestUtils.getExcelByteArray(), "123456", walletPassword, campagneName);
+        Campagne campagne = institutionService.prepareCampagne(TestUtils.getExcelByteArray(), "123456", walletPassword, campagneName);
         verify(campagneService).createCampagne(any(List.class),campagneNameCaptor.capture(), any(Institution.class));
 
         List<String> campagneNameCaptorAllValues = campagneNameCaptor.getAllValues();
@@ -254,7 +254,7 @@ class InstitutionServiceTest {
             assertEquals(campagneName, name);
         }
 
-        TestUtils.assertCampagne(returnInstitution.getCampagnes().get(0));
+        TestUtils.assertCampagne(campagne);
     }
 
     @Test

@@ -1,12 +1,15 @@
 package com.momo.certChain.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.momo.certChain.model.data.Campagne;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Institution;
 import com.momo.certChain.model.dto.AddressDTO;
+import com.momo.certChain.model.dto.CampagneDTO;
 import com.momo.certChain.model.dto.InstitutionDTO;
 import com.momo.certChain.model.dto.request.CreateInstitutionDTO;
 import com.momo.certChain.model.dto.response.JWTResponse;
+import com.momo.certChain.services.CampagneService;
 import com.momo.certChain.services.InstitutionService;
 import com.momo.certChain.services.authentification.AuthService;
 import org.springframework.http.ResponseEntity;
@@ -29,14 +32,17 @@ public class InstitutionController extends BaseController {
 
     private final InstitutionService institutionService;
 
+    private final CampagneService campagneService;
+
     private final AuthService authService;
 
     private final ObjectMapper objectMapper;
 
-    public InstitutionController(InstitutionService institutionService, ObjectMapper objectMapper, AuthService authService) {
+    public InstitutionController(InstitutionService institutionService, CampagneService campagneService, AuthService authService, ObjectMapper objectMapper) {
         this.institutionService = institutionService;
-        this.objectMapper = objectMapper;
+        this.campagneService = campagneService;
         this.authService = authService;
+        this.objectMapper = objectMapper;
     }
 
     @PostMapping
@@ -67,12 +73,12 @@ public class InstitutionController extends BaseController {
 
     @PreAuthorize("hasAuthority('ROLE_INSTITUTION')")
     @PostMapping("/prepareCampagne/{institutionId}")
-    public ResponseEntity prepareCampagne(@RequestParam("file") MultipartFile file,
-                                          @RequestParam("walletPassword") String walletPassword,
-                                          @PathVariable String institutionId,
-                                          @RequestParam("campagneName") String campagneName) throws Exception {
-        institutionService.prepareCampagne(file.getBytes(), institutionId, walletPassword, campagneName);
-        return ResponseEntity.ok().build();
+    public CampagneDTO prepareCampagne(@RequestParam("file") MultipartFile file,
+                                       @RequestParam("walletPassword") String walletPassword,
+                                       @PathVariable String institutionId,
+                                       @RequestParam("campagneName") String campagneName) throws Exception {
+        Campagne campagne = institutionService.prepareCampagne(file.getBytes(), institutionId, walletPassword, campagneName);
+        return campagneService.toDTO(campagne);
     }
 
     @PreAuthorize("hasAuthority('ROLE_INSTITUTION')")
