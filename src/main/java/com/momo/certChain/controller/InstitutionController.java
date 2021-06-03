@@ -74,10 +74,9 @@ public class InstitutionController extends BaseController {
     @PreAuthorize("hasAuthority('ROLE_INSTITUTION')")
     @PostMapping("/prepareCampagne/{institutionId}")
     public CampagneDTO prepareCampagne(@RequestParam("file") MultipartFile file,
-                                       @RequestParam("walletPassword") String walletPassword,
                                        @PathVariable String institutionId,
                                        @RequestParam("campagneName") String campagneName) throws Exception {
-        Campagne campagne = institutionService.prepareCampagne(file.getBytes(), institutionId, walletPassword, campagneName);
+        Campagne campagne = institutionService.prepareCampagne(file.getBytes(), institutionId, campagneName);
         return campagneService.toDTO(campagne);
     }
 

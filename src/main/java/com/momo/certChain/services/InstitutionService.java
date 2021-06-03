@@ -121,7 +121,7 @@ public class InstitutionService {
         return saveInstitution(institution);
     }
 
-    public Institution prepareCampagne(byte[] bytes, String uuid, String walletPassword, String campagneName) throws Exception {
+    public Campagne prepareCampagne(byte[] bytes, String uuid, String campagneName) throws Exception {
         List<HumanUser> studentList = excelService.readStudentsFromExcel(bytes);
 
         Institution institution = getInstitution(uuid);
@@ -134,7 +134,9 @@ public class InstitutionService {
 
         institution.setCampagnes(ListUtils.ajouterObjectAListe(campagne,institution.getCampagnes()));
 
-        return saveInstitution(institution);
+        saveInstitution(institution);
+
+        return campagne;
     }
 
     public InstitutionDTO toDTO(Institution institution){
