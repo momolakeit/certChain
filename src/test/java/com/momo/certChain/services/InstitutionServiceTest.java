@@ -74,7 +74,9 @@ class InstitutionServiceTest {
     private ArgumentCaptor<String> campagneNameCaptor;
 
     @Captor
-    private ArgumentCaptor<String> walletPasswordCaptor;
+    private ArgumentCaptor<Date> dateArgumentCaptor;
+
+    private final Long dateLong = 1575176400000L;
 
     @Test
     public void createInstitutionTest() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException, MessagingException {
@@ -238,20 +240,28 @@ class InstitutionServiceTest {
         int nbDeStudents = 100;
         List<HumanUser> listeOfStudents = initStudentsList(nbDeStudents);
         String campagneName = "campagneName";
-        String walletPassword = "walletPassword";
 
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createInstitutionWithWallet()));
         when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        when(campagneService.createCampagne(any(List.class),anyString(), any(Institution.class))).thenReturn(TestUtils.createCampagne());
+        when(campagneService.createCampagne(any(List.class),anyString(), any(Institution.class),any(Date.class))).thenReturn(TestUtils.createCampagne());
         when(excelService.readStudentsFromExcel(any(byte[].class))).thenReturn(listeOfStudents);
 
-        Campagne campagne = institutionService.prepareCampagne(TestUtils.getExcelByteArray(), "123456", campagneName);
-        verify(campagneService).createCampagne(any(List.class),campagneNameCaptor.capture(), any(Institution.class));
+        Campagne campagne = institutionService.prepareCampagne(TestUtils.getExcelByteArray(), "123456", campagneName,new Date(dateLong));
+        verify(campagneService).createCampagne(any(List.class),campagneNameCaptor.capture(), any(Institution.class),dateArgumentCaptor.capture());
 
         List<String> campagneNameCaptorAllValues = campagneNameCaptor.getAllValues();
 
+        List<Date> dateCaptorAllValues = dateArgumentCaptor.getAllValues();
+
+        Date expectedDate = new Date(dateLong);
+
         for (String name : campagneNameCaptorAllValues) {
             assertEquals(campagneName, name);
+        }
+
+
+        for(Date date: dateCaptorAllValues){
+            assertEquals(expectedDate,date);
         }
 
         TestUtils.assertCampagne(campagne);
@@ -260,14 +270,13 @@ class InstitutionServiceTest {
     @Test
     public void uploadCertificationTemplateInstitutionNotApprouved() throws Exception {
         String campagneName = "campagneName";
-        String walletPassword = "walletPassword";
 
         Institution institution =TestUtils.createInstitutionWithWallet();
         institution.setApprouved(false);
         when(institutionRepository.findById(anyString())).thenReturn(Optional.of(institution));
 
         Assertions.assertThrows(ValidationException.class,()->{
-            institutionService.prepareCampagne(TestUtils.getExcelByteArray(), "123456", campagneName);
+            institutionService.prepareCampagne(TestUtils.getExcelByteArray(), "123456", campagneName,new Date());
         });
     }
 

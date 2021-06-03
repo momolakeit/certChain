@@ -25,6 +25,7 @@ import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -121,7 +122,7 @@ public class InstitutionService {
         return saveInstitution(institution);
     }
 
-    public Campagne prepareCampagne(byte[] bytes, String uuid, String campagneName) throws Exception {
+    public Campagne prepareCampagne(byte[] bytes, String uuid, String campagneName, Date date) throws Exception {
         List<HumanUser> studentList = excelService.readStudentsFromExcel(bytes);
 
         Institution institution = getInstitution(uuid);
@@ -130,7 +131,7 @@ public class InstitutionService {
 
         linkInstitutionAndStudents(institution, studentList);
 
-        Campagne campagne = campagneService.createCampagne(studentList,campagneName,institution);
+        Campagne campagne = campagneService.createCampagne(studentList,campagneName,institution,date);
 
         institution.setCampagnes(ListUtils.ajouterObjectAListe(campagne,institution.getCampagnes()));
 

@@ -22,10 +22,7 @@ import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -83,6 +80,8 @@ class CampagneServiceTest {
     public void destroy(){
         randomStringUtilsMockedStatic.closeOnDemand();
     }
+
+    private final Long dateLong = 1575176400000L;
 
 
     @Test
@@ -152,10 +151,11 @@ class CampagneServiceTest {
         when(campagneRepository.save(any(Campagne.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(userService.createHumanUser(any(HumanUser.class),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-        Campagne campagne = campagneService.createCampagne(listeOfStudents,campagneName,TestUtils.createInstitution());
+        Campagne campagne = campagneService.createCampagne(listeOfStudents,campagneName,TestUtils.createInstitution(), new Date(dateLong));
 
         assertEquals(campagneName,campagne.getName());
         assertEquals(nbDeStudents,campagne.getStudentList().size());
+        assertEquals(new Date(dateLong),campagne.getDate());
         for(HumanUser humanUser: campagne.getStudentList()){
             Student student = (Student)humanUser;
             TestUtils.assertBaseUser(student);

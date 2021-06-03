@@ -25,6 +25,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.Date;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -166,20 +168,21 @@ class InstitutionControllerTest {
     }
 
     @Test
-    public void testUploadCertificationToBlockchain() throws Exception {
+    public void testPrepareCampagne() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
 
         mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/prepareCampagne/{institutionId}", institutionId)
                 .file(file)
                 .param("walletPassword",InitEnvService.encryptionKey)
                 .param("campagneName",campagneName)
+                .param("date",objectMapper.writeValueAsString(new Date()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk());
     }
 
     @Test
-    public void testUploadCertificationToBlockchainInstitutionNotApprouved() throws Exception {
+    public void testPrepareCampagneInstitutionNotApprouved() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
 
         createInstitutionNotApprouved();
@@ -188,6 +191,7 @@ class InstitutionControllerTest {
                 .file(file)
                 .param("walletPassword",encryptionKey)
                 .param("campagneName",campagneName)
+                .param("date",objectMapper.writeValueAsString(new Date()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());

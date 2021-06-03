@@ -54,10 +54,10 @@ public class CampagneService {
         saveCampagne(campagne);
     }
 
-    public Campagne createCampagne(List<HumanUser> studentList,String name,Institution institution) {
+    public Campagne createCampagne(List<HumanUser> studentList,String name,Institution institution,Date dateExpiration) {
         Campagne campagne = new Campagne();
         campagne.setName(name);
-        campagne.setDate(new Date(System.currentTimeMillis()));
+        campagne.setDate(dateExpiration);
         campagne.setStudentList(ListUtils.ajouterListAListe(studentList.stream()
                                                                         .map(humanUser -> userService.createHumanUser(humanUser,""))
                                                                         .collect(Collectors.toList()),

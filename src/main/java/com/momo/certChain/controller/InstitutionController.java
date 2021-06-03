@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,8 +76,9 @@ public class InstitutionController extends BaseController {
     @PostMapping("/prepareCampagne/{institutionId}")
     public CampagneDTO prepareCampagne(@RequestParam("file") MultipartFile file,
                                        @PathVariable String institutionId,
-                                       @RequestParam("campagneName") String campagneName) throws Exception {
-        Campagne campagne = institutionService.prepareCampagne(file.getBytes(), institutionId, campagneName);
+                                       @RequestParam("campagneName") String campagneName,
+                                       @RequestParam("date") String date) throws Exception {
+        Campagne campagne = institutionService.prepareCampagne(file.getBytes(), institutionId, campagneName,objectMapper.readValue(date, Date.class));
         return campagneService.toDTO(campagne);
     }
 
