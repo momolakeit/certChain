@@ -11,19 +11,19 @@ import java.util.logging.Logger;
 public abstract class BaseController {
     private final Logger LOGGER = Logger.getLogger(BaseController.class.getName());
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<Object> handleNotFoundException(ValidationException exception){
+    public ResponseEntity<Object> handleValidationException(ValidationException exception){
         exception.printStackTrace();
         return new ResponseEntity<Object>(exception.getMessage(),new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(AuthorizationException.class)
-    public ResponseEntity<Object> handleNotFoundException(AuthorizationException exception){
+    public ResponseEntity<Object> handleAuthorizationException(AuthorizationException exception){
         exception.printStackTrace();
         return new ResponseEntity<Object>(exception.getMessage(),new HttpHeaders(), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleNotFoundException(Exception exception){
+    public ResponseEntity<Object> handleException(Exception exception){
         exception.printStackTrace();
         return new ResponseEntity<Object>(exception.getMessage(),new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
