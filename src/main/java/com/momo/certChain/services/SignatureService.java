@@ -1,7 +1,9 @@
 package com.momo.certChain.services;
 
 import com.momo.certChain.exception.ObjectNotFoundException;
+import com.momo.certChain.mapping.SignatureMapper;
 import com.momo.certChain.model.data.Signature;
+import com.momo.certChain.model.dto.SignatureDTO;
 import com.momo.certChain.repositories.SignatureRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,10 @@ public class SignatureService {
         signature.setSignatureImage(imageFileService.createImageFile(imageBytes));
 
         return saveSignature(signature);
+    }
+
+    public SignatureDTO toDto(Signature signature){
+        return SignatureMapper.instance.toDTO(signature);
     }
 
     public Signature getSignature(String uuid){
