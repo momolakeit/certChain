@@ -4,6 +4,7 @@ import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.model.data.User;
 import com.momo.certChain.repositories.UserRepository;
+import com.momo.certChain.services.request.HeaderCatcherService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,24 +15,31 @@ import java.util.Objects;
 public class UserService {
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    private final HeaderCatcherService headerCatcherService;
+
+    public UserService(UserRepository userRepository, HeaderCatcherService headerCatcherService) {
         this.userRepository = userRepository;
+        this.headerCatcherService = headerCatcherService;
     }
 
-    public User createUser(User user){
-        try{
+    public User createUser(User user) {
+        try {
             findUserByEmail(user.getUsername());
             throw new ValidationException("User already exists");
-        }catch (ObjectNotFoundException objectNotFoundException){
+        } catch (ObjectNotFoundException objectNotFoundException) {
             return userRepository.save(user);
         }
     }
 
-    public User getUser(String id){
-        return userRepository.findById(id).orElseThrow(()->new ObjectNotFoundException("User"));
+    public User getUser(String id) {
+        return userRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("User"));
     }
 
-    public User findUserByEmail(String username){
-        return userRepository.findByUsername(username).orElseThrow(()->new ObjectNotFoundException("User"));
+    public User getLoggedUser(){
+        return getUser(headerCatcherService.getUserId());
+    }
+
+    public User findUserByEmail(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new ObjectNotFoundException("User"));
     }
 }

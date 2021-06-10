@@ -7,6 +7,7 @@ import com.momo.certChain.model.data.Employee;
 import com.momo.certChain.model.data.Student;
 import com.momo.certChain.model.data.User;
 import com.momo.certChain.repositories.UserRepository;
+import com.momo.certChain.services.request.HeaderCatcherService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +30,9 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private HeaderCatcherService headerCatcherService;
 
     @Test
     public void findUserByEmailTest(){
@@ -71,6 +75,16 @@ class UserServiceTest {
         Assertions.assertThrows(ObjectNotFoundException.class,()->{
             userService.getUser("123456");
         });
+    }
+
+    @Test
+    public void getLoggedUser(){
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createStudent()));
+        when(headerCatcherService.getUserId()).thenReturn("123456");
+
+        Student returnValue = (Student) userService.getLoggedUser();
+
+        TestUtils.assertBaseUser(returnValue);
     }
 
     @Test
