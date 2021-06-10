@@ -63,6 +63,7 @@ public class CertificationService {
 
     public Certification createCertificationTemplate(Certification certification, byte[] universityLogoBytes, byte[] universityStampBytes, Institution institution) {
         List<Signature> signatures = new ArrayList<>();
+        //todo voir contre null exption possible
         for (Signature signature : certification.getSignatures()) {
             signatures.add(signatureService.createSignature(signature.getAuthorName()));
         }

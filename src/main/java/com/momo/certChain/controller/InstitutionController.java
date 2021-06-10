@@ -6,10 +6,12 @@ import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Institution;
 import com.momo.certChain.model.dto.AddressDTO;
 import com.momo.certChain.model.dto.CampagneDTO;
+import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.model.dto.InstitutionDTO;
 import com.momo.certChain.model.dto.request.CreateInstitutionDTO;
 import com.momo.certChain.model.dto.response.JWTResponse;
 import com.momo.certChain.services.CampagneService;
+import com.momo.certChain.services.CertificationService;
 import com.momo.certChain.services.InstitutionService;
 import com.momo.certChain.services.authentification.AuthService;
 import org.springframework.http.ResponseEntity;
@@ -35,13 +37,16 @@ public class InstitutionController extends BaseController {
 
     private final CampagneService campagneService;
 
+    private final CertificationService certificationService;
+
     private final AuthService authService;
 
     private final ObjectMapper objectMapper;
 
-    public InstitutionController(InstitutionService institutionService, CampagneService campagneService, AuthService authService, ObjectMapper objectMapper) {
+    public InstitutionController(InstitutionService institutionService, CampagneService campagneService, CertificationService certificationService, AuthService authService, ObjectMapper objectMapper) {
         this.institutionService = institutionService;
         this.campagneService = campagneService;
+        this.certificationService = certificationService;
         this.authService = authService;
         this.objectMapper = objectMapper;
     }
@@ -84,15 +89,15 @@ public class InstitutionController extends BaseController {
 
     @PreAuthorize("hasAuthority('ROLE_INSTITUTION')")
     @PostMapping("/createTemplate")
-    public InstitutionDTO createCertificationTemplate(@RequestParam("universityLogo") MultipartFile universityLogo,
-                                                      @RequestParam("universityStamp") MultipartFile universityStamp,
-                                                      @RequestParam("certificationDTO") String certificationString,
-                                                      @RequestParam("institutionId") String institutionId) throws IOException {
-        Institution institution = institutionService.createInstitutionCertificateTemplate(institutionId,
+    public CertificationDTO createCertificationTemplate(@RequestParam("universityLogo") MultipartFile universityLogo,
+                                                        @RequestParam("universityStamp") MultipartFile universityStamp,
+                                                        @RequestParam("certificationDTO") String certificationString,
+                                                        @RequestParam("institutionId") String institutionId) throws IOException {
+        Certification certification = institutionService.createInstitutionCertificateTemplate(institutionId,
                 objectMapper.readValue(certificationString, Certification.class),
                 universityLogo.getBytes(),
                 universityStamp.getBytes());
-        return institutionService.toDTO(institution);
+        return certificationService.toDTO(certification);
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")

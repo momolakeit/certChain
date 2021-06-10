@@ -112,14 +112,14 @@ public class InstitutionService {
         return saveInstitution(institution);
     }
 
-    public Institution createInstitutionCertificateTemplate(String institutionId,Certification certification, byte[] universityLogoBytes, byte[] universityStampBytes){
+    public Certification createInstitutionCertificateTemplate(String institutionId,Certification certification, byte[] universityLogoBytes, byte[] universityStampBytes){
         Institution institution = getInstitution(institutionId);
 
         checkIfInstitutionApproved(institution);
 
         institution.setCertificationTemplate(certificationService.createCertificationTemplate(certification,universityLogoBytes,universityStampBytes,institution));
 
-        return saveInstitution(institution);
+        return saveInstitution(institution).getCertificationTemplate();
     }
 
     public Campagne prepareCampagne(byte[] bytes, String uuid, String campagneName, Date date) throws Exception {

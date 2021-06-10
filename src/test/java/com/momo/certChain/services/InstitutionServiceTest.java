@@ -117,9 +117,9 @@ class InstitutionServiceTest {
         when(institutionRepository.save(any(Institution.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(certificationService.createCertificationTemplate(any(Certification.class),any(byte[].class),any(byte[].class),any(Institution.class))).thenReturn(TestUtils.createCertificationTemplate());
 
-        Institution institution = institutionService.createInstitutionCertificateTemplate("123456",TestUtils.createCertificationTemplate(),TestUtils.getExcelByteArray(),TestUtils.getExcelByteArray());
+        Certification certification = institutionService.createInstitutionCertificateTemplate("123456",TestUtils.createCertificationTemplate(),TestUtils.getExcelByteArray(),TestUtils.getExcelByteArray());
 
-        TestUtils.assertCertificationInstitution(institution.getCertificationTemplate());
+        TestUtils.assertCertificationInstitution(certification);
 
     }
 
