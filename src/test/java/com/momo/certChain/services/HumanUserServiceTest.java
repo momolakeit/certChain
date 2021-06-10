@@ -145,7 +145,7 @@ class HumanUserServiceTest {
         Student student = TestUtils.createStudent();
 
         when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        when(humanUserRepository.findById(anyString())).thenReturn(Optional.of(student));
+        when(userService.getUser(anyString())).thenReturn(student);
         when(passwordEncoder.matches(anyString(),anyString())).thenReturn(true);
         when(passwordEncoder.encode(anyString())).thenReturn(encodedString);
 
@@ -159,7 +159,7 @@ class HumanUserServiceTest {
         Student student = TestUtils.createStudent();
 
         when(passwordEncoder.matches(anyString(),anyString())).thenReturn(true);
-        when(humanUserRepository.findById(anyString())).thenReturn(Optional.of(student));
+        when(userService.getUser(anyString())).thenReturn(student);
 
         Assertions.assertThrows(PasswordNotMatchingException.class, () -> {
             humanUserService.modifyPassword("123456","password" ,"salut", "mec");
@@ -171,42 +171,10 @@ class HumanUserServiceTest {
         Student student = TestUtils.createStudent();
 
         when(passwordEncoder.matches(anyString(),anyString())).thenReturn(false);
-        when(humanUserRepository.findById(anyString())).thenReturn(Optional.of(student));
+        when(userService.getUser(anyString())).thenReturn(student);
 
         Assertions.assertThrows(BadPasswordException.class, () -> {
             humanUserService.modifyPassword("123456","password" ,"salut", "mec");
-        });
-    }
-
-    @Test
-    public void getStudentUserTest(){
-        Student student = TestUtils.createStudent();
-
-        when(humanUserRepository.findById(anyString())).thenReturn(Optional.of(student));
-
-        Student returnValue = (Student) humanUserService.getUser(student.getId());
-
-        TestUtils.assertBaseUser(returnValue);
-        TestUtils.assertInstitution(returnValue.getInstitution());
-    }
-
-    @Test
-    public void getEmployeeUserTest(){
-        Employee employee= TestUtils.createEmploye();
-
-        when(humanUserRepository.findById(anyString())).thenReturn(Optional.of(employee));
-
-        Employee returnValue = (Employee) humanUserService.getUser(employee.getId());
-
-        TestUtils.assertBaseUser(returnValue);
-        TestUtils.assertInstitution(returnValue.getInstitution());
-    }
-    @Test
-    public void humanUserNotFound(){
-        when(humanUserRepository.findById(anyString())).thenReturn(Optional.empty());
-
-        Assertions.assertThrows(ObjectNotFoundException.class,()->{
-           humanUserService.getUser("123456");
         });
     }
 

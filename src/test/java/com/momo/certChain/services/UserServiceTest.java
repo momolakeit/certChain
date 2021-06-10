@@ -3,6 +3,8 @@ package com.momo.certChain.services;
 import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.ValidationException;
+import com.momo.certChain.model.data.Employee;
+import com.momo.certChain.model.data.Student;
 import com.momo.certChain.model.data.User;
 import com.momo.certChain.repositories.UserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -36,6 +38,39 @@ class UserServiceTest {
 
         TestUtils.assertBaseUser(user);
 
+    }
+
+    @Test
+    public void getStudentUserTest(){
+        Student student = TestUtils.createStudent();
+
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(student));
+
+        Student returnValue = (Student) userService.getUser(student.getId());
+
+        TestUtils.assertBaseUser(returnValue);
+        TestUtils.assertInstitution(returnValue.getInstitution());
+    }
+
+    @Test
+    public void getEmployeeUserTest(){
+        Employee employee= TestUtils.createEmploye();
+
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(employee));
+
+        Employee returnValue = (Employee) userService.getUser(employee.getId());
+
+        TestUtils.assertBaseUser(returnValue);
+        TestUtils.assertInstitution(returnValue.getInstitution());
+    }
+
+    @Test
+    public void humanUserNotFound(){
+        when(userRepository.findById(anyString())).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(ObjectNotFoundException.class,()->{
+            userService.getUser("123456");
+        });
     }
 
     @Test

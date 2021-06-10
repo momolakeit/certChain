@@ -27,6 +27,10 @@ public class UserService {
         }
     }
 
+    public User getUser(String id){
+        return userRepository.findById(id).orElseThrow(()->new ObjectNotFoundException("User"));
+    }
+
     public User findUserByEmail(String username){
         return userRepository.findByUsername(username).orElseThrow(()->new ObjectNotFoundException("User"));
     }

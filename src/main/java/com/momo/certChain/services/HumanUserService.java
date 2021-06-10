@@ -56,18 +56,13 @@ public class HumanUserService {
 
     //set up confirmer password dans le backend aussi pour securite accrue
     public HumanUser modifyPassword(String uuid, String oldPassword, String password, String passwordConfirmation) {
-        HumanUser user = getUser(uuid);
+        HumanUser user = (HumanUser) userService.getUser(uuid);
 
         verifyPasswordConditions(oldPassword, password, passwordConfirmation, user);
 
         user.setPassword(passwordEncoder.encode(password));
 
         return saveUser(user);
-    }
-
-    //todo remplacer dans user service
-    public HumanUser getUser(String uuid) {
-        return humanUserRepository.findById(uuid).orElseThrow(this::humanUserNotFound);
     }
 
     //todo test that

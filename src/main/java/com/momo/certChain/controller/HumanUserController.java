@@ -4,10 +4,8 @@ import com.momo.certChain.model.data.HumanUser;
 import com.momo.certChain.model.dto.HumanUserDTO;
 import com.momo.certChain.model.dto.request.ModifyPasswordDTO;
 import com.momo.certChain.services.HumanUserService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.repository.query.Param;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/humanUser")
@@ -20,12 +18,22 @@ public class HumanUserController extends BaseController {
     }
 
     @PostMapping("/modifyPassword")
-    public HumanUserDTO modifyPassword(@RequestBody ModifyPasswordDTO modifyPasswordDTO){
+    public HumanUserDTO modifyPassword(@RequestBody ModifyPasswordDTO modifyPasswordDTO) {
         HumanUser humanUser = humanUserService.modifyPassword(modifyPasswordDTO.getUuid(),
-                                                              modifyPasswordDTO.getOldPassword(),
-                                                              modifyPasswordDTO.getPassword(),
-                                                              modifyPasswordDTO.getPasswordConfirmation());
+                modifyPasswordDTO.getOldPassword(),
+                modifyPasswordDTO.getPassword(),
+                modifyPasswordDTO.getPasswordConfirmation());
         return humanUserService.toDTO(humanUser);
+    }
+
+    @GetMapping("{userId}")
+    public HumanUserDTO modifyPassword(@PathVariable String userId) {
+       /* HumanUser humanUser = humanUserService.modifyPassword(modifyPasswordDTO.getUuid(),
+                modifyPasswordDTO.getOldPassword(),
+                modifyPasswordDTO.getPassword(),
+                modifyPasswordDTO.getPasswordConfirmation());
+        return humanUserService.toDTO(humanUser);*/
+        return null;
     }
 
 }
