@@ -10,6 +10,7 @@ import com.momo.certChain.services.request.HeaderCatcherService;
 import com.momo.certChain.services.security.KeyPairService;
 import com.momo.certChain.utils.ListUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.ECKeyPair;
 
@@ -42,7 +43,7 @@ public class CampagneService {
         this.headerCatcherService = headerCatcherService;
     }
 
-    public void runCampagne(String campagneId , String walletPassword) throws Exception {
+    public void runCampagne(String campagneId, String walletPassword) throws Exception {
         Campagne campagne = getCampagne(campagneId);
 
         isUserAllowedToRunCampagne(campagne);
@@ -54,50 +55,64 @@ public class CampagneService {
         saveCampagne(campagne);
     }
 
-    public Campagne createCampagne(List<HumanUser> studentList,String name,Institution institution,Date dateExpiration) {
-        Campagne campagne = new Campagne();
-        campagne.setName(name);
-        campagne.setDate(dateExpiration);
+    public Campagne createCampagne(List<HumanUser> studentList, String name, Institution institution, Date dateExpiration) {
+        Campagne campagne = createCampagneWithFields(name, dateExpiration);
         //todo pk le enc key est ""
+
+        studentList.forEach(student->setCertificationDateOfIssuing(student,dateExpiration));
+
         campagne.setStudentList(ListUtils.ajouterListAListe(studentList.stream()
-                                                                        .map(humanUser -> userService.createHumanUser(humanUser,""))
-                                                                        .collect(Collectors.toList()),
-                                                            campagne.getStudentList()));
+                        .map(humanUser -> userService.createHumanUser(humanUser, ""))
+                        .collect(Collectors.toList()),
+                campagne.getStudentList()));
         campagne.setInstitution(institution);
+
         return saveCampagne(campagne);
     }
 
-    public Campagne getCampagne(String campagneId){
-        return campagneRepository.findById(campagneId).orElseThrow(()->new ObjectNotFoundException("Campagne"));
+    public Campagne getCampagne(String campagneId) {
+        return campagneRepository.findById(campagneId).orElseThrow(() -> new ObjectNotFoundException("Campagne"));
     }
 
-    public CampagneDTO toDTO(Campagne campagne){
+    public CampagneDTO toDTO(Campagne campagne) {
         return CampagneMapper.instance.toDTO(campagne);
     }
 
     private Campagne saveCampagne(Campagne campagne) {
         return campagneRepository.save(campagne);
     }
+
     private void uploadCertificatesToBlockChain(List<HumanUser> studentList, Institution institution, String walletPassword) throws Exception {
         ECKeyPair keyPair = keyPairService.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
-                                                            institution.getInstitutionWallet().getPublicKey(),
-                                                            institution.getInstitutionWallet().getSalt(),
-                                                            walletPassword);
+                institution.getInstitutionWallet().getPublicKey(),
+                institution.getInstitutionWallet().getSalt(),
+                walletPassword);
 
-        for(HumanUser humanUser : studentList){
+        for (HumanUser humanUser : studentList) {
             String generatedString = RandomStringUtils.randomAlphanumeric(11);
             Student student = (Student) humanUser;
             certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0),
-                                                                 institution.getCertificationTemplate(),
-                                                                 institution.getContractAddress(),
-                                                                 keyPair,
-                                                                 generatedString);
+                    institution.getCertificationTemplate(),
+                    institution.getContractAddress(),
+                    keyPair,
+                    generatedString);
         }
     }
 
     private void isUserAllowedToRunCampagne(Campagne campagne) {
-        if(!campagne.getInstitution().getId().equals(headerCatcherService.getUserId())){
+        if (!campagne.getInstitution().getId().equals(headerCatcherService.getUserId())) {
             throw new AuthorizationException("Vous ne pouvez pas rouler cette campagne");
         }
+    }
+
+    private void setCertificationDateOfIssuing(HumanUser humanUser,Date dateOfIssuing) {
+        ((Student) humanUser).getCertifications().get(0).setDateOfIssuing(dateOfIssuing);
+    }
+
+    private Campagne createCampagneWithFields(String name, Date dateExpiration) {
+        Campagne campagne = new Campagne();
+        campagne.setName(name);
+        campagne.setDate(dateExpiration);
+        return campagne;
     }
 }

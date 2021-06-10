@@ -73,6 +73,7 @@ public class TestUtils {
         Certification certification = createCertification();
         assertEquals(certification.getId(),returnVal.getId());
         assertEquals(certification.getProgram(),returnVal.getProgram());
+        assertNotNull(certification.getDateOfIssuing());
     }
 
     public static void assertCertificationInstitution(Certification returnVal) throws IOException {
