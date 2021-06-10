@@ -3,9 +3,14 @@ package com.momo.certChain.services;
 import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.ValidationException;
+import com.momo.certChain.model.data.Admin;
 import com.momo.certChain.model.data.Employee;
 import com.momo.certChain.model.data.Student;
 import com.momo.certChain.model.data.User;
+import com.momo.certChain.model.dto.EmployeesDTO;
+import com.momo.certChain.model.dto.InstitutionDTO;
+import com.momo.certChain.model.dto.StudentDTO;
+import com.momo.certChain.model.dto.UserDTO;
 import com.momo.certChain.repositories.UserRepository;
 import com.momo.certChain.services.request.HeaderCatcherService;
 import org.junit.jupiter.api.Assertions;
@@ -35,7 +40,7 @@ class UserServiceTest {
     private HeaderCatcherService headerCatcherService;
 
     @Test
-    public void findUserByEmailTest(){
+    public void findUserByEmailTest() {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(TestUtils.createStudent()));
 
         User user = userService.findUserByEmail("yioo@mail.com");
@@ -45,7 +50,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void getStudentUserTest(){
+    public void getStudentUserTest() {
         Student student = TestUtils.createStudent();
 
         when(userRepository.findById(anyString())).thenReturn(Optional.of(student));
@@ -57,8 +62,8 @@ class UserServiceTest {
     }
 
     @Test
-    public void getEmployeeUserTest(){
-        Employee employee= TestUtils.createEmploye();
+    public void getEmployeeUserTest() {
+        Employee employee = TestUtils.createEmploye();
 
         when(userRepository.findById(anyString())).thenReturn(Optional.of(employee));
 
@@ -69,16 +74,16 @@ class UserServiceTest {
     }
 
     @Test
-    public void humanUserNotFound(){
+    public void humanUserNotFound() {
         when(userRepository.findById(anyString())).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(ObjectNotFoundException.class,()->{
+        Assertions.assertThrows(ObjectNotFoundException.class, () -> {
             userService.getUser("123456");
         });
     }
 
     @Test
-    public void getLoggedUser(){
+    public void getLoggedUser() {
         when(userRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createStudent()));
         when(headerCatcherService.getUserId()).thenReturn("123456");
 
@@ -88,17 +93,17 @@ class UserServiceTest {
     }
 
     @Test
-    public void findUserByEmailNotFoundTest(){
+    public void findUserByEmailNotFoundTest() {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(ObjectNotFoundException.class,()->{
+        Assertions.assertThrows(ObjectNotFoundException.class, () -> {
             userService.findUserByEmail("yioo@mail.com");
         });
 
     }
 
     @Test
-    public void createUserTest(){
+    public void createUserTest() {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
@@ -108,11 +113,39 @@ class UserServiceTest {
     }
 
     @Test
-    public void createUserWithEmailAlreadyExistsTest(){
+    public void createUserWithEmailAlreadyExistsTest() {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(TestUtils.createStudent()));
 
-        Assertions.assertThrows(ValidationException.class,()->{
+        Assertions.assertThrows(ValidationException.class, () -> {
             userService.createUser(TestUtils.createStudent());
+        });
+    }
+
+    @Test
+    public void convertInstitutionToDto() {
+        UserDTO userDTO = userService.toDto(TestUtils.createInstitution());
+
+        assertTrue(userDTO instanceof InstitutionDTO);
+    }
+
+    @Test
+    public void convertStudentToDto() {
+        UserDTO userDTO = userService.toDto(TestUtils.createStudent());
+
+        assertTrue(userDTO instanceof StudentDTO);
+    }
+
+    @Test
+    public void convertEmployeeToDto() {
+        UserDTO userDTO = userService.toDto(TestUtils.createEmploye());
+
+        assertTrue(userDTO instanceof EmployeesDTO);
+    }
+
+    @Test
+    public void convertAdminToDtoThrowsException() {
+        Assertions.assertThrows(IllegalArgumentException.class,()->{
+            userService.toDto(new Admin());
         });
     }
 }
