@@ -34,6 +34,7 @@ public class MockMessageServiceImpl implements MessageService {
 
     public void sendEmailToHumanUser(HumanUser humanUser, String privateKey, String password) throws MessagingException, IOException {
         LOGGER.info("EMAIL WAS SENT SUCCESSFULLY!");
+        LOGGER.info("user password: "+password+" private key:"+privateKey);
     }
 
 

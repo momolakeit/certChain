@@ -58,6 +58,7 @@ public class CampagneService {
         Campagne campagne = new Campagne();
         campagne.setName(name);
         campagne.setDate(dateExpiration);
+        //todo pk le enc key est ""
         campagne.setStudentList(ListUtils.ajouterListAListe(studentList.stream()
                                                                         .map(humanUser -> userService.createHumanUser(humanUser,""))
                                                                         .collect(Collectors.toList()),
