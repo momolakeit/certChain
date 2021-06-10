@@ -25,15 +25,4 @@ public class HumanUserController extends BaseController {
                 modifyPasswordDTO.getPasswordConfirmation());
         return humanUserService.toDTO(humanUser);
     }
-
-    @GetMapping("{userId}")
-    public HumanUserDTO modifyPassword(@PathVariable String userId) {
-       /* HumanUser humanUser = humanUserService.modifyPassword(modifyPasswordDTO.getUuid(),
-                modifyPasswordDTO.getOldPassword(),
-                modifyPasswordDTO.getPassword(),
-                modifyPasswordDTO.getPasswordConfirmation());
-        return humanUserService.toDTO(humanUser);*/
-        return null;
-    }
-
 }
