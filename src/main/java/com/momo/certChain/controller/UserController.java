@@ -19,9 +19,9 @@ public class UserController extends BaseController {
         this.userService = userService;
     }
 
-    @GetMapping("/{userId}")
-    public UserDTO getUser(@PathVariable String userId){
-        User user = userService.getUser(userId);
+    @GetMapping("/getLoggedUser")
+    public UserDTO getUser(){
+        User user = userService.getLoggedUser();
         return userService.toDto(user);
     }
 }

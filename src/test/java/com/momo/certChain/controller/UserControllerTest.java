@@ -1,5 +1,6 @@
 package com.momo.certChain.controller;
 
+import com.momo.certChain.jwt.JwtProvider;
 import com.momo.certChain.model.data.Student;
 import com.momo.certChain.model.data.User;
 import com.momo.certChain.repositories.UserRepository;
@@ -16,7 +17,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -31,9 +31,18 @@ class UserControllerTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private JwtProvider jwtProvider;
+
     private MockMvc mockMvc;
 
     private User user;
+
+    private String authToken;
+
+    private final String AUTHORIZATION = "Authorization";
+
+    private final String BEARER = "Bearer ";
 
     @BeforeEach
     public void init() {
@@ -41,12 +50,16 @@ class UserControllerTest {
 
         user = userRepository.save(new Student());
 
+        authToken =  jwtProvider.generate(user);
     }
 
     @Test
     public void fetchUserPasTypeAccepteLanceException() throws Exception {
         user = userRepository.save(new User());
-        mockMvc.perform(MockMvcRequestBuilders.get("/user/{userId}", user.getId())
+        authToken =  jwtProvider.generate(user);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/getLoggedUser")
+                .header(AUTHORIZATION,BEARER+ authToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError());
@@ -54,7 +67,8 @@ class UserControllerTest {
 
     @Test
     public void fetchUser() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/user/{userId}", user.getId())
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/getLoggedUser")
+                .header(AUTHORIZATION,BEARER+ authToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
