@@ -46,12 +46,11 @@ class MessageServiceImplTest {
         student.setPrenom("prenom");
         student.setNom("nom");
         student.setId("123456");
-        String privateKey ="superPrivate";
         String password = "password";
         String from =  "certChain@"+student.getInstitution().getName()+".com";
 
         when(javaMailSender.createMimeMessage()).thenReturn(createMimeMessage());
-        messageServiceImpl.sendEmailToHumanUser(student,privateKey,password);
+        messageServiceImpl.sendEmailToHumanUser(student,password);
         verify(javaMailSender).send(messageArgumentCaptor.capture());
 
         Message message = messageArgumentCaptor.getValue();
@@ -62,7 +61,6 @@ class MessageServiceImplTest {
         assertEquals(from,message.getFrom()[0].toString());
         assertTrue(String.valueOf(message.getContent()).contains(student.getNom()));
         assertTrue(String.valueOf(message.getContent()).contains(student.getPrenom()));
-        assertTrue(String.valueOf(message.getContent()).contains(privateKey));
         assertTrue(String.valueOf(message.getContent()).contains(frontEndUrl+"logIn.com."));
     }
 
@@ -71,11 +69,10 @@ class MessageServiceImplTest {
         Student student = TestUtils.createStudent();
         student.getInstitution().setName("U laval");
 
-        String privateKey ="superPrivate";
         String password = "password";
 
         when(javaMailSender.createMimeMessage()).thenReturn(createMimeMessage());
-        messageServiceImpl.sendEmailToHumanUser(student,privateKey,password);
+        messageServiceImpl.sendEmailToHumanUser(student,password);
         verify(javaMailSender).send(messageArgumentCaptor.capture());
 
         Message message = messageArgumentCaptor.getValue();

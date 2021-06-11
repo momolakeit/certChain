@@ -32,7 +32,7 @@ public class MessageServiceImpl implements MessageService {
         this.javaMailSender = javaMailSender;
     }
 
-    public void sendEmailToHumanUser(HumanUser humanUser, String privateKey, String password) throws MessagingException, IOException {
+    public void sendEmailToHumanUser(HumanUser humanUser, String password) throws MessagingException, IOException {
         String from = "certChain@" + humanUser.getInstitution().getName() + ".com";
         from = from.replaceAll("\\s","-");
         String subject = "Receive your diploma !";
@@ -40,7 +40,7 @@ public class MessageServiceImpl implements MessageService {
         String contentType = "text/html";
 
         String content = Files.readString(Path.of("./src/main/resources/templates/humanUserEmailTemplate/bussy.html"), StandardCharsets.UTF_8);
-        String text  = replaceValues(humanUser, privateKey, password, content);
+        String text  = replaceValues(humanUser,  password, content);
         sendTextEmail(from, subject, to, text, contentType);
     }
 
@@ -74,11 +74,10 @@ public class MessageServiceImpl implements MessageService {
 
 
 
-    private String replaceValues(HumanUser humanUser, String privateKey, String password, String content) {
+    private String replaceValues(HumanUser humanUser, String password, String content) {
         String text;
         text = content.replace("${studentName}", humanUser.getPrenom() + " " + humanUser.getNom());
         text = text.replace("${studentPassword}", password);
-        text = text.replace("${certificateKey}", privateKey);
         text = text.replace("${linkUrl}", frontEndUrl + "logIn.com.");
         return text;
     }

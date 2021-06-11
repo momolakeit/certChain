@@ -50,9 +50,6 @@ class HumanUserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Captor
-    private ArgumentCaptor<String> encKeyPrivateKey;
-
-    @Captor
     private ArgumentCaptor<String> passwordCaptor;
 
     MockedStatic<RandomStringUtils> randomStringUtilsMockedStatic;
@@ -79,9 +76,8 @@ class HumanUserServiceTest {
 
         Student returnValue = (Student) humanUserService.createHumanUser(student,privateKey);
 
-        verify(messageServiceImpl, times(1)).sendEmailToHumanUser(any(HumanUser.class),encKeyPrivateKey.capture(),passwordCaptor.capture());
+        verify(messageServiceImpl, times(1)).sendEmailToHumanUser(any(HumanUser.class),passwordCaptor.capture());
 
-        assertEquals(privateKey,encKeyPrivateKey.getValue());
         assertEquals(password,passwordCaptor.getValue());
         assertFalse(returnValue.isPasswordResseted());
         TestUtils.assertBaseUser(returnValue);
@@ -100,9 +96,8 @@ class HumanUserServiceTest {
 
 
         Employee returnValue = (Employee) humanUserService.createHumanUser(employe,privateKey);
-        verify(messageServiceImpl, times(1)).sendEmailToHumanUser(any(HumanUser.class),encKeyPrivateKey.capture(),passwordCaptor.capture());
+        verify(messageServiceImpl, times(1)).sendEmailToHumanUser(any(HumanUser.class),passwordCaptor.capture());
 
-        assertEquals(privateKey,encKeyPrivateKey.getValue());
         assertEquals(password,passwordCaptor.getValue());
         assertFalse(returnValue.isPasswordResseted());
         TestUtils.assertBaseUser(returnValue);
@@ -117,7 +112,7 @@ class HumanUserServiceTest {
 
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        doThrow(new MessagingException()).when(messageServiceImpl).sendEmailToHumanUser(any(HumanUser.class),anyString(),anyString());
+        doThrow(new MessagingException()).when(messageServiceImpl).sendEmailToHumanUser(any(HumanUser.class),anyString());
 
         Assertions.assertThrows(CustomMessagingException.class,()->{
             humanUserService.createHumanUser(student,privateKey);
@@ -132,7 +127,7 @@ class HumanUserServiceTest {
 
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        doThrow(new IOException()).when(messageServiceImpl).sendEmailToHumanUser(any(HumanUser.class),anyString(),anyString());
+        doThrow(new IOException()).when(messageServiceImpl).sendEmailToHumanUser(any(HumanUser.class),anyString());
 
         Assertions.assertThrows(CustomMessagingException.class,()->{
             humanUserService.createHumanUser(student,privateKey);
