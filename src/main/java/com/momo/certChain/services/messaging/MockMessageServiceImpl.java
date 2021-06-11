@@ -21,9 +21,6 @@ import java.util.logging.Logger;
 @Profile({"test","local"})
 public class MockMessageServiceImpl implements MessageService {
 
-    @Value("${front-end-url}")
-    private String frontEndUrl;
-
     private final JavaMailSender javaMailSender;
 
     private final Logger LOGGER = Logger.getLogger(MockMessageServiceImpl.class.getName());
@@ -32,9 +29,14 @@ public class MockMessageServiceImpl implements MessageService {
         this.javaMailSender = javaMailSender;
     }
 
-    public void sendEmailToHumanUser(HumanUser humanUser, String password) throws MessagingException, IOException {
+    public void sendUserCreatedEmail(HumanUser humanUser, String password) throws MessagingException, IOException {
         LOGGER.info("EMAIL WAS SENT SUCCESSFULLY!");
         LOGGER.info("user password: "+password);
+    }
+
+    public void sendCertificatePrivateKey(HumanUser humanUser, String encKey) throws MessagingException, IOException {
+        LOGGER.info("EMAIL WAS SENT SUCCESSFULLY!");
+        LOGGER.info("private key: "+encKey);
     }
 
 

@@ -7,7 +7,9 @@ import javax.mail.MessagingException;
 import java.io.IOException;
 
 public interface MessageService {
-    public void sendEmailToHumanUser(HumanUser humanUser, String password) throws MessagingException, IOException;
+    public void sendUserCreatedEmail(HumanUser humanUser, String password) throws MessagingException, IOException;
+
+    public void sendCertificatePrivateKey(HumanUser humanUser, String encKey) throws MessagingException, IOException;
 
     public void sendApprouvalEmail(Institution institution) throws MessagingException;
 }

@@ -3,7 +3,6 @@ package com.momo.certChain.services;
 import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.exception.BadPasswordException;
 import com.momo.certChain.exception.CustomMessagingException;
-import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.PasswordNotMatchingException;
 import com.momo.certChain.model.data.Employee;
 import com.momo.certChain.model.data.HumanUser;
@@ -25,7 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -76,7 +74,7 @@ class HumanUserServiceTest {
 
         Student returnValue = (Student) humanUserService.createHumanUser(student,privateKey);
 
-        verify(messageServiceImpl, times(1)).sendEmailToHumanUser(any(HumanUser.class),passwordCaptor.capture());
+        verify(messageServiceImpl, times(1)).sendUserCreatedEmail(any(HumanUser.class),passwordCaptor.capture());
 
         assertEquals(password,passwordCaptor.getValue());
         assertFalse(returnValue.isPasswordResseted());
@@ -96,7 +94,7 @@ class HumanUserServiceTest {
 
 
         Employee returnValue = (Employee) humanUserService.createHumanUser(employe,privateKey);
-        verify(messageServiceImpl, times(1)).sendEmailToHumanUser(any(HumanUser.class),passwordCaptor.capture());
+        verify(messageServiceImpl, times(1)).sendUserCreatedEmail(any(HumanUser.class),passwordCaptor.capture());
 
         assertEquals(password,passwordCaptor.getValue());
         assertFalse(returnValue.isPasswordResseted());
@@ -112,7 +110,7 @@ class HumanUserServiceTest {
 
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        doThrow(new MessagingException()).when(messageServiceImpl).sendEmailToHumanUser(any(HumanUser.class),anyString());
+        doThrow(new MessagingException()).when(messageServiceImpl).sendUserCreatedEmail(any(HumanUser.class),anyString());
 
         Assertions.assertThrows(CustomMessagingException.class,()->{
             humanUserService.createHumanUser(student,privateKey);
@@ -127,7 +125,7 @@ class HumanUserServiceTest {
 
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        doThrow(new IOException()).when(messageServiceImpl).sendEmailToHumanUser(any(HumanUser.class),anyString());
+        doThrow(new IOException()).when(messageServiceImpl).sendUserCreatedEmail(any(HumanUser.class),anyString());
 
         Assertions.assertThrows(CustomMessagingException.class,()->{
             humanUserService.createHumanUser(student,privateKey);

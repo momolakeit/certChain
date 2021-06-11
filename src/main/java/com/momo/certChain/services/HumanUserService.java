@@ -47,7 +47,7 @@ public class HumanUserService {
         humanUser.setPasswordResseted(false);
         humanUser.setPassword(passwordEncoder.encode(generatedPassword));
         try{
-            messageService.sendEmailToHumanUser(humanUser,generatedPassword);
+            messageService.sendUserCreatedEmail(humanUser,generatedPassword);
         }catch (MessagingException | IOException e) {
             throw new CustomMessagingException();
         }

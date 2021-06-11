@@ -50,7 +50,7 @@ class MessageServiceImplTest {
         String from =  "certChain@"+student.getInstitution().getName()+".com";
 
         when(javaMailSender.createMimeMessage()).thenReturn(createMimeMessage());
-        messageServiceImpl.sendEmailToHumanUser(student,password);
+        messageServiceImpl.sendUserCreatedEmail(student,password);
         verify(javaMailSender).send(messageArgumentCaptor.capture());
 
         Message message = messageArgumentCaptor.getValue();
@@ -72,12 +72,29 @@ class MessageServiceImplTest {
         String password = "password";
 
         when(javaMailSender.createMimeMessage()).thenReturn(createMimeMessage());
-        messageServiceImpl.sendEmailToHumanUser(student,password);
+        messageServiceImpl.sendUserCreatedEmail(student,password);
         verify(javaMailSender).send(messageArgumentCaptor.capture());
 
         Message message = messageArgumentCaptor.getValue();
         assertEquals("certChain@U-laval.com",message.getFrom()[0].toString());
     }
+
+    @Test
+    public void sendMessageCertificateEncKey() throws MessagingException, IOException {
+        Student student = TestUtils.createStudent();
+        student.getInstitution().setName("U laval");
+
+        String privateKey = "superPrivate";
+
+        when(javaMailSender.createMimeMessage()).thenReturn(createMimeMessage());
+        messageServiceImpl.sendCertificatePrivateKey(student,privateKey);
+        verify(javaMailSender).send(messageArgumentCaptor.capture());
+
+        Message message = messageArgumentCaptor.getValue();
+        assertTrue(String.valueOf(message.getContent()).contains(privateKey));
+    }
+
+
 
 
     @Test
