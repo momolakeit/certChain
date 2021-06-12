@@ -10,12 +10,15 @@ import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.excel.ExcelService;
 import com.momo.certChain.services.messaging.MessageServiceImpl;
 import com.momo.certChain.services.security.KeyPairService;
+import org.junit.Before;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.ECKeyPair;
 
@@ -77,6 +80,11 @@ class InstitutionServiceTest {
     private ArgumentCaptor<Date> dateArgumentCaptor;
 
     private final Long dateLong = 1575176400000L;
+
+    @BeforeEach
+    public void init(){
+        ReflectionTestUtils.setField(institutionService, "activeProfiles", Collections.singletonList("test"));
+    }
 
     @Test
     public void createInstitutionTest() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, CipherException, MessagingException {

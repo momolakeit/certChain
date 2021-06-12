@@ -56,8 +56,7 @@ public class InstitutionService {
 
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${spring.profiles.active:}")
-    private List<String> activeProfiles;
+    private final List<String> activeProfiles;
 
     public InstitutionService(InstitutionRepository institutionRepository,
                               AddressService addressService,
@@ -70,7 +69,7 @@ public class InstitutionService {
                               CertificationService certificationService,
                               UserService userService,
                               PasswordEncoder passwordEncoder,
-                              @Value("${spring.profiles.active:}") String activeProfiles) {
+                              @Value("#{'${spring.profiles.active:}'.split(',')}") List<String> activeProfiles) {
         this.institutionRepository = institutionRepository;
         this.addressService = addressService;
         this.contractService = contractService;
@@ -82,7 +81,7 @@ public class InstitutionService {
         this.certificationService = certificationService;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
-        this.activeProfiles = Arrays.asList(activeProfiles.split(","));
+        this.activeProfiles = activeProfiles;
     }
 
     public Institution createInstitution(String street,
