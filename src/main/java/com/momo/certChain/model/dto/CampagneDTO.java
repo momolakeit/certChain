@@ -16,6 +16,8 @@ public class CampagneDTO {
 
     private Date date;
 
+    private boolean runned;
+
     private List<HumanUserDTO> studentList;
 
     private InstitutionDTO institution;
