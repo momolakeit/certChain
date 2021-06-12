@@ -96,7 +96,7 @@ public class InstitutionService {
 
         messageService.sendApprouvalEmail(institution);
 
-        return (Institution) userService.createUser(institution);
+        return institution;
     }
 
     public Institution uploadCertificateContract(String uuid,String walletPassword) throws Exception {
@@ -176,7 +176,7 @@ public class InstitutionService {
         institution.setUsername(username);
         institution.setApprouved(false);
         institution.setInstitutionWallet(walletService.createWallet(walletPassword));
-        return institution;
+        return (Institution) userService.createUser(institution);
     }
 
     private void checkIfInstitutionApproved(Institution institution){

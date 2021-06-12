@@ -9,6 +9,7 @@ import com.momo.certChain.model.dto.CampagneDTO;
 import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.model.dto.InstitutionDTO;
 import com.momo.certChain.model.dto.request.CreateInstitutionDTO;
+import com.momo.certChain.model.dto.request.UploadBlockChainContractDTO;
 import com.momo.certChain.model.dto.response.JWTResponse;
 import com.momo.certChain.services.CampagneService;
 import com.momo.certChain.services.CertificationService;
@@ -98,6 +99,14 @@ public class InstitutionController extends BaseController {
                 universityLogo.getBytes(),
                 universityStamp.getBytes());
         return certificationService.toDTO(certification);
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_INSTITUTION')")
+    @PostMapping("/uploadContract")
+    public InstitutionDTO uploadCertificateContract(@RequestBody UploadBlockChainContractDTO uploadBlockChainContractDTO) throws Exception {
+        Institution institution =  institutionService.uploadCertificateContract(uploadBlockChainContractDTO.getId(),uploadBlockChainContractDTO.getWalletPasSword());
+
+        return institutionService.toDTO(institution);
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")

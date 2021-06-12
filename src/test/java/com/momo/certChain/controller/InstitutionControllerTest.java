@@ -7,6 +7,7 @@ import com.momo.certChain.mapping.CertificationMapper;
 import com.momo.certChain.mapping.InstitutionMapper;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.request.CreateInstitutionDTO;
+import com.momo.certChain.model.dto.request.UploadBlockChainContractDTO;
 import com.momo.certChain.repositories.*;
 import com.momo.certChain.services.messaging.MessageServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -120,6 +121,27 @@ class InstitutionControllerTest {
                 .file("universityStamp", universityStamp.getBytes())
                 .param("certificationDTO", objectMapper.writeValueAsString(CertificationMapper.instance.toDTO(certification)))
                 .param("institutionId","789456")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    public void testUploadCertificateToBlockChain() throws Exception {
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/institution/uploadContract")
+                .content(objectMapper.writeValueAsString(new UploadBlockChainContractDTO(institutionId,InitEnvService.encryptionKey)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testUploadCertificateToBlockChainNotApprouved() throws Exception {
+        Institution institution = institutionRepository.save(new Institution());
+        mockMvc.perform(MockMvcRequestBuilders.post("/institution/uploadContract")
+                .content(objectMapper.writeValueAsString(new UploadBlockChainContractDTO(institution.getId(),InitEnvService.encryptionKey)))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
