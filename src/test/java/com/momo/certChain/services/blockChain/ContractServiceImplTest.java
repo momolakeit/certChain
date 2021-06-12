@@ -117,7 +117,6 @@ class ContractServiceImplTest {
     }
 
 
-    //todo test that
     @Test
     public void uploadCertificateTest() throws Exception {
         Certification certification = TestUtils.createCertification();

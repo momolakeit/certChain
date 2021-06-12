@@ -167,7 +167,7 @@ class CampagneServiceTest {
         String campagneName = "Genie informatique concordia";
 
         when(campagneRepository.save(any(Campagne.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        when(userService.createHumanUser(any(HumanUser.class),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(userService.createHumanUser(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         Campagne campagne = campagneService.createCampagne(listeOfStudents,campagneName,TestUtils.createInstitution(), new Date(dateLong));
 

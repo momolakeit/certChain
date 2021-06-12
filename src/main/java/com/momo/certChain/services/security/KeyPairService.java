@@ -14,7 +14,6 @@ public class KeyPairService {
         this.encryptionService = encryptionService;
     }
 
-    //todo unit test that
     public ECKeyPair createKeyPair(String privateKeyValue, String publicKeyValue, String salt, String walletPassword){
         String privateKey = encryptionService.decryptData(walletPassword,privateKeyValue,salt);
         String publicKey = encryptionService.decryptData(walletPassword,publicKeyValue,salt);

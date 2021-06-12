@@ -64,7 +64,6 @@ class HumanUserServiceTest {
 
     @Test
     public void createStudentUserTest() throws MessagingException, IOException {
-        String privateKey="superPrivate";
         Student student = TestUtils.createStudent();
         String password = "password";
 
@@ -72,7 +71,7 @@ class HumanUserServiceTest {
         when(userService.createUser(any(User.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-        Student returnValue = (Student) humanUserService.createHumanUser(student,privateKey);
+        Student returnValue = (Student) humanUserService.createHumanUser(student);
 
         verify(messageServiceImpl, times(1)).sendUserCreatedEmail(any(HumanUser.class),passwordCaptor.capture());
 
@@ -85,7 +84,6 @@ class HumanUserServiceTest {
     @Test
     public void createEmployeeUserTest() throws MessagingException, IOException {
         Employee employe = TestUtils.createEmploye();
-        String privateKey="superPrivate";
         String password = "password";
 
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
@@ -93,7 +91,7 @@ class HumanUserServiceTest {
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
 
-        Employee returnValue = (Employee) humanUserService.createHumanUser(employe,privateKey);
+        Employee returnValue = (Employee) humanUserService.createHumanUser(employe);
         verify(messageServiceImpl, times(1)).sendUserCreatedEmail(any(HumanUser.class),passwordCaptor.capture());
 
         assertEquals(password,passwordCaptor.getValue());
@@ -104,7 +102,6 @@ class HumanUserServiceTest {
 
     @Test
     public void createStudentUserThrowMessagingExceptionTest() throws MessagingException, IOException {
-        String privateKey="superPrivate";
         Student student = TestUtils.createStudent();
         String password = "password";
 
@@ -113,13 +110,12 @@ class HumanUserServiceTest {
         doThrow(new MessagingException()).when(messageServiceImpl).sendUserCreatedEmail(any(HumanUser.class),anyString());
 
         Assertions.assertThrows(CustomMessagingException.class,()->{
-            humanUserService.createHumanUser(student,privateKey);
+            humanUserService.createHumanUser(student);
         });
     }
 
     @Test
     public void createStudentUserThrowIOExceptionTest() throws MessagingException, IOException {
-        String privateKey="superPrivate";
         Student student = TestUtils.createStudent();
         String password = "password";
 
@@ -128,7 +124,7 @@ class HumanUserServiceTest {
         doThrow(new IOException()).when(messageServiceImpl).sendUserCreatedEmail(any(HumanUser.class),anyString());
 
         Assertions.assertThrows(CustomMessagingException.class,()->{
-            humanUserService.createHumanUser(student,privateKey);
+            humanUserService.createHumanUser(student);
         });
     }
 

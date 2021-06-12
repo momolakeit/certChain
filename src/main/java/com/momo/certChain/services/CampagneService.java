@@ -64,7 +64,7 @@ public class CampagneService {
         studentList.forEach(student->setCertificationDateOfIssuing(student,dateExpiration));
 
         campagne.setStudentList(ListUtils.ajouterListAListe(studentList.stream()
-                        .map(humanUser -> userService.createHumanUser(humanUser, ""))
+                        .map(humanUser -> userService.createHumanUser(humanUser))
                         .collect(Collectors.toList()),
                 campagne.getStudentList()));
         campagne.setInstitution(institution);
