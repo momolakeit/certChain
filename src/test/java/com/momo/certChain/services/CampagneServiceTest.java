@@ -3,6 +3,7 @@ package com.momo.certChain.services;
 import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.exception.AuthorizationException;
 import com.momo.certChain.exception.ObjectNotFoundException;
+import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.CampagneRepository;
 import com.momo.certChain.services.request.HeaderCatcherService;
@@ -97,10 +98,10 @@ class CampagneServiceTest {
         when(keyPairService.createKeyPair(anyString(), anyString(), anyString(),anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
                                                                                                                                     institution.getInstitutionWallet().getPublicKey()));
         when(campagneRepository.findById(anyString())).thenReturn(Optional.of(campagne));
-        when(headerCatcherService.getUserId()).thenReturn("123456");
+        when(headerCatcherService.getUserId()).thenReturn(campagne.getId());
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(randomString);
 
-        campagneService.runCampagne("123456","walletPassword");
+        campagneService.runCampagne(campagne.getId(),"walletPassword");
 
         verify(certificationService, times(nbDeStudents)).uploadCertificationToBlockChain(studentCertificateArgumentCaptor.capture(),
                 institutionTemplateCertificateArgumentCaptor.capture(),
@@ -138,9 +139,26 @@ class CampagneServiceTest {
         when(headerCatcherService.getUserId()).thenReturn("654321");
 
         Assertions.assertThrows(AuthorizationException.class,()->{
-            campagneService.runCampagne("123456","walletPassword");
+            campagneService.runCampagne(campagne.getId(),"walletPassword");
         });
     }
+
+    @Test
+    public void runCampagneNoCertificationThrowsException() throws Exception {
+        int nbDeStudents = 100;
+        Institution institution = createInstitutionWithWallet();
+        institution.setCertificationTemplate(null);
+
+        Campagne campagne = createCampagne(nbDeStudents, institution);
+
+        when(campagneRepository.findById(anyString())).thenReturn(Optional.of(campagne));
+        when(headerCatcherService.getUserId()).thenReturn(campagne.getId());
+
+        Assertions.assertThrows(ValidationException.class,()->{
+            campagneService.runCampagne(campagne.getId(),"walletPassword");
+        });
+    }
+
 
     @Test
     public void createCampagne(){

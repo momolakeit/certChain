@@ -2,6 +2,7 @@ package com.momo.certChain.services;
 
 import com.momo.certChain.exception.AuthorizationException;
 import com.momo.certChain.exception.ObjectNotFoundException;
+import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.mapping.CampagneMapper;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.CampagneDTO;
@@ -16,6 +17,7 @@ import org.web3j.crypto.ECKeyPair;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -102,6 +104,9 @@ public class CampagneService {
     private void isUserAllowedToRunCampagne(Campagne campagne) {
         if (!campagne.getInstitution().getId().equals(headerCatcherService.getUserId())) {
             throw new AuthorizationException("Vous ne pouvez pas rouler cette campagne");
+        }
+        if(Objects.isNull(campagne.getInstitution().getCertificationTemplate())){
+            throw new ValidationException("Vous devez avoir un modèle de certificat");
         }
     }
 

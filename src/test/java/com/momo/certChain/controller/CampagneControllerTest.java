@@ -59,6 +59,8 @@ class CampagneControllerTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
+    Institution institution;
+
     private String jwt;
 
     private final String AUTHORIZATION_HEADER="Authorization";
@@ -69,7 +71,7 @@ class CampagneControllerTest {
 
         List<HumanUser> students  = userRepository.saveAll(Arrays.asList(createStudent(),createStudent()));
 
-        Institution institution = (Institution) userRepository.findById(initEnvService.initEnv()).get();
+        institution = (Institution) userRepository.findById(initEnvService.initEnv()).get();
 
         jwt = jwtProvider.generate(institution);
 
@@ -104,6 +106,20 @@ class CampagneControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+
+    @Test
+    public void runCampagneNoCertificateTemplate() throws Exception {
+        institution.setCertificationTemplate(null);
+        userRepository.save(institution);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/campagne/runCampagne")
+                .content(objectMapper.writeValueAsString(new RunCampagneDTO(campagneId,InitEnvService.encryptionKey)))
+                .header(AUTHORIZATION_HEADER,"Bearer "+jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
