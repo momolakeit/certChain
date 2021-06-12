@@ -14,6 +14,7 @@ import com.momo.certChain.services.security.EncryptionService;
 import com.momo.certChain.services.security.KeyPairService;
 import com.momo.certChain.utils.ListUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -54,6 +56,9 @@ public class InstitutionService {
 
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${spring.profiles.active:}")
+    private List<String> activeProfiles;
+
     public InstitutionService(InstitutionRepository institutionRepository,
                               AddressService addressService,
                               ContractService contractService,
@@ -64,7 +69,8 @@ public class InstitutionService {
                               MessageService messageService,
                               CertificationService certificationService,
                               UserService userService,
-                              PasswordEncoder passwordEncoder) {
+                              PasswordEncoder passwordEncoder,
+                              @Value("${spring.profiles.active:}") String activeProfiles) {
         this.institutionRepository = institutionRepository;
         this.addressService = addressService;
         this.contractService = contractService;
@@ -76,6 +82,7 @@ public class InstitutionService {
         this.certificationService = certificationService;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.activeProfiles = Arrays.asList(activeProfiles.split(","));
     }
 
     public Institution createInstitution(String street,
@@ -180,8 +187,10 @@ public class InstitutionService {
     }
 
     private void checkIfInstitutionApproved(Institution institution){
-        if(!institution.isApprouved()){
-            throw new ValidationException("L'institution n'est pas encore approuvé par l'admin");
+        if(!activeProfiles.contains("local")){
+            if(!institution.isApprouved()){
+                throw new ValidationException("L'institution n'est pas encore approuvé par l'admin");
+            }
         }
     }
 
