@@ -14,5 +14,5 @@ public class UploadBlockChainContractDTO {
 
     private String id;
 
-    private String walletPasSword;
+    private String walletPassword;
 }

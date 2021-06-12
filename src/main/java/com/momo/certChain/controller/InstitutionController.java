@@ -15,7 +15,6 @@ import com.momo.certChain.services.CampagneService;
 import com.momo.certChain.services.CertificationService;
 import com.momo.certChain.services.InstitutionService;
 import com.momo.certChain.services.authentification.AuthService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -104,7 +103,7 @@ public class InstitutionController extends BaseController {
     @PreAuthorize("hasAuthority('ROLE_INSTITUTION')")
     @PostMapping("/uploadContract")
     public InstitutionDTO uploadCertificateContract(@RequestBody UploadBlockChainContractDTO uploadBlockChainContractDTO) throws Exception {
-        Institution institution =  institutionService.uploadCertificateContract(uploadBlockChainContractDTO.getId(),uploadBlockChainContractDTO.getWalletPasSword());
+        Institution institution =  institutionService.uploadCertificateContract(uploadBlockChainContractDTO.getId(),uploadBlockChainContractDTO.getWalletPassword());
 
         return institutionService.toDTO(institution);
     }
