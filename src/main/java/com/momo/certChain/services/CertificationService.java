@@ -76,11 +76,12 @@ public class CertificationService {
     }
 
     //todo test that
-
     public void uploadCertificationToBlockChain(Certification studentCertification, Certification certificationTemplate, String contractAdress, ECKeyPair ecKeyPair, String encryptionKey) throws Exception {
         studentCertification = saveCertificationWithSalt(studentCertification);
 
         certificationTemplate = CertificationMapper.instance.toSimple(certificationTemplate);
+
+        studentCertification =   CertificationMapper.instance.clone(studentCertification);
 
         mapCertificateTemplateToStudentCertification(studentCertification, certificationTemplate,certificationTemplate.getInstitution());
 

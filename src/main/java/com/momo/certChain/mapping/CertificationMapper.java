@@ -21,6 +21,8 @@ public interface CertificationMapper {
 
     Certification toSimple (Certification certification);
 
+    Certification clone (Certification certification);
+
     @Mapping(target = "program",ignore = true)
     @Mapping(target = "dateOfIssuing",ignore = true)
     @Mapping(target = "certificateText",ignore = true)
