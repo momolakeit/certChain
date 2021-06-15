@@ -23,8 +23,6 @@ public interface CertificationMapper {
 
     Certification clone (Certification certification);
 
-    @Mapping(target = "program",ignore = true)
-    @Mapping(target = "dateOfIssuing",ignore = true)
     @Mapping(target = "certificateText",ignore = true)
     @Mapping(target = "student",ignore = true)
     @Mapping(target = "universityLogo",ignore = true)

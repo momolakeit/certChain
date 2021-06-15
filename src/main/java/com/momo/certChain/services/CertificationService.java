@@ -100,13 +100,13 @@ public class CertificationService {
 
         Lien lien = lienService.getLien(lienId,privateKey);
 
-        return getUploadedCertificationWithLien(certification,lien.getCertificateEncKey());
+        return getUploadedCertification(certification,lien.getCertificateEncKey());
     }
 
     public Certification getUploadedCertificationWithPrivateKey(String uuid, String privateKey) throws Exception {
         Certification certification = findCertification(uuid);
 
-        return getUploadedCertificationWithLien(certification,privateKey);
+        return getUploadedCertification(certification,privateKey);
     }
 
     public String createLien(String certificateId, String certificatePassword,String titre, Date dateExpiration) throws Exception {
@@ -114,7 +114,7 @@ public class CertificationService {
 
         Certification certification = findCertification(certificateId);
 
-        getUploadedCertificationWithLien(certification,certificatePassword);
+        getUploadedCertification(certification,certificatePassword);
 
         CreatedLien createdLien = lienService.createLien(certificatePassword,dateExpiration,titre);
 
@@ -181,7 +181,7 @@ public class CertificationService {
         certification.setInstitution(institution);
     }
 
-    private Certification getUploadedCertificationWithLien(Certification certification, String privateKey) throws Exception {
+    private Certification getUploadedCertification(Certification certification, String privateKey) throws Exception {
         return contractService.getCertificate(certification.getId(),
                 certification.getInstitution().getContractAddress(),
                 Keys.createEcKeyPair(),
