@@ -203,7 +203,7 @@ class CertificationServiceTest {
 
 
     @Test
-    public void getUploadedCertificate() throws Exception {
+    public void getUploadedCertificateWithLien() throws Exception {
         String privateKey = "privateKey";
         String salt = "salt";
 
@@ -222,13 +222,46 @@ class CertificationServiceTest {
                                                 anyString()))
                                                 .thenReturn(certification);
 
-        certificationService.getUploadedCertification("123456",privateKey,"123456");
+        certificationService.getUploadedCertificationWithLien("123456",privateKey,"123456");
 
         verify(contractServiceImpl).getCertificate(anyString(),
                                                    addressArgumentCaptor.capture(),
                                                    keyPairArgumentCaptor.capture(),
                                                    encryptionPrivateKeyCaptor.capture(),
                                                    saltArgumentCaptor.capture());
+
+        assertEquals(certification.getInstitution().getContractAddress(),addressArgumentCaptor.getValue());
+        assertNotNull(keyPairArgumentCaptor.getValue());
+        assertEquals(privateKey,encryptionPrivateKeyCaptor.getValue());
+        assertEquals(salt,saltArgumentCaptor.getValue());
+    }
+
+    @Test
+    public void getUploadedCertificateWithPrivateKey() throws Exception {
+        String privateKey = "privateKey";
+        String salt = "salt";
+
+        Certification certification =  TestUtils.createCertification();
+        certification.setInstitution(TestUtils.createInstitution());
+
+        Lien lien = TestUtils.createLien();
+        lien.setCertificateEncKey(privateKey);
+
+        when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
+        when(contractServiceImpl.getCertificate(anyString(),
+                anyString(),
+                any(ECKeyPair.class),
+                anyString(),
+                anyString()))
+                .thenReturn(certification);
+
+        certificationService.getUploadedCertificationWithPrivateKey("123456",privateKey);
+
+        verify(contractServiceImpl).getCertificate(anyString(),
+                addressArgumentCaptor.capture(),
+                keyPairArgumentCaptor.capture(),
+                encryptionPrivateKeyCaptor.capture(),
+                saltArgumentCaptor.capture());
 
         assertEquals(certification.getInstitution().getContractAddress(),addressArgumentCaptor.getValue());
         assertNotNull(keyPairArgumentCaptor.getValue());
@@ -246,7 +279,7 @@ class CertificationServiceTest {
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
 
         Assertions.assertThrows(UserForgottenException.class,()->{
-            certificationService.getUploadedCertification("123456",privateKey,"123456");
+            certificationService.getUploadedCertificationWithLien("123456",privateKey,"123456");
         });
     }
 

@@ -13,7 +13,6 @@ import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.request.HeaderCatcherService;
 import com.momo.certChain.services.security.EncryptionService;
 import com.momo.certChain.utils.ListUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.ECKeyPair;
@@ -95,21 +94,27 @@ public class CertificationService {
     }
 
     //todo utiliser un wallet pour tout les get
-    //todo utiliser un wallet pour tout les get
 
-    public Certification getUploadedCertification(String uuid,String privateKey,String lienId) throws Exception {
+    public Certification getUploadedCertificationWithLien(String uuid, String privateKey, String lienId) throws Exception {
         Certification certification = findCertification(uuid);
 
         Lien lien = lienService.getLien(lienId,privateKey);
 
-        return getUploadedCertification(certification,lien.getCertificateEncKey());
+        return getUploadedCertificationWithLien(certification,lien.getCertificateEncKey());
     }
+
+    public Certification getUploadedCertificationWithPrivateKey(String uuid, String privateKey) throws Exception {
+        Certification certification = findCertification(uuid);
+
+        return getUploadedCertificationWithLien(certification,privateKey);
+    }
+
     public String createLien(String certificateId, String certificatePassword,String titre, Date dateExpiration) throws Exception {
         //permet de s'assurer qu'on a le bon password
 
         Certification certification = findCertification(certificateId);
 
-        getUploadedCertification(certification,certificatePassword);
+        getUploadedCertificationWithLien(certification,certificatePassword);
 
         CreatedLien createdLien = lienService.createLien(certificatePassword,dateExpiration,titre);
 
@@ -176,7 +181,7 @@ public class CertificationService {
         certification.setInstitution(institution);
     }
 
-    private Certification getUploadedCertification(Certification certification,String privateKey) throws Exception {
+    private Certification getUploadedCertificationWithLien(Certification certification, String privateKey) throws Exception {
         return contractService.getCertificate(certification.getId(),
                 certification.getInstitution().getContractAddress(),
                 Keys.createEcKeyPair(),

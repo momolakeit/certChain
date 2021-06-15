@@ -80,13 +80,24 @@ class CertificationControllerTest {
     }
 
     @Test
-    public void testGetCertification() throws Exception {
+    public void testGetCertificationWithLien() throws Exception {
         uploadEncryptedCertificate();
         mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{certificateId}/{lienId}/{key}", studentCertification.getId(), createLien().getId(), lienEncKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
+
+
+    @Test
+    public void testGetCertificationWithEncKey() throws Exception {
+        uploadEncryptedCertificate();
+        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{certificateId}/{key}", studentCertification.getId(),encKey)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
 
     @Test
     public void testGetCertificationWrongKey() throws Exception {

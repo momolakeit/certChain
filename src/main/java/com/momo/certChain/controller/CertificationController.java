@@ -1,6 +1,5 @@
 package com.momo.certChain.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.model.dto.request.CreateLienDTO;
@@ -23,8 +22,14 @@ public class CertificationController extends BaseController {
 
 
     @GetMapping("/fetchCertificate/{certificateId}/{lienId}/{key}")
-    public CertificationDTO certificationDTO(@PathVariable String certificateId,@PathVariable String lienId, @PathVariable String key) throws Exception {
-        Certification certification = certificationService.getUploadedCertification(certificateId, key,lienId);
+    public CertificationDTO getUploadedCertificationWithLien(@PathVariable String certificateId,@PathVariable String lienId, @PathVariable String key) throws Exception {
+        Certification certification = certificationService.getUploadedCertificationWithLien(certificateId, key,lienId);
+        return certificationService.toDTO(certification);
+    }
+
+    @GetMapping("/fetchCertificate/{certificateId}/{key}")
+    public CertificationDTO getUploadedCertificationWithPrivateKey(@PathVariable String certificateId, @PathVariable String key) throws Exception {
+        Certification certification = certificationService.getUploadedCertificationWithPrivateKey(certificateId, key);
         return certificationService.toDTO(certification);
     }
 
