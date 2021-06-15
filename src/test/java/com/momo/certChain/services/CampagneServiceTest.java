@@ -6,6 +6,7 @@ import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.repositories.CampagneRepository;
+import com.momo.certChain.services.messaging.MessageService;
 import com.momo.certChain.services.request.HeaderCatcherService;
 import com.momo.certChain.services.security.KeyPairService;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -51,6 +52,9 @@ class CampagneServiceTest {
 
     @Mock
     private CertificationService certificationService;
+
+    @Mock
+    private MessageService messageService;
 
     @Captor
     private ArgumentCaptor<Certification> studentCertificateArgumentCaptor;

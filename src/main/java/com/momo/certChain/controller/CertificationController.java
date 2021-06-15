@@ -16,11 +16,9 @@ public class CertificationController extends BaseController {
 
     private final CertificationService certificationService;
 
-    private final ObjectMapper objectMapper;
 
-    public CertificationController(CertificationService certificationService, ObjectMapper objectMapper) {
+    public CertificationController(CertificationService certificationService) {
         this.certificationService = certificationService;
-        this.objectMapper = objectMapper;
     }
 
 

@@ -7,6 +7,7 @@ import com.momo.certChain.mapping.CampagneMapper;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.CampagneDTO;
 import com.momo.certChain.repositories.CampagneRepository;
+import com.momo.certChain.services.messaging.MessageService;
 import com.momo.certChain.services.request.HeaderCatcherService;
 import com.momo.certChain.services.security.KeyPairService;
 import com.momo.certChain.utils.ListUtils;
@@ -33,16 +34,20 @@ public class CampagneService {
 
     private final HeaderCatcherService headerCatcherService;
 
+    private final MessageService messageService;
+
     public CampagneService(CertificationService certificationService,
                            CampagneRepository campagneRepository,
                            HumanUserService userService,
                            KeyPairService keyPairService,
-                           HeaderCatcherService headerCatcherService) {
+                           HeaderCatcherService headerCatcherService,
+                           MessageService messageService) {
         this.certificationService = certificationService;
         this.campagneRepository = campagneRepository;
         this.userService = userService;
         this.keyPairService = keyPairService;
         this.headerCatcherService = headerCatcherService;
+        this.messageService = messageService;
     }
 
     public void runCampagne(String campagneId, String walletPassword) throws Exception {
@@ -64,7 +69,7 @@ public class CampagneService {
         studentList.forEach(student->setCertificationDateOfIssuing(student,dateExpiration));
 
         campagne.setStudentList(ListUtils.ajouterListAListe(studentList.stream()
-                        .map(humanUser -> userService.createHumanUser(humanUser))
+                        .map(userService::createHumanUser)
                         .collect(Collectors.toList()),
                 campagne.getStudentList()));
         campagne.setInstitution(institution);
@@ -93,6 +98,9 @@ public class CampagneService {
         for (HumanUser humanUser : studentList) {
             String generatedString = RandomStringUtils.randomAlphanumeric(11);
             Student student = (Student) humanUser;
+
+            messageService.sendCertificatePrivateKey(humanUser,generatedString);
+
             certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0),
                     institution.getCertificationTemplate(),
                     institution.getContractAddress(),
