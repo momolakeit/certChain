@@ -2,3 +2,10 @@ config.securite.active: false
 blockchain:
   ethereum:
     inputUrl : "http://localhost:7545"
+
+spring:
+  datasource:
+    url: jdbc:h2:file:~/demodb;DB_CLOSE_DELAY=-1;
+  jpa:
+    hibernate:
+      ddl-auto: update
