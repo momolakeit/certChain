@@ -21,6 +21,8 @@ public class Lien {
     //this value is encrypted
     private String certificateEncKey;
 
+    private String titre;
+
     private Date dateExpiration;
 
     private String salt;

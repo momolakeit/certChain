@@ -24,14 +24,14 @@ public class LienService {
         this.encryptionService = encryptionService;
     }
 
-    public CreatedLien createLien(String encKey, Date date){
+    public CreatedLien createLien(String encKey, Date date,String titre){
         isDateBeforeNow(date);
 
         String generatedPassword = RandomStringUtils.randomAlphanumeric(11);
 
         String salt = encryptionService.generateSalt();
 
-        Lien lien = saveLien(createLien(encKey, generatedPassword, salt,date));
+        Lien lien = saveLien(createLien(encKey, generatedPassword, salt,date,titre));
 
         return new CreatedLien(lien,generatedPassword);
     }
@@ -44,10 +44,11 @@ public class LienService {
         return lien;
     }
 
-    private Lien createLien(String encKey, String generatedPassword, String salt,Date date) {
+    private Lien createLien(String encKey, String generatedPassword, String salt,Date date,String titre) {
         Lien lien = new Lien();
         lien.setSalt(salt);
         lien.setCertificateEncKey(encryptionService.encryptData(generatedPassword, encKey, salt));
+        lien.setTitre(titre);
         lien.setDateExpiration(date);
 
         return lien;

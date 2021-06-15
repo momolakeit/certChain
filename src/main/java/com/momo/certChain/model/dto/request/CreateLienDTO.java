@@ -13,9 +13,11 @@ import java.util.Date;
 @AllArgsConstructor
 public class CreateLienDTO {
 
-    public String certificationId;
+    private String certificationId;
 
-    public String certificationPassword;
+    private String certificationPassword;
+
+    private String titre;
 
     private Date dateExpiration;
 }

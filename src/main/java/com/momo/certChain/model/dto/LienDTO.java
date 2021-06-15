@@ -15,6 +15,8 @@ public class LienDTO {
     private String id;
 
     private String certificateEncKey;
+
+    private String titre;
     
     private Date dateExpiration;
     

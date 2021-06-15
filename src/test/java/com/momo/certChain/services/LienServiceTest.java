@@ -45,6 +45,8 @@ class LienServiceTest {
 
     private final String encKeyToEncrypt = "encryptMe";
 
+    private final String titre = "Entrevue IBM";
+
     @BeforeEach
     public void init() {
         randomStringUtilsMockedStatic = mockStatic(RandomStringUtils.class);
@@ -66,7 +68,7 @@ class LienServiceTest {
         when(lienRepository.save(any(Lien.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(newEncKey);
 
-        CreatedLien createdLien = lienService.createLien(encKeyToEncrypt, dateFin);
+        CreatedLien createdLien = lienService.createLien(encKeyToEncrypt, dateFin,titre);
 
 
         Lien lien = createdLien.getLien();
@@ -82,7 +84,7 @@ class LienServiceTest {
         Date dateFin = new Date(System.currentTimeMillis() - anneeEnMilliseconde);
 
         Assertions.assertThrows(ValidationException.class, () -> {
-            lienService.createLien(encKeyToEncrypt, dateFin);
+            lienService.createLien(encKeyToEncrypt, dateFin, titre);
         });
 
     }
@@ -100,7 +102,7 @@ class LienServiceTest {
     public void testGetNotFoundLien() {
         when(lienRepository.findById(anyString())).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(ObjectNotFoundException.class,()->{
+        Assertions.assertThrows(ObjectNotFoundException.class, () -> {
             lienService.getLien("123456", "password");
         });
 

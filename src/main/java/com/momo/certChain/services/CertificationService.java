@@ -104,14 +104,14 @@ public class CertificationService {
 
         return getUploadedCertification(certification,lien.getCertificateEncKey());
     }
-    public String createLien(String certificateId, String certificatePassword, Date dateExpiration) throws Exception {
+    public String createLien(String certificateId, String certificatePassword,String titre, Date dateExpiration) throws Exception {
         //permet de s'assurer qu'on a le bon password
 
         Certification certification = findCertification(certificateId);
 
         getUploadedCertification(certification,certificatePassword);
 
-        CreatedLien createdLien = lienService.createLien(certificatePassword,dateExpiration);
+        CreatedLien createdLien = lienService.createLien(certificatePassword,dateExpiration,titre);
 
         certification.setLiens(ListUtils.ajouterObjectAListe(createdLien.getLien(),certification.getLiens()));
 

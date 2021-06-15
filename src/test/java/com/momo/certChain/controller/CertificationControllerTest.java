@@ -65,9 +65,11 @@ class CertificationControllerTest {
 
     private Certification studentCertification;
 
-    private final String encKey ="superSecure";
+    private final String encKey = "superSecure";
 
-    private final String lienEncKey ="superSecureLien";
+    private final String lienEncKey = "superSecureLien";
+
+    private final String lienTitre = "Entrevue IBM";
 
 
     private final Long anneeEnMilliseconde = 31536000000L;
@@ -80,7 +82,7 @@ class CertificationControllerTest {
     @Test
     public void testGetCertification() throws Exception {
         uploadEncryptedCertificate();
-        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{certificateId}/{lienId}/{key}", studentCertification.getId(),createLien().getId(), lienEncKey)
+        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{certificateId}/{lienId}/{key}", studentCertification.getId(), createLien().getId(), lienEncKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -89,7 +91,7 @@ class CertificationControllerTest {
     @Test
     public void testGetCertificationWrongKey() throws Exception {
         uploadEncryptedCertificate();
-        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{certificateId}/{lienId}/{key}", studentCertification.getId(),createLien().getId(), "encKey")
+        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{certificateId}/{lienId}/{key}", studentCertification.getId(), createLien().getId(), "encKey")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -99,7 +101,7 @@ class CertificationControllerTest {
     public void testCreateCertificateLienExpirationDansLeFuture() throws Exception {
         uploadEncryptedCertificate();
         mockMvc.perform(MockMvcRequestBuilders.post("/certification/createLien")
-                .content(objectMapper.writeValueAsString(new CreateLienDTO(studentCertification.getId(),encKey,new Date(System.currentTimeMillis()+anneeEnMilliseconde))))
+                .content(objectMapper.writeValueAsString(new CreateLienDTO(studentCertification.getId(), encKey, lienTitre, new Date(System.currentTimeMillis() + anneeEnMilliseconde))))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -109,7 +111,7 @@ class CertificationControllerTest {
     public void testCreateCertificateLienExpirationDansLePass4e() throws Exception {
         uploadEncryptedCertificate();
         mockMvc.perform(MockMvcRequestBuilders.post("/certification/createLien")
-                .content(objectMapper.writeValueAsString(new CreateLienDTO(studentCertification.getId(),encKey,new Date(System.currentTimeMillis()-anneeEnMilliseconde))))
+                .content(objectMapper.writeValueAsString(new CreateLienDTO(studentCertification.getId(), encKey, lienTitre, new Date(System.currentTimeMillis() - anneeEnMilliseconde))))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -119,7 +121,7 @@ class CertificationControllerTest {
     public void testDeleteCertfication() throws Exception {
         saveCertificationInBD();
         mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", studentCertification.getId())
-                .header("Authorization",jwtProvider.generate(TestUtils.createStudent()))
+                .header("Authorization", jwtProvider.generate(TestUtils.createStudent()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -129,7 +131,7 @@ class CertificationControllerTest {
     public void testDeleteCertificationNotFoundThrowException() throws Exception {
         saveCertificationInBD();
         mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", "5648979")
-                .header("Authorization",jwtProvider.generate(TestUtils.createStudent()))
+                .header("Authorization", jwtProvider.generate(TestUtils.createStudent()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -141,7 +143,7 @@ class CertificationControllerTest {
         Student student = TestUtils.createStudent();
         student.setId("789466");
         mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", studentCertification.getId())
-                .header("Authorization",jwtProvider.generate(student))
+                .header("Authorization", jwtProvider.generate(student))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
@@ -174,10 +176,10 @@ class CertificationControllerTest {
 
     }
 
-    private Lien createLien(){
+    private Lien createLien() {
         Lien lien = new Lien();
         lien.setSalt(encryptionService.generateSalt());
-        lien.setCertificateEncKey(encryptionService.encryptData(lienEncKey,encKey,lien.getSalt()));
+        lien.setCertificateEncKey(encryptionService.encryptData(lienEncKey, encKey, lien.getSalt()));
         return lienRepository.save(lien);
     }
 

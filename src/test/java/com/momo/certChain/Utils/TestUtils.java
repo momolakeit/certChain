@@ -50,6 +50,8 @@ public class TestUtils {
 
     private static final Long premierJanvier2020 = 1577854800000L;
 
+    private static final String titre = "Entrevue IBM";
+
 
     public static void assertAddress(Address returnVal){
         Address address = createAddress();
@@ -102,6 +104,7 @@ public class TestUtils {
         assertEquals(returnLien.getDateExpiration(),lien.getDateExpiration());
         assertEquals(returnLien.getCertificateEncKey(),lien.getCertificateEncKey());
         assertEquals(returnLien.getSalt(),lien.getSalt());
+        assertEquals(returnLien.getTitre(),lien.getTitre());
         assertEquals(returnLien.getId(),lien.getId());
     }
 
@@ -201,6 +204,7 @@ public class TestUtils {
         lien.setCertificateEncKey(encKey);
         lien.setDateExpiration(new Date(premierJanvier2020));
         lien.setSalt(salt);
+        lien.setTitre(titre);
 
         return lien;
     }

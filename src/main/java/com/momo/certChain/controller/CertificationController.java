@@ -33,7 +33,8 @@ public class CertificationController extends BaseController {
     public String createLien(@RequestBody CreateLienDTO createLienDTO) throws Exception {
         return certificationService.createLien(
                 createLienDTO.getCertificationId(),
-                createLienDTO.certificationPassword,
+                createLienDTO.getCertificationPassword(),
+                createLienDTO.getTitre(),
                 createLienDTO.getDateExpiration());
     }
 
