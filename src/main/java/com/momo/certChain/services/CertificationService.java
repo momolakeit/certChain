@@ -179,6 +179,8 @@ public class CertificationService {
         certification.setUniversityLogo(imageFileUniversityLogo);
         certification.setUniversityStamp(imageFileUniversityStamp);
         certification.setInstitution(institution);
+        certification.setLiens(null);
+        certification.setStudent(null);
     }
 
     private Certification getUploadedCertification(Certification certification, String privateKey) throws Exception {

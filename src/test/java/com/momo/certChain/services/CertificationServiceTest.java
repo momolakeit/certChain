@@ -24,10 +24,7 @@ import org.web3j.crypto.ECKeyPair;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -83,7 +80,8 @@ class CertificationServiceTest {
     @Test
     public void createCertificationTemplate() throws IOException {
         Certification certification = TestUtils.createCertification();
-        certification.setSignatures(new ArrayList<>());
+        certification.setLiens(Collections.singletonList(TestUtils.createLien()));
+
         addSignatureToCertification(certification);
         List<Signature> signaturesList = createListOfSignatures();
 
@@ -99,6 +97,8 @@ class CertificationServiceTest {
         assertEquals(signaturesList.get(0).getAuthorName(), returnValueCertification.getSignatures().get(0).getAuthorName());
         assertEquals(signaturesList.get(1).getAuthorName(), returnValueCertification.getSignatures().get(1).getAuthorName());
         assertEquals(signaturesList.get(2).getAuthorName(), returnValueCertification.getSignatures().get(2).getAuthorName());
+        assertNull(returnValueCertification.getLiens());
+        assertNull(returnValueCertification.getStudent());
         assertNotNull(returnValueCertification.getUniversityStamp().getBytes());
         assertNotNull(returnValueCertification.getUniversityLogo().getBytes());
         TestUtils.assertInstitution(returnValueCertification.getInstitution());
@@ -315,9 +315,10 @@ class CertificationServiceTest {
     }
 
     private void addSignatureToCertification(Certification certification) throws IOException {
+        certification.setSignatures(new ArrayList<>());
+
         for (int i = 0; i < 3; i++) {
             Signature signature = getSignatureWithModifiedAuthorName(i);
-            signature.setAuthorName(signature.getAuthorName() + " wash");
             signature.setId(null);
             certification.getSignatures().add(signature);
         }
@@ -325,7 +326,7 @@ class CertificationServiceTest {
 
     private Signature getSignatureWithModifiedAuthorName(int i) throws IOException {
         Signature signature = TestUtils.createSignature();
-        signature.setAuthorName(signature.getAuthorName() + i);
+        signature.setAuthorName(signature.getAuthorName() + i+" wash");
         return signature;
     }
 }
