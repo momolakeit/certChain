@@ -182,6 +182,7 @@ class CampagneServiceTest {
             Student student = (Student)humanUser;
             TestUtils.assertBaseUser(student);
             TestUtils.assertCertification(student.getCertifications().get(0));
+            TestUtils.assertBaseUser(student.getCertifications().get(0).getStudent());
         };
     }
 

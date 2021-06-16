@@ -12,7 +12,6 @@ import com.momo.certChain.services.request.HeaderCatcherService;
 import com.momo.certChain.services.security.KeyPairService;
 import com.momo.certChain.utils.ListUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.ECKeyPair;
 
@@ -66,12 +65,9 @@ public class CampagneService {
         Campagne campagne = createCampagneWithFields(name, dateExpiration);
         //todo pk le enc key est ""
 
-        studentList.forEach(student->setCertificationDateOfIssuing(student,dateExpiration));
+        studentList.forEach(student -> setCertificationValues(student, dateExpiration));
 
-        campagne.setStudentList(ListUtils.ajouterListAListe(studentList.stream()
-                        .map(userService::createHumanUser)
-                        .collect(Collectors.toList()),
-                campagne.getStudentList()));
+        campagne.setStudentList(ListUtils.ajouterListAListe(saveUsers(studentList), campagne.getStudentList()));
         campagne.setInstitution(institution);
 
         return saveCampagne(campagne);
@@ -99,7 +95,7 @@ public class CampagneService {
             String generatedString = RandomStringUtils.randomAlphanumeric(11);
             Student student = (Student) humanUser;
 
-            messageService.sendCertificatePrivateKey(humanUser,generatedString);
+            messageService.sendCertificatePrivateKey(humanUser, generatedString);
 
             certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0),
                     institution.getCertificationTemplate(),
@@ -113,13 +109,14 @@ public class CampagneService {
         if (!campagne.getInstitution().getId().equals(headerCatcherService.getUserId())) {
             throw new AuthorizationException("Vous ne pouvez pas rouler cette campagne");
         }
-        if(Objects.isNull(campagne.getInstitution().getCertificationTemplate())){
+        if (Objects.isNull(campagne.getInstitution().getCertificationTemplate())) {
             throw new ValidationException("Vous devez avoir un modèle de certificat");
         }
     }
 
-    private void setCertificationDateOfIssuing(HumanUser humanUser,Date dateOfIssuing) {
+    private void setCertificationValues(HumanUser humanUser, Date dateOfIssuing) {
         ((Student) humanUser).getCertifications().get(0).setDateOfIssuing(dateOfIssuing);
+        ((Student) humanUser).getCertifications().get(0).setStudent(((Student) humanUser));
     }
 
     private Campagne createCampagneWithFields(String name, Date dateExpiration) {
@@ -127,5 +124,11 @@ public class CampagneService {
         campagne.setName(name);
         campagne.setDate(dateExpiration);
         return campagne;
+    }
+
+    private List<HumanUser> saveUsers(List<HumanUser> studentList) {
+        return studentList.stream()
+                .map(userService::createHumanUser)
+                .collect(Collectors.toList());
     }
 }
