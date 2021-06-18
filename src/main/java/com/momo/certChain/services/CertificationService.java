@@ -109,7 +109,7 @@ public class CertificationService {
         return getUploadedCertification(certification,privateKey);
     }
 
-    public String createLien(String certificateId, String certificatePassword,String titre, Date dateExpiration) throws Exception {
+    public CreatedLien createLien(String certificateId, String certificatePassword,String titre, Date dateExpiration) throws Exception {
         //permet de s'assurer qu'on a le bon password
 
         Certification certification = findCertification(certificateId);
@@ -122,7 +122,7 @@ public class CertificationService {
 
         saveCertification(certification);
 
-        return createdLien.getGeneratedPassword();
+        return createdLien;
     }
 
     public Certification saveCertificationWithSalt(Certification certification) {

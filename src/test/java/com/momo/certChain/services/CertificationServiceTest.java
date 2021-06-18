@@ -291,7 +291,7 @@ class CertificationServiceTest {
         when(contractServiceImpl.getCertificate(anyString(),anyString(),any(ECKeyPair.class),anyString(),anyString())).thenReturn(TestUtils.createCertification());
         when(lienService.createLien(anyString(),any(Date.class),anyString())).thenReturn(new CreatedLien(TestUtils.createLien(),generatedLienPassword));
 
-        String generatedPasswordResponse = certificationService.createLien("123456","password",TestUtils.createLien().getTitre(),new Date());
+        String generatedPasswordResponse = certificationService.createLien("123456","password",TestUtils.createLien().getTitre(),new Date()).getGeneratedPassword();
 
         verify(certificationRepository).save(certificationArgumentCaptor.capture());
 
