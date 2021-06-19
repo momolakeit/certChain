@@ -3,6 +3,7 @@ package com.momo.certChain.services;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.model.CreatedLien;
+import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Lien;
 import com.momo.certChain.repositories.LienRepository;
 import com.momo.certChain.services.security.EncryptionService;
@@ -24,14 +25,14 @@ public class LienService {
         this.encryptionService = encryptionService;
     }
 
-    public CreatedLien createLien(String encKey, Date date,String titre){
+    public CreatedLien createLien(String encKey, Date date, String titre, Certification certification){
         isDateBeforeNow(date);
 
         String generatedPassword = RandomStringUtils.randomAlphanumeric(11);
 
         String salt = encryptionService.generateSalt();
 
-        Lien lien = saveLien(createLien(encKey, generatedPassword, salt,date,titre));
+        Lien lien = saveLien(createLien(encKey, generatedPassword, salt,date,titre,certification));
 
         return new CreatedLien(lien,generatedPassword);
     }
@@ -44,12 +45,13 @@ public class LienService {
         return lien;
     }
 
-    private Lien createLien(String encKey, String generatedPassword, String salt,Date date,String titre) {
+    private Lien createLien(String encKey, String generatedPassword, String salt,Date date,String titre,Certification certification) {
         Lien lien = new Lien();
         lien.setSalt(salt);
         lien.setCertificateEncKey(encryptionService.encryptData(generatedPassword, encKey, salt));
         lien.setTitre(titre);
         lien.setDateExpiration(date);
+        lien.setCertification(certification);
 
         return lien;
     }

@@ -19,5 +19,7 @@ public class LienDTO {
     private String titre;
     
     private Date dateExpiration;
+
+    private CertificationDTO certification;
     
 }

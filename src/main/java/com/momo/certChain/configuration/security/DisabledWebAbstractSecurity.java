@@ -34,7 +34,8 @@ public class DisabledWebAbstractSecurity extends WebSecurityConfigurerAdapter im
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        http.cors().configurationSource(corsConfigurationSource())
+        http.headers().frameOptions().disable().and()
+                .cors().configurationSource(corsConfigurationSource())
                 .and().csrf().disable()
                 .authorizeRequests().antMatchers( "****").permitAll()
 

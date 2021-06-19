@@ -7,6 +7,7 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.util.Date;
 
 @Entity
@@ -26,5 +27,8 @@ public class Lien {
     private Date dateExpiration;
 
     private String salt;
+
+    @ManyToOne
+    private Certification certification;
 
 }

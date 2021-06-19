@@ -124,7 +124,7 @@ public class CertificationService {
 
         getUploadedCertification(certification,certificatePassword);
 
-        CreatedLien createdLien = lienService.createLien(certificatePassword,dateExpiration,titre);
+        CreatedLien createdLien = lienService.createLien(certificatePassword,dateExpiration,titre,certification);
 
         certification.setLiens(ListUtils.ajouterObjectAListe(createdLien.getLien(),certification.getLiens()));
 

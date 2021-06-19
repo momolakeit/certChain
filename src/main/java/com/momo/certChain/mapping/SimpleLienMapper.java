@@ -1,20 +1,20 @@
 package com.momo.certChain.mapping;
 
-import com.momo.certChain.model.data.InstitutionWallet;
 import com.momo.certChain.model.data.Lien;
-import com.momo.certChain.model.dto.InstitutionWalletDTO;
 import com.momo.certChain.model.dto.LienDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {CertificationMapper.class})
-public interface LienMapper {
-    LienMapper instance = Mappers.getMapper(LienMapper.class);
+@Mapper
+public interface SimpleLienMapper {
+    SimpleLienMapper instance = Mappers.getMapper(SimpleLienMapper.class);
 
     @Mapping(target = "certificateEncKey",ignore = true)
+    @Mapping(target = "certification",ignore = true)
     LienDTO toDTO(Lien lien);
 
     @Mapping(target = "id",ignore = true)
+    @Mapping(target = "certification",ignore = true)
     Lien toEntity(LienDTO lienDTO);
 }

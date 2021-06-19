@@ -68,7 +68,7 @@ class LienServiceTest {
         when(lienRepository.save(any(Lien.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(newEncKey);
 
-        CreatedLien createdLien = lienService.createLien(encKeyToEncrypt, dateFin,titre);
+        CreatedLien createdLien = lienService.createLien(encKeyToEncrypt, dateFin,titre,TestUtils.createCertification());
 
 
         Lien lien = createdLien.getLien();
@@ -77,6 +77,7 @@ class LienServiceTest {
         assertEquals(encKeyToEncrypt, lien.getCertificateEncKey());
         assertEquals(dateFin, lien.getDateExpiration());
         assertEquals(newEncKey, createdLien.getGeneratedPassword());
+        TestUtils.assertCertification(lien.getCertification());
     }
 
     @Test
@@ -84,7 +85,7 @@ class LienServiceTest {
         Date dateFin = new Date(System.currentTimeMillis() - anneeEnMilliseconde);
 
         Assertions.assertThrows(ValidationException.class, () -> {
-            lienService.createLien(encKeyToEncrypt, dateFin, titre);
+            lienService.createLien(encKeyToEncrypt, dateFin, titre,TestUtils.createCertification());
         });
 
     }
