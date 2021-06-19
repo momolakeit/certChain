@@ -3,6 +3,7 @@ package com.momo.certChain.services;
 import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.exception.CannotDeleteCertificateException;
 import com.momo.certChain.exception.UserForgottenException;
+import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.model.CreatedLien;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Lien;
@@ -79,8 +80,7 @@ class CertificationServiceTest {
 
     @Test
     public void createCertificationTemplate() throws IOException {
-        Certification certification = TestUtils.createCertification();
-        certification.setLiens(Collections.singletonList(TestUtils.createLien()));
+        Certification certification = TestUtils.createCertificationWithNoStudent();
 
         addSignatureToCertification(certification);
         List<Signature> signaturesList = createListOfSignatures();
@@ -91,18 +91,36 @@ class CertificationServiceTest {
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(imageFileService.createImageFile(any(byte[].class))).thenReturn(TestUtils.createImageFile());
 
-        Certification returnValueCertification = certificationService.createCertificationTemplate(certification,TestUtils.getExcelByteArray(),TestUtils.getExcelByteArray(),TestUtils.createInstitution());
+        Certification returnValueCertification = certificationService.createCertificationTemplate(certification, TestUtils.getExcelByteArray(), TestUtils.getExcelByteArray(), TestUtils.createInstitution());
 
         assertEquals(certification.getCertificateText(), returnValueCertification.getCertificateText());
         assertEquals(signaturesList.get(0).getAuthorName(), returnValueCertification.getSignatures().get(0).getAuthorName());
         assertEquals(signaturesList.get(1).getAuthorName(), returnValueCertification.getSignatures().get(1).getAuthorName());
         assertEquals(signaturesList.get(2).getAuthorName(), returnValueCertification.getSignatures().get(2).getAuthorName());
-        assertNull(returnValueCertification.getLiens());
-        assertNull(returnValueCertification.getStudent());
         assertNotNull(returnValueCertification.getUniversityStamp().getBytes());
         assertNotNull(returnValueCertification.getUniversityLogo().getBytes());
         TestUtils.assertInstitution(returnValueCertification.getInstitution());
     }
+
+    @Test
+    public void createCertificationTemplateLienNotNullThrowsException() throws IOException {
+        Certification certification = TestUtils.createCertificationWithNoStudent();
+        certification.setLiens(Collections.singletonList(TestUtils.createLien()));
+
+        Assertions.assertThrows(ValidationException.class, () -> {
+            certificationService.createCertificationTemplate(certification, TestUtils.getExcelByteArray(), TestUtils.getExcelByteArray(), TestUtils.createInstitution());
+        });
+    }
+
+    @Test
+    public void createCertificationTemplateStudentNotNullThrowsException() throws IOException {
+        Certification certification = TestUtils.createCertification();
+
+        Assertions.assertThrows(ValidationException.class, () -> {
+            certificationService.createCertificationTemplate(certification, TestUtils.getExcelByteArray(), TestUtils.getExcelByteArray(), TestUtils.createInstitution());
+        });
+    }
+
 
     @Test
     public void uploadCertificateToBlockchain() throws Exception {
@@ -114,7 +132,7 @@ class CertificationServiceTest {
 
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-        certificationService.uploadCertificationToBlockChain(studentCertification, certificationTemplate, contractAddress, new ECKeyPair(BigInteger.ONE,BigInteger.TWO),encryptionKey);
+        certificationService.uploadCertificationToBlockChain(studentCertification, certificationTemplate, contractAddress, new ECKeyPair(BigInteger.ONE, BigInteger.TWO), encryptionKey);
 
         verify(contractServiceImpl).uploadCertificate(certificationArgumentCaptor.capture(), addressArgumentCaptor.capture(), keyPairArgumentCaptor.capture(), encryptionPrivateKeyCaptor.capture());
 
@@ -124,15 +142,15 @@ class CertificationServiceTest {
         String encKey = encryptionPrivateKeyCaptor.getValue();
 
 
-        assertEquals(certificationTemplate.getUniversityLogo().getId(),uploadedCertificate.getUniversityLogo().getId());
+        assertEquals(certificationTemplate.getUniversityLogo().getId(), uploadedCertificate.getUniversityLogo().getId());
         assertNull(uploadedCertificate.getUniversityLogo().getBytes());
-        assertEquals(certificationTemplate.getUniversityStamp().getId(),uploadedCertificate.getUniversityStamp().getId());
+        assertEquals(certificationTemplate.getUniversityStamp().getId(), uploadedCertificate.getUniversityStamp().getId());
         assertNull(uploadedCertificate.getUniversityStamp().getBytes());
-        assertEquals(encryptionKey,encKey);
-        assertEquals(contractAddress,uploadedAddress);
-        assertEquals(BigInteger.ONE,keyPair.getPrivateKey());
-        assertEquals(BigInteger.TWO,keyPair.getPublicKey());
-        for(Signature signature: uploadedCertificate.getSignatures()){
+        assertEquals(encryptionKey, encKey);
+        assertEquals(contractAddress, uploadedAddress);
+        assertEquals(BigInteger.ONE, keyPair.getPrivateKey());
+        assertEquals(BigInteger.TWO, keyPair.getPublicKey());
+        for (Signature signature : uploadedCertificate.getSignatures()) {
             TestUtils.assertSignature(signature);
             assertNull(signature.getSignatureImage().getBytes());
         }
@@ -140,20 +158,20 @@ class CertificationServiceTest {
     }
 
     @Test
-    public void testSaveAvecSaltCertification(){
+    public void testSaveAvecSaltCertification() {
         Certification certification = TestUtils.createCertification();
 
         when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         Certification returnValueCertification = certificationService.saveCertificationWithSalt(certification);
 
-        verify(encryptionService,times(0)).generateSalt();
+        verify(encryptionService, times(0)).generateSalt();
 
         TestUtils.assertCertification(returnValueCertification);
     }
 
     @Test
-    public void testSaveSansSaltCertification(){
+    public void testSaveSansSaltCertification() {
         String salt = "salt";
         Certification certification = TestUtils.createCertification();
         certification.setSalt(null);
@@ -163,15 +181,15 @@ class CertificationServiceTest {
 
         Certification returnValueCertification = certificationService.saveCertificationWithSalt(certification);
 
-        verify(encryptionService,times(1)).generateSalt();
+        verify(encryptionService, times(1)).generateSalt();
 
         TestUtils.assertCertification(returnValueCertification);
-        assertEquals(salt,returnValueCertification.getSalt());
+        assertEquals(salt, returnValueCertification.getSalt());
     }
 
     @Test
-    public void forgetCertificateTest(){
-        Certification certification =  TestUtils.createCertification();
+    public void forgetCertificateTest() {
+        Certification certification = TestUtils.createCertification();
         certification.setSalt("salty");
 
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
@@ -188,14 +206,14 @@ class CertificationServiceTest {
     }
 
     @Test
-    public void forgetNotOwnerThrowsExceptionTest(){
-        Certification certification =  TestUtils.createCertification();
+    public void forgetNotOwnerThrowsExceptionTest() {
+        Certification certification = TestUtils.createCertification();
         certification.setSalt("salty");
 
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
         when(headerCatcherService.getUserId()).thenReturn("badId");
 
-        Assertions.assertThrows(CannotDeleteCertificateException.class,()->{
+        Assertions.assertThrows(CannotDeleteCertificateException.class, () -> {
             certificationService.forgetCertificate("123456");
         });
 
@@ -207,33 +225,33 @@ class CertificationServiceTest {
         String privateKey = "privateKey";
         String salt = "salt";
 
-        Certification certification =  TestUtils.createCertification();
+        Certification certification = TestUtils.createCertification();
         certification.setInstitution(TestUtils.createInstitution());
 
         Lien lien = TestUtils.createLien();
         lien.setCertificateEncKey(privateKey);
 
-        when(lienService.getLien(anyString(),anyString())).thenReturn(lien);
+        when(lienService.getLien(anyString(), anyString())).thenReturn(lien);
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
         when(contractServiceImpl.getCertificate(anyString(),
-                                                anyString(),
-                                                any(ECKeyPair.class),
-                                                anyString(),
-                                                anyString()))
-                                                .thenReturn(certification);
+                anyString(),
+                any(ECKeyPair.class),
+                anyString(),
+                anyString()))
+                .thenReturn(certification);
 
-        certificationService.getUploadedCertificationWithLien("123456",privateKey,"123456");
+        certificationService.getUploadedCertificationWithLien("123456", privateKey, "123456");
 
         verify(contractServiceImpl).getCertificate(anyString(),
-                                                   addressArgumentCaptor.capture(),
-                                                   keyPairArgumentCaptor.capture(),
-                                                   encryptionPrivateKeyCaptor.capture(),
-                                                   saltArgumentCaptor.capture());
+                addressArgumentCaptor.capture(),
+                keyPairArgumentCaptor.capture(),
+                encryptionPrivateKeyCaptor.capture(),
+                saltArgumentCaptor.capture());
 
-        assertEquals(certification.getInstitution().getContractAddress(),addressArgumentCaptor.getValue());
+        assertEquals(certification.getInstitution().getContractAddress(), addressArgumentCaptor.getValue());
         assertNotNull(keyPairArgumentCaptor.getValue());
-        assertEquals(privateKey,encryptionPrivateKeyCaptor.getValue());
-        assertEquals(salt,saltArgumentCaptor.getValue());
+        assertEquals(privateKey, encryptionPrivateKeyCaptor.getValue());
+        assertEquals(salt, saltArgumentCaptor.getValue());
     }
 
     @Test
@@ -241,7 +259,7 @@ class CertificationServiceTest {
         String privateKey = "privateKey";
         String salt = "salt";
 
-        Certification certification =  TestUtils.createCertification();
+        Certification certification = TestUtils.createCertification();
         certification.setInstitution(TestUtils.createInstitution());
 
         Lien lien = TestUtils.createLien();
@@ -255,7 +273,7 @@ class CertificationServiceTest {
                 anyString()))
                 .thenReturn(certification);
 
-        certificationService.getUploadedCertificationWithPrivateKey("123456",privateKey);
+        certificationService.getUploadedCertificationWithPrivateKey("123456", privateKey);
 
         verify(contractServiceImpl).getCertificate(anyString(),
                 addressArgumentCaptor.capture(),
@@ -263,23 +281,23 @@ class CertificationServiceTest {
                 encryptionPrivateKeyCaptor.capture(),
                 saltArgumentCaptor.capture());
 
-        assertEquals(certification.getInstitution().getContractAddress(),addressArgumentCaptor.getValue());
+        assertEquals(certification.getInstitution().getContractAddress(), addressArgumentCaptor.getValue());
         assertNotNull(keyPairArgumentCaptor.getValue());
-        assertEquals(privateKey,encryptionPrivateKeyCaptor.getValue());
-        assertEquals(salt,saltArgumentCaptor.getValue());
+        assertEquals(privateKey, encryptionPrivateKeyCaptor.getValue());
+        assertEquals(salt, saltArgumentCaptor.getValue());
     }
 
     @Test
     public void getUploadedCertificateNoSaltThrowsException() throws Exception {
         String privateKey = "privateKey";
-        Certification certification =  TestUtils.createCertification();
+        Certification certification = TestUtils.createCertification();
         certification.setSalt(null);
         certification.setInstitution(TestUtils.createInstitution());
 
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
 
-        Assertions.assertThrows(UserForgottenException.class,()->{
-            certificationService.getUploadedCertificationWithLien("123456",privateKey,"123456");
+        Assertions.assertThrows(UserForgottenException.class, () -> {
+            certificationService.getUploadedCertificationWithLien("123456", privateKey, "123456");
         });
     }
 
@@ -288,18 +306,16 @@ class CertificationServiceTest {
         String generatedLienPassword = "generatedPassword";
 
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createCertification()));
-        when(contractServiceImpl.getCertificate(anyString(),anyString(),any(ECKeyPair.class),anyString(),anyString())).thenReturn(TestUtils.createCertification());
-        when(lienService.createLien(anyString(),any(Date.class),anyString())).thenReturn(new CreatedLien(TestUtils.createLien(),generatedLienPassword));
+        when(contractServiceImpl.getCertificate(anyString(), anyString(), any(ECKeyPair.class), anyString(), anyString())).thenReturn(TestUtils.createCertification());
+        when(lienService.createLien(anyString(), any(Date.class), anyString())).thenReturn(new CreatedLien(TestUtils.createLien(), generatedLienPassword));
 
-        String generatedPasswordResponse = certificationService.createLien("123456","password",TestUtils.createLien().getTitre(),new Date()).getGeneratedPassword();
+        String generatedPasswordResponse = certificationService.createLien("123456", "password", TestUtils.createLien().getTitre(), new Date()).getGeneratedPassword();
 
         verify(certificationRepository).save(certificationArgumentCaptor.capture());
 
-        assertEquals(generatedLienPassword,generatedPasswordResponse);
+        assertEquals(generatedLienPassword, generatedPasswordResponse);
         TestUtils.assertLien(certificationArgumentCaptor.getValue().getLiens().get(0));
     }
-
-
 
 
     private List<Signature> createListOfSignatures() throws IOException {
@@ -326,7 +342,7 @@ class CertificationServiceTest {
 
     private Signature getSignatureWithModifiedAuthorName(int i) throws IOException {
         Signature signature = TestUtils.createSignature();
-        signature.setAuthorName(signature.getAuthorName() + i+" wash");
+        signature.setAuthorName(signature.getAuthorName() + i + " wash");
         return signature;
     }
 }

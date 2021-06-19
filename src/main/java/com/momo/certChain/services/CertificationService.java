@@ -3,6 +3,7 @@ package com.momo.certChain.services;
 import com.momo.certChain.exception.CannotDeleteCertificateException;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.UserForgottenException;
+import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.mapping.CertificationMapper;
 import com.momo.certChain.mapping.SignatureMapper;
 import com.momo.certChain.model.CreatedLien;
@@ -63,9 +64,16 @@ public class CertificationService {
     public Certification createCertificationTemplate(Certification certification, byte[] universityLogoBytes, byte[] universityStampBytes, Institution institution) {
         List<Signature> signatures = new ArrayList<>();
         //todo voir contre null exption possible
+
+        if(Objects.nonNull(certification.getStudent()) ||Objects.nonNull(certification.getLiens())){
+            throw new ValidationException("la certification de peux pas contenir d'élève ou de lien");
+        }
+
         for (Signature signature : certification.getSignatures()) {
             signatures.add(signatureService.createSignature(signature.getAuthorName()));
         }
+
+
         initCertificationFields(certification,
                                 imageFileService.createImageFile(universityLogoBytes),
                                 imageFileService.createImageFile(universityStampBytes),
@@ -179,8 +187,6 @@ public class CertificationService {
         certification.setUniversityLogo(imageFileUniversityLogo);
         certification.setUniversityStamp(imageFileUniversityStamp);
         certification.setInstitution(institution);
-        certification.setLiens(null);
-        certification.setStudent(null);
     }
 
     private Certification getUploadedCertification(Certification certification, String privateKey) throws Exception {

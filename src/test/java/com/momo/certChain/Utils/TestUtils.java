@@ -152,6 +152,12 @@ public class TestUtils {
         certification.setSalt(salt);
         return certification;
     }
+
+    public static Certification createCertificationWithNoStudent(){
+        Certification certification =TestUtils.createCertification();
+        certification.setStudent(null);
+        return certification;
+    }
     public static Certification createCertificationTemplate() throws IOException {
         Certification certificationTemplate = createCertification();
         certificationTemplate.setSignatures(Arrays.asList(createSignature(), createSignature()));

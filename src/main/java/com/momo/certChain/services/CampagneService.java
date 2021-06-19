@@ -63,7 +63,6 @@ public class CampagneService {
 
     public Campagne createCampagne(List<HumanUser> studentList, String name, Institution institution, Date dateExpiration) {
         Campagne campagne = createCampagneWithFields(name, dateExpiration);
-        //todo pk le enc key est ""
 
         studentList.forEach(student -> setCertificationValues(student, dateExpiration));
 

@@ -69,6 +69,7 @@ class InstitutionControllerTest {
         MockMultipartFile universityStamp = new MockMultipartFile("universityStamp", "MOCK_DATA.xlsx", "multipart/form-data", TestUtils.getExcelByteArray());
 
         Certification certification = TestUtils.createCertificationTemplate();
+        certification.setStudent(null);
         certification.setId(null);
 
         mockMvc.perform(MockMvcRequestBuilders.multipart("/institution/createTemplate")
