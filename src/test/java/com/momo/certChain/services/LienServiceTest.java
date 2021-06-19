@@ -16,8 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,9 +28,6 @@ class LienServiceTest {
 
     @InjectMocks
     private LienService lienService;
-
-    @Captor
-    private ArgumentCaptor<Lien> lienArgumentCaptor;
 
     @Mock
     private LienRepository lienRepository;
@@ -88,6 +84,24 @@ class LienServiceTest {
             lienService.createLien(encKeyToEncrypt, dateFin, titre,TestUtils.createCertification());
         });
 
+    }
+
+    @Test
+    public void findAllLienByCertId(){
+        when(lienRepository.findLienByCertificationId(anyString())).thenReturn(Arrays.asList(TestUtils.createLien(),TestUtils.createLien()));
+
+        List<Lien> lienList = lienService.findAllLienForCertification("123456");
+
+        assertEquals(2,lienList.size());
+    }
+
+    @Test
+    public void findAllLienByCertIdNoLien(){
+        when(lienRepository.findLienByCertificationId(anyString())).thenReturn(Collections.emptyList());
+
+        List<Lien> lienList = lienService.findAllLienForCertification("123456");
+
+        assertEquals(0,lienList.size());
     }
 
     @Test

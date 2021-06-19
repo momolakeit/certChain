@@ -2,9 +2,11 @@ package com.momo.certChain.services;
 
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.ValidationException;
+import com.momo.certChain.mapping.LienMapper;
 import com.momo.certChain.model.CreatedLien;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Lien;
+import com.momo.certChain.model.dto.LienDTO;
 import com.momo.certChain.repositories.LienRepository;
 import com.momo.certChain.services.security.EncryptionService;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -12,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class LienService {
@@ -43,6 +46,14 @@ public class LienService {
         lien.setCertificateEncKey(encryptionService.decryptData(password,lien.getCertificateEncKey(),lien.getSalt()));
 
         return lien;
+    }
+
+    public List<Lien> findAllLienForCertification(String certId){
+        return lienRepository.findLienByCertificationId(certId);
+    }
+
+    public LienDTO toDTO(Lien lien){
+        return LienMapper.instance.toDTO(lien);
     }
 
     private Lien createLien(String encKey, String generatedPassword, String salt,Date date,String titre,Certification certification) {
