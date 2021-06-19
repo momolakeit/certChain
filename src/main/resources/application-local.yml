@@ -1,7 +1,4 @@
 config.securite.active: false
-blockchain:
-  ethereum:
-    inputUrl : "http://localhost:7545"
 
 spring:
   datasource:
