@@ -25,7 +25,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
 @Service("ContractService")
-@Profile("test")
+@Profile({"test","local"})
 public class TestingContractServiceImpl implements ContractService {
 
     private final ObjectMapper objectMapper;

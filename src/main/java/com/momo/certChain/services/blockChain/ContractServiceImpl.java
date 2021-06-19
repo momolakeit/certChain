@@ -16,7 +16,7 @@ import org.web3j.tx.ManagedTransaction;
 import java.math.BigInteger;
 
 @Service
-@Profile("!test")
+@Profile({"!test & !local"})
 public class ContractServiceImpl implements ContractService {
 
     private final ObjectMapper objectMapper;

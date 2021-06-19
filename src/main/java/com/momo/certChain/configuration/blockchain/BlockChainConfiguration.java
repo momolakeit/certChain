@@ -19,6 +19,9 @@ public class BlockChainConfiguration {
     @Value("${blockchain.ethereum.inputUrl}")
     private String ethURL;
 
+    @Value("${blockchain.privateKey}")
+    private String privateKey;
+
 
     @Bean
     @Profile("!test")
@@ -37,5 +40,11 @@ public class BlockChainConfiguration {
     @Profile("test")
     public Credentials credentials() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
         return Credentials.create(Keys.createEcKeyPair());
+    }
+
+    @Bean("credentials")
+    @Profile("local")
+    public Credentials ganacheCredentials() {
+        return Credentials.create(privateKey);
     }
 }
