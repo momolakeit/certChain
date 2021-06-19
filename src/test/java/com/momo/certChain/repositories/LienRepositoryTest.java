@@ -60,7 +60,6 @@ class LienRepositoryTest {
     private Lien createLienWithCertification() {
         Lien lien = new Lien();
         lien.setCertification(certification);
-        lienRepository.save(lien);
         return lienRepository.save(lien);
     }
 }
