@@ -12,6 +12,7 @@ import com.momo.certChain.services.request.HeaderCatcherService;
 import com.momo.certChain.services.security.KeyPairService;
 import com.momo.certChain.utils.ListUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.ECKeyPair;
 
@@ -105,12 +106,9 @@ public class CampagneService {
     }
 
     private void isUserAllowedToRunCampagne(Campagne campagne) {
-        if (!campagne.getInstitution().getId().equals(headerCatcherService.getUserId())) {
-            throw new AuthorizationException("Vous ne pouvez pas rouler cette campagne");
-        }
-        if (Objects.isNull(campagne.getInstitution().getCertificationTemplate())) {
-            throw new ValidationException("Vous devez avoir un modèle de certificat");
-        }
+        isUserOwnerOfCampagne(campagne);
+        doesUserHasCertificateTemplate(campagne);
+        doesUserHasUploadedContract(campagne);
     }
 
     private void setCertificationValues(HumanUser humanUser, Date dateOfIssuing) {
@@ -129,5 +127,23 @@ public class CampagneService {
         return studentList.stream()
                 .map(userService::createHumanUser)
                 .collect(Collectors.toList());
+    }
+
+    private void doesUserHasUploadedContract(Campagne campagne) {
+        if (StringUtils.isBlank(campagne.getInstitution().getContractAddress()) || Objects.isNull(campagne.getInstitution().getContractAddress())) {
+            throw new ValidationException("Vous devez deployer le votre contrat d'abord.Veuillez le faire dans votre dashboard");
+        }
+    }
+
+    private void doesUserHasCertificateTemplate(Campagne campagne) {
+        if (Objects.isNull(campagne.getInstitution().getCertificationTemplate())) {
+            throw new ValidationException("Vous devez avoir un modèle de certificat");
+        }
+    }
+
+    private void isUserOwnerOfCampagne(Campagne campagne) {
+        if (!campagne.getInstitution().getId().equals(headerCatcherService.getUserId())) {
+            throw new AuthorizationException("Vous ne pouvez pas rouler cette campagne");
+        }
     }
 }

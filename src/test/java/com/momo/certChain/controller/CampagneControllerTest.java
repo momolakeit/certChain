@@ -123,6 +123,19 @@ class CampagneControllerTest {
     }
 
     @Test
+    public void runCampagneNoContractAddress() throws Exception {
+        institution.setContractAddress(null);
+        userRepository.save(institution);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/campagne/runCampagne")
+                .content(objectMapper.writeValueAsString(new RunCampagneDTO(campagneId,InitEnvService.encryptionKey)))
+                .header(AUTHORIZATION_HEADER,"Bearer "+jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void runCampagneInstitutionNotAllowed() throws Exception {
         jwt =  jwtProvider.generate(userRepository.save(new User()));
 

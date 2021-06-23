@@ -42,7 +42,7 @@ class CampagneServiceTest {
     private CampagneRepository campagneRepository;
 
     @Mock
-    private HumanUserService userService;
+    private HumanUserService humanUserService;
 
     @Mock
     private KeyPairService keyPairService;
@@ -147,8 +147,44 @@ class CampagneServiceTest {
         });
     }
 
+
     @Test
-    public void runCampagneNoCertificationThrowsException() throws Exception {
+    public void runCampagneContractAddressNull() throws Exception {
+        int nbDeStudents = 100;
+        Institution institution = createInstitutionWithWallet();
+
+        institution.setContractAddress(null);
+
+        Campagne campagne = createCampagne(nbDeStudents, institution);
+
+        when(campagneRepository.findById(anyString())).thenReturn(Optional.of(campagne));
+        when(headerCatcherService.getUserId()).thenReturn(campagne.getId());
+
+        Assertions.assertThrows(ValidationException.class,()->{
+            campagneService.runCampagne(campagne.getId(),"walletPassword");
+        });
+    }
+
+    @Test
+    public void runCampagneContractAddressBlank() throws Exception {
+        int nbDeStudents = 100;
+        Institution institution = createInstitutionWithWallet();
+
+        institution.setContractAddress("");
+
+        Campagne campagne = createCampagne(nbDeStudents, institution);
+
+        when(campagneRepository.findById(anyString())).thenReturn(Optional.of(campagne));
+        when(headerCatcherService.getUserId()).thenReturn(campagne.getId());
+
+        Assertions.assertThrows(ValidationException.class,()->{
+            campagneService.runCampagne(campagne.getId(),"walletPassword");
+        });
+    }
+
+
+    @Test
+    public void runCampagneNoCertificationTemplateThrowsException() throws Exception {
         int nbDeStudents = 100;
         Institution institution = createInstitutionWithWallet();
         institution.setCertificationTemplate(null);
@@ -171,7 +207,7 @@ class CampagneServiceTest {
         String campagneName = "Genie informatique concordia";
 
         when(campagneRepository.save(any(Campagne.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        when(userService.createHumanUser(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(humanUserService.createHumanUser(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         Campagne campagne = campagneService.createCampagne(listeOfStudents,campagneName,TestUtils.createInstitution(), new Date(dateLong));
 
