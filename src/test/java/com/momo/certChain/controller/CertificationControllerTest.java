@@ -6,9 +6,9 @@ import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.request.CreateLienDTO;
 import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.repositories.LienRepository;
+import com.momo.certChain.repositories.UserRepository;
 import com.momo.certChain.services.CertificationService;
 import com.momo.certChain.services.InstitutionService;
-import com.momo.certChain.services.messaging.MessageServiceImpl;
 import com.momo.certChain.services.security.EncryptionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.test.context.ActiveProfiles;
@@ -29,6 +28,7 @@ import org.web3j.crypto.ECKeyPair;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.Date;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -54,12 +54,12 @@ class CertificationControllerTest {
     private LienRepository lienRepository;
 
     @Autowired
-    private CertificationRepository certificationRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private JwtProvider jwtProvider;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 
@@ -130,9 +130,9 @@ class CertificationControllerTest {
 
     @Test
     public void testDeleteCertfication() throws Exception {
-        saveCertificationInBD();
-        mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", studentCertification.getId())
-                .header("Authorization", jwtProvider.generate(TestUtils.createStudent()))
+        Student student = createUserWithCertification();
+        mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", student.getCertifications().get(0).getId())
+                .header("Authorization", jwtProvider.generate(student))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -140,9 +140,9 @@ class CertificationControllerTest {
 
     @Test
     public void testDeleteCertificationNotFoundThrowException() throws Exception {
-        saveCertificationInBD();
+        Student student = createUserWithCertification();
         mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", "5648979")
-                .header("Authorization", jwtProvider.generate(TestUtils.createStudent()))
+                .header("Authorization", jwtProvider.generate(student))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -150,11 +150,10 @@ class CertificationControllerTest {
 
     @Test
     public void testDeleteCertificationUserNotAllowedThrowException() throws Exception {
-        saveCertificationInBD();
-        Student student = TestUtils.createStudent();
-        student.setId("789466");
-        mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", studentCertification.getId())
-                .header("Authorization", jwtProvider.generate(student))
+        Student student = createUserWithCertification();
+        Student secondStudent = createUserWithCertification();
+        mockMvc.perform(MockMvcRequestBuilders.delete("/certification/forgetCertificate/{id}", student.getCertifications().get(0).getId())
+                .header("Authorization", jwtProvider.generate(secondStudent))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
@@ -181,7 +180,7 @@ class CertificationControllerTest {
 
         institution = institutionService.uploadCertificateContract(institution.getId(), walletPassword);
 
-        saveCertificationInBD();
+        createCertification();
 
         certificationService.uploadCertificationToBlockChain(studentCertification, initCertificationTemplate(institution), institution.getContractAddress(), ecKeyPair, encKey);
 
@@ -201,10 +200,16 @@ class CertificationControllerTest {
         return certificationTemplate;
     }
 
-    private void saveCertificationInBD() {
+    private Student createUserWithCertification(){
+        Student student = new Student();
+        student.setCertifications(Collections.singletonList(createCertification()));
+        return userRepository.save(student);
+    }
+
+    private Certification createCertification() {
         studentCertification = TestUtils.createCertification();
         studentCertification.setId(null);
         studentCertification.setSalt(KeyGenerators.string().generateKey());
-        studentCertification = certificationRepository.save(studentCertification);
+        return studentCertification;
     }
 }

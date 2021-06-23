@@ -8,6 +8,7 @@ import com.momo.certChain.model.CreatedLien;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Lien;
 import com.momo.certChain.model.data.Signature;
+import com.momo.certChain.model.data.Student;
 import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.services.blockChain.ContractServiceImpl;
 import com.momo.certChain.services.request.HeaderCatcherService;
@@ -57,6 +58,9 @@ class CertificationServiceTest {
 
     @Mock
     private HeaderCatcherService headerCatcherService;
+
+    @Mock
+    private UserService userService;
 
     @Captor
     private ArgumentCaptor<Certification> certificationArgumentCaptor;
@@ -191,11 +195,13 @@ class CertificationServiceTest {
     public void forgetCertificateTest() {
         Certification certification = TestUtils.createCertification();
         certification.setSalt("salty");
+        String certId = "123456";
 
+        when(userService.getUser(anyString())).thenReturn(createStudentWithCertification(certId));
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
         when(headerCatcherService.getUserId()).thenReturn(certification.getStudent().getId());
 
-        certificationService.forgetCertificate("123456");
+        certificationService.forgetCertificate(certId);
 
         verify(certificationRepository).save(certificationArgumentCaptor.capture());
 
@@ -209,9 +215,11 @@ class CertificationServiceTest {
     public void forgetNotOwnerThrowsExceptionTest() {
         Certification certification = TestUtils.createCertification();
         certification.setSalt("salty");
+        String certId = "otherId";
 
+        when(userService.getUser(anyString())).thenReturn(createStudentWithCertification(certId));
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
-        when(headerCatcherService.getUserId()).thenReturn("badId");
+        when(headerCatcherService.getUserId()).thenReturn(certification.getStudent().getId());
 
         Assertions.assertThrows(CannotDeleteCertificateException.class, () -> {
             certificationService.forgetCertificate("123456");
@@ -343,6 +351,21 @@ class CertificationServiceTest {
     private Signature getSignatureWithModifiedAuthorName(int i) throws IOException {
         Signature signature = TestUtils.createSignature();
         signature.setAuthorName(signature.getAuthorName() + i + " wash");
+
         return signature;
+    }
+
+    private Student createStudentWithCertification(String certId){
+        Student student = TestUtils.createStudent();
+        student.setCertifications(Collections.singletonList(createCertificationWithId(certId)));
+
+        return student;
+    }
+
+    private Certification createCertificationWithId(String certId){
+        Certification certification = TestUtils.createCertification();
+        certification.setId(certId);
+
+        return certification;
     }
 }

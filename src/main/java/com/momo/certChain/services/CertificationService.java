@@ -44,6 +44,8 @@ public class CertificationService {
 
     private final LienService lienService;
 
+    private final UserService userService;
+
 
     public CertificationService(CertificationRepository certificationRepository,
                                 ImageFileService imageFileService,
@@ -51,7 +53,8 @@ public class CertificationService {
                                 ContractService contractService,
                                 EncryptionService encryptionService,
                                 HeaderCatcherService headerCatcherService,
-                                LienService lienService) {
+                                LienService lienService,
+                                UserService userService) {
         this.certificationRepository = certificationRepository;
         this.imageFileService = imageFileService;
         this.signatureService = signatureService;
@@ -59,13 +62,14 @@ public class CertificationService {
         this.encryptionService = encryptionService;
         this.headerCatcherService = headerCatcherService;
         this.lienService = lienService;
+        this.userService = userService;
     }
 
     public Certification createCertificationTemplate(Certification certification, byte[] universityLogoBytes, byte[] universityStampBytes, Institution institution) {
         List<Signature> signatures = new ArrayList<>();
         //todo voir contre null exption possible
 
-        if(Objects.nonNull(certification.getStudent()) ||Objects.nonNull(certification.getLiens())){
+        if (Objects.nonNull(certification.getStudent()) || Objects.nonNull(certification.getLiens())) {
             throw new ValidationException("la certification de peux pas contenir d'élève ou de lien");
         }
 
@@ -75,10 +79,10 @@ public class CertificationService {
 
 
         initCertificationFields(certification,
-                                imageFileService.createImageFile(universityLogoBytes),
-                                imageFileService.createImageFile(universityStampBytes),
-                                signatures,
-                                institution);
+                imageFileService.createImageFile(universityLogoBytes),
+                imageFileService.createImageFile(universityStampBytes),
+                signatures,
+                institution);
         return saveCertificationWithSalt(certification);
     }
 
@@ -88,9 +92,9 @@ public class CertificationService {
 
         certificationTemplate = CertificationMapper.instance.toSimple(certificationTemplate);
 
-        studentCertification =   CertificationMapper.instance.clone(studentCertification);
+        studentCertification = CertificationMapper.instance.clone(studentCertification);
 
-        mapCertificateTemplateToStudentCertification(studentCertification, certificationTemplate,certificationTemplate.getInstitution());
+        mapCertificateTemplateToStudentCertification(studentCertification, certificationTemplate, certificationTemplate.getInstitution());
 
         contractService.uploadCertificate(studentCertification, contractAdress, ecKeyPair, encryptionKey);
 
@@ -106,27 +110,27 @@ public class CertificationService {
     public Certification getUploadedCertificationWithLien(String uuid, String privateKey, String lienId) throws Exception {
         Certification certification = findCertification(uuid);
 
-        Lien lien = lienService.getLien(lienId,privateKey);
+        Lien lien = lienService.getLien(lienId, privateKey);
 
-        return getUploadedCertification(certification,lien.getCertificateEncKey());
+        return getUploadedCertification(certification, lien.getCertificateEncKey());
     }
 
     public Certification getUploadedCertificationWithPrivateKey(String uuid, String privateKey) throws Exception {
         Certification certification = findCertification(uuid);
 
-        return getUploadedCertification(certification,privateKey);
+        return getUploadedCertification(certification, privateKey);
     }
 
-    public CreatedLien createLien(String certificateId, String certificatePassword,String titre, Date dateExpiration) throws Exception {
+    public CreatedLien createLien(String certificateId, String certificatePassword, String titre, Date dateExpiration) throws Exception {
         //permet de s'assurer qu'on a le bon password
 
         Certification certification = findCertification(certificateId);
 
-        getUploadedCertification(certification,certificatePassword);
+        getUploadedCertification(certification, certificatePassword);
 
-        CreatedLien createdLien = lienService.createLien(certificatePassword,dateExpiration,titre,certification);
+        CreatedLien createdLien = lienService.createLien(certificatePassword, dateExpiration, titre, certification);
 
-        certification.setLiens(ListUtils.ajouterObjectAListe(createdLien.getLien(),certification.getLiens()));
+        certification.setLiens(ListUtils.ajouterObjectAListe(createdLien.getLien(), certification.getLiens()));
 
         saveCertification(certification);
 
@@ -140,7 +144,7 @@ public class CertificationService {
         return saveCertification(certification);
     }
 
-    public void forgetCertificate(String uuid){
+    public void forgetCertificate(String uuid) {
         Certification certification = findCertification(uuid);
         canUserDeleteCertificate(certification);
         certification.setSalt(null);
@@ -149,7 +153,7 @@ public class CertificationService {
 
     private Certification findCertification(String uuid) {
         Certification certification = certificationRepository.findById(uuid).orElseThrow(this::certificationNotFound);
-        if(Objects.isNull(certification.getSalt())){
+        if (Objects.isNull(certification.getSalt())) {
             throw new UserForgottenException();
         }
         return certification;
@@ -163,26 +167,30 @@ public class CertificationService {
         return new ObjectNotFoundException("Certification");
     }
 
-    private void mapCertificateTemplateToStudentCertification(Certification studentCertification, Certification certificationTemplate,Institution institution) {
+    private void mapCertificateTemplateToStudentCertification(Certification studentCertification, Certification certificationTemplate, Institution institution) {
         List<Signature> signatures = certificationTemplate.getSignatures().stream()
-                                                          .map(SignatureMapper.instance::toSimple)
-                                                          .collect(Collectors.toList());
+                .map(SignatureMapper.instance::toSimple)
+                .collect(Collectors.toList());
         initCertificationFields(studentCertification,
-                                certificationTemplate.getUniversityLogo(),
-                                certificationTemplate.getUniversityStamp(),
-                                signatures,
-                                institution);
+                certificationTemplate.getUniversityLogo(),
+                certificationTemplate.getUniversityStamp(),
+                signatures,
+                institution);
         studentCertification.setCertificateText(certificationTemplate.getCertificateText());
     }
 
     private void canUserDeleteCertificate(Certification certification) {
-        String connectedUser = headerCatcherService.getUserId();
-        if(!certification.getStudent().getId().equals(connectedUser)){
-            throw new CannotDeleteCertificateException();
-        }
+        Student student = (Student) userService.getUser(headerCatcherService.getUserId());
+
+        student.getCertifications()
+                .stream()
+                .filter(cer -> cer.getId().equals(certification.getId()))
+                .findFirst()
+                .orElseThrow(CannotDeleteCertificateException::new);
+
     }
 
-    private void initCertificationFields(Certification certification, ImageFile imageFileUniversityLogo, ImageFile imageFileUniversityStamp, List<Signature> signatures,Institution institution) {
+    private void initCertificationFields(Certification certification, ImageFile imageFileUniversityLogo, ImageFile imageFileUniversityStamp, List<Signature> signatures, Institution institution) {
         certification.setSignatures(signatures);
         certification.setUniversityLogo(imageFileUniversityLogo);
         certification.setUniversityStamp(imageFileUniversityStamp);
