@@ -97,11 +97,15 @@ public class CampagneService {
 
             messageService.sendCertificatePrivateKey(humanUser, generatedString);
 
-            certificationService.uploadCertificationToBlockChain(student.getCertifications().get(0),
-                    institution.getCertificationTemplate(),
-                    institution.getContractAddress(),
-                    keyPair,
-                    generatedString);
+            Certification certification = student.getCertifications().get(0);
+
+            if(certification.isPayed()){
+                certificationService.uploadCertificationToBlockChain(certification,
+                        institution.getCertificationTemplate(),
+                        institution.getContractAddress(),
+                        keyPair,
+                        generatedString);
+            }
         }
     }
 

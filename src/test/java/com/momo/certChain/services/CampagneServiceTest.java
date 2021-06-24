@@ -77,12 +77,12 @@ class CampagneServiceTest {
     MockedStatic<RandomStringUtils> randomStringUtilsMockedStatic;
 
     @BeforeEach
-    public void init(){
+    public void init() {
         randomStringUtilsMockedStatic = mockStatic(RandomStringUtils.class);
     }
 
     @AfterEach
-    public void destroy(){
+    public void destroy() {
         randomStringUtilsMockedStatic.closeOnDemand();
     }
 
@@ -90,22 +90,22 @@ class CampagneServiceTest {
 
 
     @Test
-    public void runCampagne() throws Exception {
+    public void runCampagneAllUsersPayed() throws Exception {
         int nbDeStudents = 100;
         String randomString = "random";
 
 
         Institution institution = createInstitutionWithWallet();
 
-        Campagne campagne = createCampagne(nbDeStudents, institution);
+        Campagne campagne = createCampagneWithPayedCertificates(nbDeStudents, institution);
 
-        when(keyPairService.createKeyPair(anyString(), anyString(), anyString(),anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
-                                                                                                                                    institution.getInstitutionWallet().getPublicKey()));
+        when(keyPairService.createKeyPair(anyString(), anyString(), anyString(), anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
+                institution.getInstitutionWallet().getPublicKey()));
         when(campagneRepository.findById(anyString())).thenReturn(Optional.of(campagne));
         when(headerCatcherService.getUserId()).thenReturn(campagne.getId());
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(randomString);
 
-        campagneService.runCampagne(campagne.getId(),"walletPassword");
+        campagneService.runCampagne(campagne.getId(), "walletPassword");
 
         verify(certificationService, times(nbDeStudents)).uploadCertificationToBlockChain(studentCertificateArgumentCaptor.capture(),
                 institutionTemplateCertificateArgumentCaptor.capture(),
@@ -133,17 +133,92 @@ class CampagneServiceTest {
     }
 
     @Test
+    public void runCampagneHalfUsersPayed() throws Exception {
+        int nbDeStudents = 100;
+        int halfStudents = nbDeStudents / 2;
+        String randomString = "random";
+
+
+        Institution institution = createInstitutionWithWallet();
+
+        Campagne campagne = getCampagne(institution);
+        campagne.setStudentList(initStudentsList(halfStudents,true));
+        campagne.getStudentList().addAll(initStudentsList(halfStudents,false));
+
+        when(keyPairService.createKeyPair(anyString(), anyString(), anyString(), anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
+                institution.getInstitutionWallet().getPublicKey()));
+        when(campagneRepository.findById(anyString())).thenReturn(Optional.of(campagne));
+        when(headerCatcherService.getUserId()).thenReturn(campagne.getId());
+        randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(randomString);
+
+        campagneService.runCampagne(campagne.getId(), "walletPassword");
+
+        verify(certificationService, times(halfStudents)).uploadCertificationToBlockChain(studentCertificateArgumentCaptor.capture(),
+                institutionTemplateCertificateArgumentCaptor.capture(),
+                addressArgumentCaptor.capture(),
+                KeyPairArgumentCaptor.capture(),
+                encKeyPrivateKeyCaptor.capture());
+
+        List<Certification> studentsCertifications = studentCertificateArgumentCaptor.getAllValues();
+        List<Certification> institutionCertificationTemplates = institutionTemplateCertificateArgumentCaptor.getAllValues();
+        List<String> encKeys = encKeyPrivateKeyCaptor.getAllValues();
+        List<String> encKeySentByEmail = this.encKeySentByEmailCaptor.getAllValues();
+
+        for (Certification cert : studentsCertifications) {
+            TestUtils.assertCertification(cert);
+        }
+        for (Certification cert : institutionCertificationTemplates) {
+            TestUtils.assertCertificationInstitution(cert);
+        }
+        for (String val : encKeys) {
+            assertEquals(randomString, val);
+        }
+        for (String val : encKeySentByEmail) {
+            assertEquals(randomString, val);
+        }
+    }
+
+    @Test
+    public void runCampagneNoUsersPayed() throws Exception {
+        int nbDeStudents = 100;
+        String randomString = "random";
+
+
+        Institution institution = createInstitutionWithWallet();
+
+        Campagne campagne = createCampagneWithNotPayedCertificates(nbDeStudents, institution);
+
+        when(keyPairService.createKeyPair(anyString(), anyString(), anyString(), anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
+                institution.getInstitutionWallet().getPublicKey()));
+        when(campagneRepository.findById(anyString())).thenReturn(Optional.of(campagne));
+        when(headerCatcherService.getUserId()).thenReturn(campagne.getId());
+        randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(randomString);
+
+        campagneService.runCampagne(campagne.getId(), "walletPassword");
+
+        verify(certificationService, times(0)).uploadCertificationToBlockChain(studentCertificateArgumentCaptor.capture(),
+                institutionTemplateCertificateArgumentCaptor.capture(),
+                addressArgumentCaptor.capture(),
+                KeyPairArgumentCaptor.capture(),
+                encKeyPrivateKeyCaptor.capture());
+
+        List<Certification> studentsCertifications = studentCertificateArgumentCaptor.getAllValues();
+
+        assertTrue(studentsCertifications.isEmpty());
+    }
+
+    @Test
     public void runCampagneNotAllowed() throws Exception {
         int nbDeStudents = 100;
         Institution institution = createInstitutionWithWallet();
 
-        Campagne campagne = createCampagne(nbDeStudents, institution);
+        Campagne campagne = createCampagneWithPayedCertificates(nbDeStudents, institution);
 
         when(campagneRepository.findById(anyString())).thenReturn(Optional.of(campagne));
         when(headerCatcherService.getUserId()).thenReturn("654321");
 
-        Assertions.assertThrows(AuthorizationException.class,()->{
-            campagneService.runCampagne(campagne.getId(),"walletPassword");
+        Assertions.assertThrows(AuthorizationException.class, () -> {
+            campagneService.runCampagne(campagne.getId(), "walletPassword");
         });
     }
 
@@ -155,13 +230,13 @@ class CampagneServiceTest {
 
         institution.setContractAddress(null);
 
-        Campagne campagne = createCampagne(nbDeStudents, institution);
+        Campagne campagne = createCampagneWithPayedCertificates(nbDeStudents, institution);
 
         when(campagneRepository.findById(anyString())).thenReturn(Optional.of(campagne));
         when(headerCatcherService.getUserId()).thenReturn(campagne.getId());
 
-        Assertions.assertThrows(ValidationException.class,()->{
-            campagneService.runCampagne(campagne.getId(),"walletPassword");
+        Assertions.assertThrows(ValidationException.class, () -> {
+            campagneService.runCampagne(campagne.getId(), "walletPassword");
         });
     }
 
@@ -172,13 +247,13 @@ class CampagneServiceTest {
 
         institution.setContractAddress("");
 
-        Campagne campagne = createCampagne(nbDeStudents, institution);
+        Campagne campagne = createCampagneWithPayedCertificates(nbDeStudents, institution);
 
         when(campagneRepository.findById(anyString())).thenReturn(Optional.of(campagne));
         when(headerCatcherService.getUserId()).thenReturn(campagne.getId());
 
-        Assertions.assertThrows(ValidationException.class,()->{
-            campagneService.runCampagne(campagne.getId(),"walletPassword");
+        Assertions.assertThrows(ValidationException.class, () -> {
+            campagneService.runCampagne(campagne.getId(), "walletPassword");
         });
     }
 
@@ -189,37 +264,38 @@ class CampagneServiceTest {
         Institution institution = createInstitutionWithWallet();
         institution.setCertificationTemplate(null);
 
-        Campagne campagne = createCampagne(nbDeStudents, institution);
+        Campagne campagne = createCampagneWithPayedCertificates(nbDeStudents, institution);
 
         when(campagneRepository.findById(anyString())).thenReturn(Optional.of(campagne));
         when(headerCatcherService.getUserId()).thenReturn(campagne.getId());
 
-        Assertions.assertThrows(ValidationException.class,()->{
-            campagneService.runCampagne(campagne.getId(),"walletPassword");
+        Assertions.assertThrows(ValidationException.class, () -> {
+            campagneService.runCampagne(campagne.getId(), "walletPassword");
         });
     }
 
 
     @Test
-    public void createCampagne(){
+    public void createCampagne() {
         int nbDeStudents = 100;
-        List<HumanUser> listeOfStudents = initStudentsList(nbDeStudents);
+        List<HumanUser> listeOfStudents = initStudentsList(nbDeStudents, false);
         String campagneName = "Genie informatique concordia";
 
         when(campagneRepository.save(any(Campagne.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(humanUserService.createHumanUser(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-        Campagne campagne = campagneService.createCampagne(listeOfStudents,campagneName,TestUtils.createInstitution(), new Date(dateLong));
+        Campagne campagne = campagneService.createCampagne(listeOfStudents, campagneName, TestUtils.createInstitution(), new Date(dateLong));
 
-        assertEquals(campagneName,campagne.getName());
-        assertEquals(nbDeStudents,campagne.getStudentList().size());
-        assertEquals(new Date(dateLong),campagne.getDate());
-        for(HumanUser humanUser: campagne.getStudentList()){
-            Student student = (Student)humanUser;
+        assertEquals(campagneName, campagne.getName());
+        assertEquals(nbDeStudents, campagne.getStudentList().size());
+        assertEquals(new Date(dateLong), campagne.getDate());
+        for (HumanUser humanUser : campagne.getStudentList()) {
+            Student student = (Student) humanUser;
             TestUtils.assertBaseUser(student);
             TestUtils.assertCertification(student.getCertifications().get(0));
             TestUtils.assertBaseUser(student.getCertifications().get(0).getStudent());
-        };
+        }
+        ;
     }
 
     @Test
@@ -235,24 +311,35 @@ class CampagneServiceTest {
     public void getCampagneNotFound() throws IOException {
         when(campagneRepository.findById(anyString())).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(ObjectNotFoundException.class,()->{
+        Assertions.assertThrows(ObjectNotFoundException.class, () -> {
             campagneService.getCampagne("123456");
         });
     }
 
-    private List<HumanUser> initStudentsList(int nbDeStudents) {
+    private List<HumanUser> initStudentsList(int nbDeStudents, boolean isPayed) {
         List<HumanUser> students = new ArrayList<>();
         for (int i = 0; i < nbDeStudents; i++) {
             Student singleStudent = TestUtils.createStudent();
-            singleStudent.setCertifications(Collections.singletonList(TestUtils.createCertification()));
+            singleStudent.setCertifications(Collections.singletonList(createCertificationWithPayedStatus(isPayed)));
             students.add(singleStudent);
         }
         return students;
     }
 
-    private Campagne createCampagne(int nbDeStudents, Institution institution) {
+    private Campagne createCampagneWithPayedCertificates(int nbDeStudents, Institution institution) {
+        Campagne campagne = getCampagne(institution);
+        campagne.setStudentList(initStudentsList(nbDeStudents, true));
+        return campagne;
+    }
+
+    private Campagne createCampagneWithNotPayedCertificates(int nbDeStudents, Institution institution) {
+        Campagne campagne = getCampagne(institution);
+        campagne.setStudentList(initStudentsList(nbDeStudents, false));
+        return campagne;
+    }
+
+    private Campagne getCampagne(Institution institution) {
         Campagne campagne = TestUtils.createCampagne();
-        campagne.setStudentList(initStudentsList(nbDeStudents));
         campagne.setInstitution(institution);
         return campagne;
     }
@@ -262,5 +349,12 @@ class CampagneServiceTest {
         institution.setCertificationTemplate(TestUtils.createCertificationTemplate());
         institution.getInstitutionWallet().setSalt("salt");
         return institution;
+    }
+
+    private Certification createCertificationWithPayedStatus(boolean isPayed) {
+        Certification certification = TestUtils.createCertification();
+        certification.setPayed(isPayed);
+
+        return certification;
     }
 }
