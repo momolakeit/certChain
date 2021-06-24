@@ -149,6 +149,28 @@ class CertificationControllerTest {
     }
 
     @Test
+    public void testPayCertfication() throws Exception {
+        Student student = createUserWithCertification();
+        mockMvc.perform(MockMvcRequestBuilders.put("/certification/payCertificate/{id}", student.getCertifications().get(0).getId())
+                .header("Authorization", jwtProvider.generate(student))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testPayCertficationStudentNotAllowed() throws Exception {
+        Student student = createUserWithCertification();
+        Student secondStudent = createUserWithCertification();
+        mockMvc.perform(MockMvcRequestBuilders.put("/certification/payCertificate/{id}", student.getCertifications().get(0).getId())
+                .header("Authorization", jwtProvider.generate(secondStudent))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
     public void testDeleteCertificationUserNotAllowedThrowException() throws Exception {
         Student student = createUserWithCertification();
         Student secondStudent = createUserWithCertification();

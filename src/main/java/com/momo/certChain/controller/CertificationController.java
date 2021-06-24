@@ -49,6 +49,15 @@ public class CertificationController extends BaseController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_STUDENT')")
+    @PutMapping("/payCertificate/{certId}")
+    public CertificationDTO payCertificate(@PathVariable String certId){
+        Certification certification = certificationService.payCertificate(certId);
+
+        return certificationService.toDTO(certification);
+    }
+
+
+    @PreAuthorize("hasAuthority('ROLE_STUDENT')")
     @DeleteMapping("/forgetCertificate/{certificateId}")
     public ResponseEntity forgetCertificate(@PathVariable String certificateId) {
         certificationService.forgetCertificate(certificateId);

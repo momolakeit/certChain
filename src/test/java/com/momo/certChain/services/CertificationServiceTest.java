@@ -1,7 +1,7 @@
 package com.momo.certChain.services;
 
 import com.momo.certChain.Utils.TestUtils;
-import com.momo.certChain.exception.CannotDeleteCertificateException;
+import com.momo.certChain.exception.CannotAccessCertificateException;
 import com.momo.certChain.exception.UserForgottenException;
 import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.model.CreatedLien;
@@ -221,8 +221,39 @@ class CertificationServiceTest {
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
         when(headerCatcherService.getUserId()).thenReturn(certification.getStudent().getId());
 
-        Assertions.assertThrows(CannotDeleteCertificateException.class, () -> {
+        Assertions.assertThrows(CannotAccessCertificateException.class, () -> {
             certificationService.forgetCertificate("123456");
+        });
+
+    }
+
+    @Test
+    public void payCertification() {
+        Certification certification = TestUtils.createCertification();
+        String certId = "123456";
+
+        when(userService.getUser(anyString())).thenReturn(createStudentWithCertification(certId));
+        when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
+        when(headerCatcherService.getUserId()).thenReturn(certification.getStudent().getId());
+        when(certificationRepository.save(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        Certification returnCertification = certificationService.payCertificate("123456");
+
+        TestUtils.assertCertification(returnCertification);
+        assertTrue(returnCertification.isPayed());
+    }
+
+    @Test
+    public void payCertificationUserNotAllowed() {
+        Certification certification = TestUtils.createCertification();
+        String certId = "badId";
+
+        when(userService.getUser(anyString())).thenReturn(createStudentWithCertification(certId));
+        when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
+        when(headerCatcherService.getUserId()).thenReturn(certification.getStudent().getId());
+
+        Assertions.assertThrows(CannotAccessCertificateException.class,()->{
+            certificationService.payCertificate("123456");
         });
 
     }
@@ -315,7 +346,7 @@ class CertificationServiceTest {
 
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createCertification()));
         when(contractServiceImpl.getCertificate(anyString(), anyString(), any(ECKeyPair.class), anyString(), anyString())).thenReturn(TestUtils.createCertification());
-        when(lienService.createLien(anyString(), any(Date.class), anyString(),any(Certification.class))).thenReturn(new CreatedLien(TestUtils.createLien(), generatedLienPassword));
+        when(lienService.createLien(anyString(), any(Date.class), anyString(), any(Certification.class))).thenReturn(new CreatedLien(TestUtils.createLien(), generatedLienPassword));
 
         String generatedPasswordResponse = certificationService.createLien("123456", "password", TestUtils.createLien().getTitre(), new Date()).getGeneratedPassword();
 
@@ -355,14 +386,14 @@ class CertificationServiceTest {
         return signature;
     }
 
-    private Student createStudentWithCertification(String certId){
+    private Student createStudentWithCertification(String certId) {
         Student student = TestUtils.createStudent();
         student.setCertifications(Collections.singletonList(createCertificationWithId(certId)));
 
         return student;
     }
 
-    private Certification createCertificationWithId(String certId){
+    private Certification createCertificationWithId(String certId) {
         Certification certification = TestUtils.createCertification();
         certification.setId(certId);
 

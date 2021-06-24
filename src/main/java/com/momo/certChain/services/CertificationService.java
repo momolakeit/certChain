@@ -1,6 +1,6 @@
 package com.momo.certChain.services;
 
-import com.momo.certChain.exception.CannotDeleteCertificateException;
+import com.momo.certChain.exception.CannotAccessCertificateException;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.UserForgottenException;
 import com.momo.certChain.exception.ValidationException;
@@ -146,9 +146,20 @@ public class CertificationService {
 
     public void forgetCertificate(String uuid) {
         Certification certification = findCertification(uuid);
-        canUserDeleteCertificate(certification);
+        doUserHasAccessToCertification(certification);
         certification.setSalt(null);
         saveCertification(certification);
+    }
+
+    public Certification payCertificate(String certId) {
+        Certification certification = findCertification(certId);
+
+        doUserHasAccessToCertification(certification);
+
+        certification.setPayed(true);
+
+        return saveCertification(certification);
+
     }
 
     private Certification findCertification(String uuid) {
@@ -171,22 +182,24 @@ public class CertificationService {
         List<Signature> signatures = certificationTemplate.getSignatures().stream()
                 .map(SignatureMapper.instance::toSimple)
                 .collect(Collectors.toList());
+
         initCertificationFields(studentCertification,
                 certificationTemplate.getUniversityLogo(),
                 certificationTemplate.getUniversityStamp(),
                 signatures,
                 institution);
+
         studentCertification.setCertificateText(certificationTemplate.getCertificateText());
     }
 
-    private void canUserDeleteCertificate(Certification certification) {
+    private void doUserHasAccessToCertification(Certification certification) {
         Student student = (Student) userService.getUser(headerCatcherService.getUserId());
 
         student.getCertifications()
                 .stream()
                 .filter(cer -> cer.getId().equals(certification.getId()))
                 .findFirst()
-                .orElseThrow(CannotDeleteCertificateException::new);
+                .orElseThrow(CannotAccessCertificateException::new);
 
     }
 
