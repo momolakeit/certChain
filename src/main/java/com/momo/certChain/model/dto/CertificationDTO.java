@@ -18,6 +18,8 @@ public class CertificationDTO {
 
     private InstitutionDTO institution;
 
+    private boolean payed;
+
     private StudentDTO student;
 
     private ImageFileDTO universityLogo;

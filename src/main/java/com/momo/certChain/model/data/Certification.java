@@ -25,6 +25,8 @@ public class Certification {
 
     private String salt;
 
+    private boolean payed;
+
     @ManyToOne
     private Institution institution;
 
