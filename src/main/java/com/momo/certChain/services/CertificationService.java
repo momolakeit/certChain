@@ -152,7 +152,7 @@ public class CertificationService {
     }
 
     public Certification payCertificate(String certId) {
-        Certification certification = findCertification(certId);
+        Certification certification = findCertificateWithoutSalt(certId);
 
         doUserHasAccessToCertification(certification);
 
@@ -163,11 +163,15 @@ public class CertificationService {
     }
 
     private Certification findCertification(String uuid) {
-        Certification certification = certificationRepository.findById(uuid).orElseThrow(this::certificationNotFound);
+        Certification certification = findCertificateWithoutSalt(uuid);
         if (Objects.isNull(certification.getSalt())) {
             throw new UserForgottenException();
         }
         return certification;
+    }
+
+    private Certification findCertificateWithoutSalt(String uuid) {
+        return certificationRepository.findById(uuid).orElseThrow(this::certificationNotFound);
     }
 
     private Certification saveCertification(Certification certification) {
