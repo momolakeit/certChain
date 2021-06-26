@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/campagne")
 public class CampagneController extends BaseController {
-    private CampagneService campagneService;
+    private final CampagneService campagneService;
 
     public CampagneController(CampagneService campagneService) {
         this.campagneService = campagneService;

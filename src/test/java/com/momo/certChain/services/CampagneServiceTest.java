@@ -113,6 +113,8 @@ class CampagneServiceTest {
                 KeyPairArgumentCaptor.capture(),
                 encKeyPrivateKeyCaptor.capture());
 
+        verify(certificationService,times(0)).deleteCertification(any(Certification.class));
+
         List<Certification> studentsCertifications = studentCertificateArgumentCaptor.getAllValues();
         List<Certification> institutionCertificationTemplates = institutionTemplateCertificateArgumentCaptor.getAllValues();
         List<String> encKeys = encKeyPrivateKeyCaptor.getAllValues();
@@ -159,6 +161,8 @@ class CampagneServiceTest {
                 KeyPairArgumentCaptor.capture(),
                 encKeyPrivateKeyCaptor.capture());
 
+        verify(certificationService,times(50)).deleteCertification(any(Certification.class));
+
         List<Certification> studentsCertifications = studentCertificateArgumentCaptor.getAllValues();
         List<Certification> institutionCertificationTemplates = institutionTemplateCertificateArgumentCaptor.getAllValues();
         List<String> encKeys = encKeyPrivateKeyCaptor.getAllValues();
@@ -201,6 +205,8 @@ class CampagneServiceTest {
                 addressArgumentCaptor.capture(),
                 KeyPairArgumentCaptor.capture(),
                 encKeyPrivateKeyCaptor.capture());
+
+        verify(certificationService,times(100)).deleteCertification(any(Certification.class));
 
         List<Certification> studentsCertifications = studentCertificateArgumentCaptor.getAllValues();
 

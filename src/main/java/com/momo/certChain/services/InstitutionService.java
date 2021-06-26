@@ -105,25 +105,25 @@ public class InstitutionService {
         return institution;
     }
 
-    public Institution uploadCertificateContract(String uuid,String walletPassword) throws Exception {
+    public Institution uploadCertificateContract(String uuid, String walletPassword) throws Exception {
         Institution institution = getInstitution(uuid);
 
         checkIfInstitutionApproved(institution);
 
         ECKeyPair keyPair = keyPairService.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
-                                                            institution.getInstitutionWallet().getPublicKey(),
-                                                            institution.getInstitutionWallet().getSalt(),
-                                                            walletPassword);
+                institution.getInstitutionWallet().getPublicKey(),
+                institution.getInstitutionWallet().getSalt(),
+                walletPassword);
         institution.setContractAddress(contractService.uploadContract(keyPair));
         return saveInstitution(institution);
     }
 
-    public Certification createInstitutionCertificateTemplate(String institutionId,Certification certification, byte[] universityLogoBytes, byte[] universityStampBytes){
+    public Certification createInstitutionCertificateTemplate(String institutionId, Certification certification, byte[] universityLogoBytes, byte[] universityStampBytes) {
         Institution institution = getInstitution(institutionId);
 
         checkIfInstitutionApproved(institution);
 
-        institution.setCertificationTemplate(certificationService.createCertificationTemplate(certification,universityLogoBytes,universityStampBytes,institution));
+        institution.setCertificationTemplate(certificationService.createCertificationTemplate(certification, universityLogoBytes, universityStampBytes, institution));
 
         return saveInstitution(institution).getCertificationTemplate();
     }
@@ -137,16 +137,16 @@ public class InstitutionService {
 
         linkInstitutionAndStudents(institution, studentList);
 
-        Campagne campagne = campagneService.createCampagne(studentList,campagneName,institution,date);
+        Campagne campagne = campagneService.createCampagne(studentList, campagneName, institution, date);
 
-        institution.setCampagnes(ListUtils.ajouterObjectAListe(campagne,institution.getCampagnes()));
+        institution.setCampagnes(ListUtils.ajouterObjectAListe(campagne, institution.getCampagnes()));
 
         saveInstitution(institution);
 
         return campagne;
     }
 
-    public InstitutionDTO toDTO(Institution institution){
+    public InstitutionDTO toDTO(Institution institution) {
         return InstitutionMapper.instance.toDTO(institution);
     }
 
@@ -154,13 +154,13 @@ public class InstitutionService {
         return institutionRepository.findById(uuid).orElseThrow(this::institutionNotFound);
     }
 
-    public Institution approveInstitution(String uuid){
+    public Institution approveInstitution(String uuid) {
         Institution institution = getInstitution(uuid);
         institution.setApprouved(true);
         return saveInstitution(institution);
     }
 
-    public List<Institution> findNonApprouvedInstitutions(){
+    public List<Institution> findNonApprouvedInstitutions() {
         return institutionRepository.findNonApprouvedInstitution();
     }
 
@@ -185,9 +185,9 @@ public class InstitutionService {
         return (Institution) userService.createUser(institution);
     }
 
-    private void checkIfInstitutionApproved(Institution institution){
-        if(!activeProfiles.contains("local")){
-            if(!institution.isApprouved()){
+    private void checkIfInstitutionApproved(Institution institution) {
+        if (!activeProfiles.contains("local")) {
+            if (!institution.isApprouved()) {
                 throw new ValidationException("L'institution n'est pas encore approuvé par l'admin");
             }
         }
@@ -198,7 +198,7 @@ public class InstitutionService {
     }
 
     private void checkIfPasswordMatching(String password, String passwordConfirmation) {
-        if(!password.equals(passwordConfirmation)){
+        if (!password.equals(passwordConfirmation)) {
             throw new PasswordNotMatchingException();
         }
     }

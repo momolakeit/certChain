@@ -99,12 +99,14 @@ public class CampagneService {
 
             Certification certification = student.getCertifications().get(0);
 
-            if(certification.isPayed()){
+            if (certification.isPayed()) {
                 certificationService.uploadCertificationToBlockChain(certification,
                         institution.getCertificationTemplate(),
                         institution.getContractAddress(),
                         keyPair,
                         generatedString);
+            } else {
+                certificationService.deleteCertification(certification);
             }
         }
     }

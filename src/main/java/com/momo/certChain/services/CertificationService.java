@@ -101,6 +101,10 @@ public class CertificationService {
         saveCertification(CertificationMapper.instance.stripValuesToSave(studentCertification));
     }
 
+    public void deleteCertification(Certification certification){
+        certificationRepository.delete(certification);
+    }
+
     public CertificationDTO toDTO(Certification certification) {
         return CertificationMapper.instance.toDTO(certification);
     }
