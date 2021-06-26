@@ -12,6 +12,6 @@ import java.util.List;
 @Getter
 @Setter
 public class Student extends HumanUser {
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = CascadeType.PERSIST,orphanRemoval = true)
     private List<Certification> certifications;
 }

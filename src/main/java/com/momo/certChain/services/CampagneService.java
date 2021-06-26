@@ -106,7 +106,7 @@ public class CampagneService {
                         keyPair,
                         generatedString);
             } else {
-                certificationService.deleteCertification(certification);
+                student.getCertifications().remove(certification);
             }
         }
     }
