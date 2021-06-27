@@ -44,7 +44,7 @@ public class TestingContractServiceImpl implements ContractService {
     }
 
     public String uploadContract(ECKeyPair ecKeyPair) throws Exception {
-        SavingDiploma savingDiploma = SavingDiploma.deploy(web3j, credentials, BigInteger.valueOf(4100000000L), Contract.GAS_LIMIT).send();
+        SavingDiploma savingDiploma = SavingDiploma.deploy(web3j, credentials, BigInteger.ZERO, Contract.GAS_LIMIT).send();
         return savingDiploma.getContractAddress();
     }
 
