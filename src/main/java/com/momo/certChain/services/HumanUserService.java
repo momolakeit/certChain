@@ -85,10 +85,6 @@ public class HumanUserService {
         return humanUserRepository.saveAll(user);
     }
 
-    private ObjectNotFoundException humanUserNotFound() {
-        return new ObjectNotFoundException("User");
-    }
-
 
     private void verifyPasswordConditions(String oldPassword, String password, String passwordConfirmation, HumanUser user) {
         if(!passwordEncoder.matches(oldPassword, user.getPassword())){

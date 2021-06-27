@@ -171,7 +171,7 @@ public class InstitutionService {
     }
 
     private ObjectNotFoundException institutionNotFound() {
-        return new ObjectNotFoundException("Institution");
+        return new ObjectNotFoundException("Institution non trouvée");
     }
 
     private Institution createInstitution(String name, String walletPassword, String username, String password, Address address) throws NoSuchAlgorithmException, CipherException, InvalidAlgorithmParameterException, NoSuchProviderException {

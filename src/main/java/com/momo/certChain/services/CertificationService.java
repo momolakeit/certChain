@@ -66,16 +66,9 @@ public class CertificationService {
     }
 
     public Certification createCertificationTemplate(Certification certification, byte[] universityLogoBytes, byte[] universityStampBytes, Institution institution) {
-        List<Signature> signatures = new ArrayList<>();
-        //todo voir contre null exption possible
+        canUserCreateCertificationTemplate(certification);
 
-        if (Objects.nonNull(certification.getStudent()) || Objects.nonNull(certification.getLiens())) {
-            throw new ValidationException("la certification de peux pas contenir d'élève ou de lien");
-        }
-
-        for (Signature signature : certification.getSignatures()) {
-            signatures.add(signatureService.createSignature(signature.getAuthorName()));
-        }
+        List<Signature> signatures = createSignatures(certification);
 
 
         initCertificationFields(certification,
@@ -83,10 +76,21 @@ public class CertificationService {
                 imageFileService.createImageFile(universityStampBytes),
                 signatures,
                 institution);
+
         return saveCertificationWithSalt(certification);
     }
 
+    private List<Signature> createSignatures(Certification certification) {
+        List<Signature> signatures = new ArrayList<>();
+        for (Signature signature : certification.getSignatures()) {
+            signatures.add(signatureService.createSignature(signature.getAuthorName()));
+        }
+
+        return signatures;
+    }
+
     //todo test that
+
     public void uploadCertificationToBlockChain(Certification studentCertification, Certification certificationTemplate, String contractAdress, ECKeyPair ecKeyPair, String encryptionKey) throws Exception {
         studentCertification = saveCertificationWithSalt(studentCertification);
 
@@ -100,13 +104,12 @@ public class CertificationService {
 
         saveCertification(CertificationMapper.instance.stripValuesToSave(studentCertification));
     }
-
     public CertificationDTO toDTO(Certification certification) {
         return CertificationMapper.instance.toDTO(certification);
     }
 
-    //todo utiliser un wallet pour tout les get
 
+    //todo utiliser un wallet pour tout les get
     public Certification getUploadedCertificationWithLien(String uuid, String privateKey, String lienId) throws Exception {
         Certification certification = findCertification(uuid);
 
@@ -179,7 +182,7 @@ public class CertificationService {
     }
 
     private ObjectNotFoundException certificationNotFound() {
-        return new ObjectNotFoundException("Certification");
+        return new ObjectNotFoundException("Certification non trouvée");
     }
 
     private void mapCertificateTemplateToStudentCertification(Certification studentCertification, Certification certificationTemplate, Institution institution) {
@@ -221,5 +224,11 @@ public class CertificationService {
                 privateKey,
                 certification.getSalt());
 
+    }
+
+    private void canUserCreateCertificationTemplate(Certification certification) {
+        if (Objects.nonNull(certification.getStudent()) || Objects.nonNull(certification.getLiens())) {
+            throw new ValidationException("la certification ne peux pas contenir d'élève ou de lien");
+        }
     }
 }

@@ -48,6 +48,6 @@ public class SignatureService {
     }
 
     private ObjectNotFoundException signatureNotFound(){
-        return new ObjectNotFoundException("Image");
+        return new ObjectNotFoundException("Image non trouvée");
     }
 }

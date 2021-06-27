@@ -74,7 +74,7 @@ public class CampagneService {
     }
 
     public Campagne getCampagne(String campagneId) {
-        return campagneRepository.findById(campagneId).orElseThrow(() -> new ObjectNotFoundException("Campagne"));
+        return campagneRepository.findById(campagneId).orElseThrow(() -> new ObjectNotFoundException("Campagne non trouvée"));
     }
 
     public CampagneDTO toDTO(Campagne campagne) {

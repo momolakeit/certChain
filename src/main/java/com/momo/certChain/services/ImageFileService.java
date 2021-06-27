@@ -33,6 +33,6 @@ public class ImageFileService {
     }
 
     private ObjectNotFoundException imageFileNotFound(){
-        return new ObjectNotFoundException("Image");
+        return new ObjectNotFoundException("Image non trouvée");
     }
 }

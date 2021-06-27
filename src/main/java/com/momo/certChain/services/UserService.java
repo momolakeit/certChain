@@ -32,14 +32,14 @@ public class UserService {
     public User createUser(User user) {
         try {
             findUserByEmail(user.getUsername());
-            throw new ValidationException("User already exists");
+            throw new ValidationException("Un utilisateur avec ce courriel existe déja");
         } catch (ObjectNotFoundException objectNotFoundException) {
             return userRepository.save(user);
         }
     }
 
     public User getUser(String id) {
-        return userRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("User"));
+        return userRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Utilisateur non trouvé"));
     }
 
     public User getLoggedUser(){
@@ -60,6 +60,6 @@ public class UserService {
     }
 
     public User findUserByEmail(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new ObjectNotFoundException("User"));
+        return userRepository.findByUsername(username).orElseThrow(() -> new ObjectNotFoundException("L'utilisateur avec ce courriel n'existe pas"));
     }
 }
