@@ -125,10 +125,9 @@ public class CertificationService {
     }
 
     public CreatedLien createLien(String certificateId, String certificatePassword, String titre, Date dateExpiration) throws Exception {
-        //permet de s'assurer qu'on a le bon password
-
         Certification certification = findCertification(certificateId);
 
+        //permet de s'assurer qu'on a le bon password
         getUploadedCertification(certification, certificatePassword);
 
         CreatedLien createdLien = lienService.createLien(certificatePassword, dateExpiration, titre, certification);

@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AuthService {
 
-    private UserService userService;
+    private final UserService userService;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -27,9 +27,9 @@ public class AuthService {
         this.jwtProvider = jwtProvider;
     }
 
-    public JWTResponse logInUser(String username, String password){
+    public JWTResponse logInUser(String username, String password) {
         User user = userService.findUserByEmail(username);
-        if(!passwordEncoder.matches(password,user.getPassword())){
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BadPasswordException();
         }
 

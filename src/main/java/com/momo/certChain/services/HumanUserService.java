@@ -13,6 +13,7 @@ import com.momo.certChain.model.dto.HumanUserDTO;
 import com.momo.certChain.repositories.HumanUserRepository;
 import com.momo.certChain.services.messaging.MessageService;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,10 +43,8 @@ public class HumanUserService {
 
     //todo tester le cas ou on lance la custom messaging exception
     public HumanUser createHumanUser(HumanUser humanUser) {
-        String generatedPassword = RandomStringUtils.randomAlphanumeric(11);
+        String generatedPassword = createPasswordForUser(humanUser);
 
-        humanUser.setPasswordResseted(false);
-        humanUser.setPassword(passwordEncoder.encode(generatedPassword));
         try{
             messageService.sendUserCreatedEmail(humanUser,generatedPassword);
         }catch (MessagingException | IOException e) {
@@ -55,17 +54,18 @@ public class HumanUserService {
     }
 
     //set up confirmer password dans le backend aussi pour securite accrue
+
     public HumanUser modifyPassword(String uuid, String oldPassword, String password, String passwordConfirmation) {
         HumanUser user = (HumanUser) userService.getUser(uuid);
 
         verifyPasswordConditions(oldPassword, password, passwordConfirmation, user);
 
-        user.setPassword(passwordEncoder.encode(password));
+        encodeUserPassword(user, password);
 
         return saveUser(user);
     }
-
     //todo test that
+
     public HumanUserDTO toDTO (HumanUser humanUser){
         if(humanUser instanceof Student){
             return StudentMapper.instance.toDTO((Student) humanUser);
@@ -76,13 +76,8 @@ public class HumanUserService {
         throw new ClassCastException();
 
     }
-
     public HumanUser saveUser(HumanUser user){
         return humanUserRepository.save(user);
-    }
-
-    public List<HumanUser> saveMultipleUser(List<HumanUser> user){
-        return humanUserRepository.saveAll(user);
     }
 
 
@@ -94,5 +89,17 @@ public class HumanUserService {
         if(!password.equals(passwordConfirmation)){
             throw new PasswordNotMatchingException();
         }
+    }
+
+    private String createPasswordForUser(HumanUser humanUser) {
+        String generatedPassword = RandomStringUtils.randomAlphanumeric(11);
+
+        humanUser.setPasswordResseted(false);
+        encodeUserPassword(humanUser, generatedPassword);
+        return generatedPassword;
+    }
+
+    private void encodeUserPassword(HumanUser humanUser, String password) {
+        humanUser.setPassword(passwordEncoder.encode(password));
     }
 }

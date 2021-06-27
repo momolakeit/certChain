@@ -44,6 +44,7 @@ public class WalletService {
         WalletFile walletFile = Wallet.createStandard(password, ecKeyPair);
         InstitutionWallet institutionWallet = new InstitutionWallet();
         institutionWallet.setPublicAddress(Numeric.prependHexPrefix(walletFile.getAddress()));
+
         Credentials.create(ecKeyPair);
         institutionWallet.setPrivateKey(ecKeyPair.getPrivateKey().toString());
         institutionWallet.setPublicKey(ecKeyPair.getPublicKey().toString());

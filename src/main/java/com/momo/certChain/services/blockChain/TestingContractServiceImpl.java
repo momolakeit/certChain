@@ -50,8 +50,11 @@ public class TestingContractServiceImpl implements ContractService {
 
     public Certification getCertificate(String uuid, String address, ECKeyPair ecKeyPair,String privateKey,String salt) throws Exception {
         SavingDiploma savingDiploma = getUploadedContract(address);
+
         String certificateString = savingDiploma.get(uuid).send();
+
         String decryptedCertificateString = encryptionService.decryptData(privateKey,certificateString,salt);
+
         return objectMapper.readValue(decryptedCertificateString, Certification.class);
     }
 

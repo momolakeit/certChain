@@ -40,6 +40,7 @@ public class ContractServiceImpl implements ContractService {
         SavingDiploma savingDiploma = getUploadedContract(address, ecKeyPair);
 
         String certificateString = savingDiploma.get(uuid).send();
+
         String decryptedCertificateString = encryptionService.decryptData(privateKey,certificateString,salt);
 
         return objectMapper.readValue(decryptedCertificateString, Certification.class);
@@ -50,6 +51,7 @@ public class ContractServiceImpl implements ContractService {
         SavingDiploma savingDiploma = getUploadedContract(address, ecKeyPair);
 
         String certificateJson = objectMapper.writeValueAsString(SimpleCertificationMapper.instance.toSimple(certification));
+
         String encryptedJSON = encryptionService.encryptData(encryptionKey,certificateJson,certification.getSalt());
 
         savingDiploma.addCertificate(certification.getId(), encryptedJSON).send();

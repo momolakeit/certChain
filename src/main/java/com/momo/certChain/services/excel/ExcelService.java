@@ -37,6 +37,7 @@ public class ExcelService {
     private Student studentFromRow(Row row) {
         Student student = new Student();
         Address address = new Address();
+
         Certification certification = new Certification();
         student.setPrenom(cellToString(row.getCell(0)));
         student.setNom(cellToString(row.getCell(1)));
@@ -49,6 +50,7 @@ public class ExcelService {
         certification.setProgram(cellToString(row.getCell(8)));
         student.setAddress(address);
         student.setCertifications(ListUtils.ajouterObjectAListe(certification,student.getCertifications()));
+
         return student;
     }
 
