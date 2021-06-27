@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {CertificationMapper.class})
+@Mapper(uses = {SimpleCertificationMapper.class})
 public interface LienMapper {
     LienMapper instance = Mappers.getMapper(LienMapper.class);
 
@@ -17,4 +17,7 @@ public interface LienMapper {
 
     @Mapping(target = "id",ignore = true)
     Lien toEntity(LienDTO lienDTO);
+
+    @Mapping(target = "certification")
+    Lien toSimple(Lien lien);
 }

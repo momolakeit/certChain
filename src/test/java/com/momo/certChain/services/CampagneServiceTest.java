@@ -142,8 +142,8 @@ class CampagneServiceTest {
         Institution institution = createInstitutionWithWallet();
 
         Campagne campagne = getCampagne(institution);
-        campagne.setStudentList(initStudentsList(halfStudents,true));
-        campagne.getStudentList().addAll(initStudentsList(halfStudents,false));
+        campagne.setStudentList(initStudentsList(halfStudents, true));
+        campagne.getStudentList().addAll(initStudentsList(halfStudents, false));
 
         when(keyPairService.createKeyPair(anyString(), anyString(), anyString(), anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
                 institution.getInstitutionWallet().getPublicKey()));
@@ -320,7 +320,7 @@ class CampagneServiceTest {
         List<HumanUser> students = new ArrayList<>();
         for (int i = 0; i < nbDeStudents; i++) {
             Student singleStudent = TestUtils.createStudent();
-            singleStudent.setCertifications(Collections.singletonList(createCertificationWithPayedStatus(isPayed)));
+            singleStudent.setCertifications(new ArrayList<>(Arrays.asList(createCertificationWithPayedStatus(isPayed))));
             students.add(singleStudent);
         }
         return students;

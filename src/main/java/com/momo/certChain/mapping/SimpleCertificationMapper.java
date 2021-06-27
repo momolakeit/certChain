@@ -14,4 +14,8 @@ public interface SimpleCertificationMapper {
     @Mapping(target = "institution",ignore = true)
     Certification toSimple (Certification certification);
 
+    @Mapping(target = "institution",ignore = true)
+    @Mapping(target = "liens",ignore = true)
+    CertificationDTO toDTO (Certification certification);
+
 }

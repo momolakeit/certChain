@@ -12,6 +12,7 @@ import com.momo.certChain.services.security.EncryptionService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 import java.util.Date;
 import java.util.List;
@@ -42,6 +43,8 @@ public class LienService {
 
     public Lien getLien(String lienId,String password){
         Lien lien = lienRepository.findById(lienId).orElseThrow(()->new ObjectNotFoundException("Lien"));
+
+        lien = LienMapper.instance.toSimple(lien);
 
         lien.setCertificateEncKey(encryptionService.decryptData(password,lien.getCertificateEncKey(),lien.getSalt()));
 
