@@ -1,6 +1,6 @@
 package com.momo.certChain.services.security;
 
-import com.momo.certChain.exception.WrongKeyException;
+import com.momo.certChain.exception.WrongPasswordException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,22 +41,54 @@ class EncryptionServiceTest {
     }
 
     @Test
+    public void decryptWrongSaltThrowsExceptionDataTest() {
+        String encryptData = encryptionService.encryptData(privateKey, valueToEncrypt,KeyGenerators.string().generateKey());
+
+        Assertions.assertThrows(WrongPasswordException.class,()->{
+            encryptionService.decryptData("mauvaise Enc Key",encryptData,KeyGenerators.string().generateKey());
+        });
+    }
+
+    @Test
     public void decryptWrongEncKeyThrowsExceptionDataTest() {
         String salt = KeyGenerators.string().generateKey();
 
         String encryptData = encryptionService.encryptData(privateKey, valueToEncrypt,salt);
 
-        Assertions.assertThrows(WrongKeyException.class,()->{
+        Assertions.assertThrows(WrongPasswordException.class,()->{
             encryptionService.decryptData("mauvaise Enc Key",encryptData,salt);
         });
     }
 
+
+
     @Test
-    public void decryptWrongSaltThrowsExceptionDataTest() {
+    public void decryptDataForCertificateTest() {
+        String salt = KeyGenerators.string().generateKey();
+
+        String encryptData = encryptionService.encryptData(privateKey, valueToEncrypt,salt);
+        String decryptedData = encryptionService.decryptDataForCertificate(privateKey,encryptData,salt);
+
+        assertEquals(valueToEncrypt,decryptedData);
+    }
+
+    @Test
+    public void decryptWrongEncKeyThrowsExceptionDataForCertificateTest() {
+        String salt = KeyGenerators.string().generateKey();
+
+        String encryptData = encryptionService.encryptData(privateKey, valueToEncrypt,salt);
+
+        Assertions.assertThrows(WrongPasswordException.class,()->{
+            encryptionService.decryptDataForCertificate("mauvaise Enc Key",encryptData,salt);
+        });
+    }
+
+    @Test
+    public void decryptWrongSaltThrowsExceptionDataForCertificateTest() {
         String encryptData = encryptionService.encryptData(privateKey, valueToEncrypt,KeyGenerators.string().generateKey());
 
-        Assertions.assertThrows(WrongKeyException.class,()->{
-            encryptionService.decryptData("mauvaise Enc Key",encryptData,KeyGenerators.string().generateKey());
+        Assertions.assertThrows(WrongPasswordException.class,()->{
+            encryptionService.decryptDataForCertificate("mauvaise Enc Key",encryptData,KeyGenerators.string().generateKey());
         });
     }
 

@@ -5,24 +5,15 @@ import com.momo.certChain.mapping.SimpleCertificationMapper;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.services.blockChain.contract.SavingDiploma;
 import com.momo.certChain.services.security.EncryptionService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.web3j.abi.datatypes.Address;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
-import org.web3j.crypto.Keys;
-import org.web3j.crypto.WalletUtils;
-import org.web3j.evm.EmbeddedWeb3jService;
 import org.web3j.protocol.Web3j;
 import org.web3j.tx.Contract;
 import org.web3j.tx.ManagedTransaction;
 
 import java.math.BigInteger;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 
 @Service("ContractService")
 @Profile({"test","local"})
@@ -53,7 +44,7 @@ public class TestingContractServiceImpl implements ContractService {
 
         String certificateString = savingDiploma.get(uuid).send();
 
-        String decryptedCertificateString = encryptionService.decryptData(privateKey,certificateString,salt);
+        String decryptedCertificateString = encryptionService.decryptDataForCertificate(privateKey,certificateString,salt);
 
         return objectMapper.readValue(decryptedCertificateString, Certification.class);
     }

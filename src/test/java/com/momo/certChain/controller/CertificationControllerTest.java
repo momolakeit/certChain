@@ -4,7 +4,6 @@ import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.jwt.JwtProvider;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.request.CreateLienDTO;
-import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.repositories.LienRepository;
 import com.momo.certChain.repositories.UserRepository;
 import com.momo.certChain.services.CertificationService;
@@ -92,7 +91,7 @@ class CertificationControllerTest {
     @Test
     public void testGetCertificationWithEncKey() throws Exception {
         uploadEncryptedCertificate();
-        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{certificateId}/{key}", studentCertification.getId(),encKey)
+        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{certificateId}/{key}", studentCertification.getId(), encKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -222,7 +221,7 @@ class CertificationControllerTest {
         return certificationTemplate;
     }
 
-    private Student createUserWithCertification(){
+    private Student createUserWithCertification() {
         Student student = new Student();
         student.setCertifications(Collections.singletonList(createCertification()));
         return userRepository.save(student);

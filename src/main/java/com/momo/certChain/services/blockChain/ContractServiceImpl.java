@@ -41,7 +41,7 @@ public class ContractServiceImpl implements ContractService {
 
         String certificateString = savingDiploma.get(uuid).send();
 
-        String decryptedCertificateString = encryptionService.decryptData(privateKey,certificateString,salt);
+        String decryptedCertificateString = encryptionService.decryptDataForCertificate(privateKey,certificateString,salt);
 
         return objectMapper.readValue(decryptedCertificateString, Certification.class);
     }

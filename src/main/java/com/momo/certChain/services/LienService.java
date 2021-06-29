@@ -10,9 +10,7 @@ import com.momo.certChain.model.dto.LienDTO;
 import com.momo.certChain.repositories.LienRepository;
 import com.momo.certChain.services.security.EncryptionService;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 import java.util.Date;
 import java.util.List;
@@ -46,7 +44,7 @@ public class LienService {
 
         lien = LienMapper.instance.toSimple(lien);
 
-        lien.setCertificateEncKey(encryptionService.decryptData(password,lien.getCertificateEncKey(),lien.getSalt()));
+        lien.setCertificateEncKey(encryptionService.decryptDataForCertificate(password,lien.getCertificateEncKey(),lien.getSalt()));
 
         return lien;
     }

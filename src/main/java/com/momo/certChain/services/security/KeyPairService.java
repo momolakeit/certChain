@@ -1,6 +1,5 @@
 package com.momo.certChain.services.security;
 
-import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.ECKeyPair;
 

@@ -105,7 +105,7 @@ class ContractServiceImplTest {
 
         when(savingDiploma.get(anyString())).thenReturn(remoteFunctionCall);
         when(remoteFunctionCall.send()).thenReturn(new ObjectMapper().writeValueAsString(certification));
-        when(encryptionService.decryptData(anyString(),anyString(),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
+        when(encryptionService.decryptDataForCertificate(anyString(),anyString(),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
         savingDiplomaMockedStatic.when(() -> SavingDiploma.load(any(), any(), any(Credentials.class), any(), any())).thenReturn(savingDiploma);
 
 

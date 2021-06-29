@@ -107,7 +107,7 @@ class LienServiceTest {
     @Test
     public void testGetLien() {
         when(lienRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createLien()));
-        when(encryptionService.decryptData(anyString(), anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
+        when(encryptionService.decryptDataForCertificate(anyString(), anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
 
         TestUtils.assertLien(lienService.getLien("123456", "password"));
 
