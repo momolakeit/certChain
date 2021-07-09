@@ -14,4 +14,5 @@ public class ModifyPasswordDTO {
     private String oldPassword;
     private String password;
     private String passwordConfirmation;
+    private String certificateEncKey;
 }

@@ -10,8 +10,11 @@ import com.momo.certChain.model.dto.LienDTO;
 import com.momo.certChain.repositories.LienRepository;
 import com.momo.certChain.services.security.EncryptionService;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -32,11 +35,11 @@ public class LienService {
 
         String generatedPassword = RandomStringUtils.randomAlphanumeric(11);
 
-        String salt = encryptionService.generateSalt();
+        return getCreatedLien(encKey, date, titre, certification, generatedPassword);
+    }
 
-        Lien lien = saveLien(createLien(encKey, generatedPassword, salt,date,titre,certification));
-
-        return new CreatedLien(lien,generatedPassword);
+    public CreatedLien createLienAccesPourPropriataireCertificat(String userPassword,String encKey ,Certification certification) throws ParseException {
+        return getCreatedLien(encKey, new SimpleDateFormat("dd/MM/yyyy").parse("31/12/9999"), "", certification, userPassword);
     }
 
     public Lien getLien(String lienId,String password){
@@ -78,4 +81,12 @@ public class LienService {
         return lienRepository.save(lien);
     }
 
+
+    private CreatedLien getCreatedLien(String encKey, Date date, String titre, Certification certification, String generatedPassword) {
+        String salt = encryptionService.generateSalt();
+
+        Lien lien = saveLien(createLien(encKey, generatedPassword, salt, date, titre, certification));
+
+        return new CreatedLien(lien, generatedPassword);
+    }
 }

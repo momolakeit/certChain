@@ -1,8 +1,10 @@
 package com.momo.certChain.controller;
 
 import com.momo.certChain.Utils.TestUtils;
+import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Student;
 import com.momo.certChain.model.dto.request.ModifyPasswordDTO;
+import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.repositories.HumanUserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -29,6 +34,10 @@ class HumanUserControllerTest {
 
     @Autowired
     private HumanUserRepository humanUserRepository;
+
+    @Autowired
+    private CertificationRepository certificationRepository;
+
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -47,6 +56,8 @@ class HumanUserControllerTest {
         student = TestUtils.createStudent();
         student.setId(null);
         student.setPassword(passwordEncoder.encode(student.getPassword()));
+        student.setCertifications(new ArrayList<>(Collections.singletonList(certificationRepository.save(new Certification()))));
+
 
         student = humanUserRepository.save(student);
 
@@ -55,7 +66,7 @@ class HumanUserControllerTest {
 
     @Test
     public void modifyPasswordTest() throws Exception {
-        ModifyPasswordDTO modifyPasswordDTO = new ModifyPasswordDTO(student.getId(),"password","newPassword","newPassword");
+        ModifyPasswordDTO modifyPasswordDTO = new ModifyPasswordDTO(student.getId(),"password","newPassword","newPassword","encKey");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/humanUser/modifyPassword")
             .content(objectMapper.writeValueAsString(modifyPasswordDTO))
@@ -66,7 +77,7 @@ class HumanUserControllerTest {
 
     @Test
     public void modifyWrongOldPasswordTest() throws Exception {
-        ModifyPasswordDTO modifyPasswordDTO = new ModifyPasswordDTO(student.getId(),"badPassword","newPassword","newPassword");
+        ModifyPasswordDTO modifyPasswordDTO = new ModifyPasswordDTO(student.getId(),"badPassword","newPassword","newPassword","encKey");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/humanUser/modifyPassword")
                 .content(objectMapper.writeValueAsString(modifyPasswordDTO))
@@ -77,7 +88,7 @@ class HumanUserControllerTest {
 
     @Test
     public void modifyPasswordNotMatchingPasswordTest() throws Exception {
-        ModifyPasswordDTO modifyPasswordDTO = new ModifyPasswordDTO(student.getId(),"password","newPassword","newPassword2");
+        ModifyPasswordDTO modifyPasswordDTO = new ModifyPasswordDTO(student.getId(),"password","newPassword","newPassword2","encKey");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/humanUser/modifyPassword")
                 .content(objectMapper.writeValueAsString(modifyPasswordDTO))

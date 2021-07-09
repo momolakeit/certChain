@@ -16,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,7 +66,7 @@ class LienServiceTest {
         when(lienRepository.save(any(Lien.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(newEncKey);
 
-        CreatedLien createdLien = lienService.createLien(encKeyToEncrypt, dateFin,titre,TestUtils.createCertification());
+        CreatedLien createdLien = lienService.createLien(encKeyToEncrypt, dateFin, titre, TestUtils.createCertification());
 
 
         Lien lien = createdLien.getLien();
@@ -76,32 +78,55 @@ class LienServiceTest {
         TestUtils.assertCertification(lien.getCertification());
     }
 
+
+    @Test
+    public void createLienPropriataireTest() throws ParseException {
+        String salt = "salyString";
+        String userPassword = "superPassword";
+        Date dateFin = new SimpleDateFormat("dd/MM/yyyy").parse("31/12/9999");
+
+        when(encryptionService.generateSalt()).thenReturn(salt);
+        when(encryptionService.encryptData(anyString(), anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
+        when(lienRepository.save(any(Lien.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        CreatedLien createdLien = lienService.createLienAccesPourPropriataireCertificat(userPassword,encKeyToEncrypt, TestUtils.createCertification());
+
+
+        Lien lien = createdLien.getLien();
+
+        assertEquals(salt, lien.getSalt());
+        assertEquals(encKeyToEncrypt, lien.getCertificateEncKey());
+        assertEquals(dateFin, lien.getDateExpiration());
+        assertEquals(userPassword, createdLien.getGeneratedPassword());
+        TestUtils.assertCertification(lien.getCertification());
+    }
+
     @Test
     public void createLienDateExpBeforeThrowExceptionTest() {
         Date dateFin = new Date(System.currentTimeMillis() - anneeEnMilliseconde);
 
         Assertions.assertThrows(ValidationException.class, () -> {
-            lienService.createLien(encKeyToEncrypt, dateFin, titre,TestUtils.createCertification());
+            lienService.createLien(encKeyToEncrypt, dateFin, titre, TestUtils.createCertification());
         });
 
     }
 
     @Test
-    public void findAllLienByCertId(){
-        when(lienRepository.findLienByCertificationIdAndType(anyString(),any(Lien.Type.class))).thenReturn(Arrays.asList(TestUtils.createLien(),TestUtils.createLien()));
+    public void findAllLienByCertId() {
+        when(lienRepository.findLienByCertificationIdAndType(anyString(), any(Lien.Type.class))).thenReturn(Arrays.asList(TestUtils.createLien(), TestUtils.createLien()));
 
         List<Lien> lienList = lienService.findAllLienForCertificationUtilisateur_Externe("123456");
 
-        assertEquals(2,lienList.size());
+        assertEquals(2, lienList.size());
     }
 
     @Test
-    public void findAllLienByCertIdNoLien(){
-        when(lienRepository.findLienByCertificationIdAndType(anyString(),any(Lien.Type.class))).thenReturn(Collections.emptyList());
+    public void findAllLienByCertIdNoLien() {
+        when(lienRepository.findLienByCertificationIdAndType(anyString(), any(Lien.Type.class))).thenReturn(Collections.emptyList());
 
         List<Lien> lienList = lienService.findAllLienForCertificationUtilisateur_Externe("123456");
 
-        assertEquals(0,lienList.size());
+        assertEquals(0, lienList.size());
     }
 
     @Test

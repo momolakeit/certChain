@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 @Service
@@ -34,11 +35,14 @@ public class HumanUserService {
 
     private final UserService userService;
 
-    public HumanUserService(HumanUserRepository humanUserRepository, MessageService messageService, PasswordEncoder passwordEncoder, UserService userService) {
+    private final LienService lienService;
+
+    public HumanUserService(HumanUserRepository humanUserRepository, MessageService messageService, PasswordEncoder passwordEncoder, UserService userService,LienService lienService) {
         this.humanUserRepository = humanUserRepository;
         this.messageService = messageService;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
+        this.lienService = lienService;
     }
 
     //todo tester le cas ou on lance la custom messaging exception
@@ -55,17 +59,19 @@ public class HumanUserService {
 
     //set up confirmer password dans le backend aussi pour securite accrue
 
-    public HumanUser modifyPassword(String uuid, String oldPassword, String password, String passwordConfirmation) {
+    public HumanUser modifyPassword(String uuid, String oldPassword, String password, String passwordConfirmation,String certEncKey) throws ParseException {
         HumanUser user = (HumanUser) userService.getUser(uuid);
 
         verifyPasswordConditions(oldPassword, password, passwordConfirmation, user);
 
         encodeUserPassword(user, password);
 
+        creerLienDaccesAuCertificatPourEleve(password, user,certEncKey);
+
         return saveUser(user);
     }
-    //todo test that
 
+    //todo test that
     public HumanUserDTO toDTO (HumanUser humanUser){
         if(humanUser instanceof Student){
             return StudentMapper.instance.toDTO((Student) humanUser);
@@ -76,10 +82,10 @@ public class HumanUserService {
         throw new ClassCastException();
 
     }
+
     public HumanUser saveUser(HumanUser user){
         return humanUserRepository.save(user);
     }
-
 
     private void verifyPasswordConditions(String oldPassword, String password, String passwordConfirmation, HumanUser user) {
         if(!passwordEncoder.matches(oldPassword, user.getPassword())){
@@ -101,5 +107,11 @@ public class HumanUserService {
 
     private void encodeUserPassword(HumanUser humanUser, String password) {
         humanUser.setPassword(passwordEncoder.encode(password));
+    }
+
+    private void creerLienDaccesAuCertificatPourEleve(String password, HumanUser user,String certEncKey) throws ParseException {
+        if(user instanceof  Student){
+            lienService.createLienAccesPourPropriataireCertificat(password,certEncKey, ((Student) user).getCertifications().get(0));
+        }
     }
 }

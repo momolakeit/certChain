@@ -7,6 +7,8 @@ import com.momo.certChain.services.HumanUserService;
 import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+
 @RestController
 @RequestMapping("/humanUser")
 public class HumanUserController extends BaseController {
@@ -18,11 +20,12 @@ public class HumanUserController extends BaseController {
     }
 
     @PostMapping("/modifyPassword")
-    public HumanUserDTO modifyPassword(@RequestBody ModifyPasswordDTO modifyPasswordDTO) {
+    public HumanUserDTO modifyPassword(@RequestBody ModifyPasswordDTO modifyPasswordDTO) throws ParseException {
         HumanUser humanUser = humanUserService.modifyPassword(modifyPasswordDTO.getUuid(),
                 modifyPasswordDTO.getOldPassword(),
                 modifyPasswordDTO.getPassword(),
-                modifyPasswordDTO.getPasswordConfirmation());
+                modifyPasswordDTO.getPasswordConfirmation(),
+                modifyPasswordDTO.getCertificateEncKey());
         return humanUserService.toDTO(humanUser);
     }
 }
