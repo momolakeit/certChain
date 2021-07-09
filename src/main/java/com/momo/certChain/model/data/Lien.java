@@ -4,10 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -15,8 +12,8 @@ import java.util.Date;
 @Setter
 public class Lien {
     @Id
-    @GeneratedValue(generator="system-uuid")
-    @GenericGenerator(name="system-uuid", strategy = "uuid")
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
     private String id;
 
     //this value is encrypted
@@ -30,5 +27,13 @@ public class Lien {
 
     @ManyToOne
     private Certification certification;
+
+    @Enumerated(EnumType.STRING)
+    private Type type;
+
+
+    public enum Type {
+        UTILISATEUR_EXTERNE, PROPRIAITAIRE_CERTIFICAT;
+    }
 
 }

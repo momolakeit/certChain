@@ -49,8 +49,8 @@ public class LienService {
         return lien;
     }
 
-    public List<Lien> findAllLienForCertification(String certId){
-        return lienRepository.findLienByCertificationId(certId);
+    public List<Lien> findAllLienForCertificationUtilisateur_Externe(String certId){
+        return lienRepository.findLienByCertificationIdAndType(certId, Lien.Type.UTILISATEUR_EXTERNE);
     }
 
     public LienDTO toDTO(Lien lien){

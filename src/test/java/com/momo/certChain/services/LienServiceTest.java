@@ -88,18 +88,18 @@ class LienServiceTest {
 
     @Test
     public void findAllLienByCertId(){
-        when(lienRepository.findLienByCertificationId(anyString())).thenReturn(Arrays.asList(TestUtils.createLien(),TestUtils.createLien()));
+        when(lienRepository.findLienByCertificationIdAndType(anyString(),any(Lien.Type.class))).thenReturn(Arrays.asList(TestUtils.createLien(),TestUtils.createLien()));
 
-        List<Lien> lienList = lienService.findAllLienForCertification("123456");
+        List<Lien> lienList = lienService.findAllLienForCertificationUtilisateur_Externe("123456");
 
         assertEquals(2,lienList.size());
     }
 
     @Test
     public void findAllLienByCertIdNoLien(){
-        when(lienRepository.findLienByCertificationId(anyString())).thenReturn(Collections.emptyList());
+        when(lienRepository.findLienByCertificationIdAndType(anyString(),any(Lien.Type.class))).thenReturn(Collections.emptyList());
 
-        List<Lien> lienList = lienService.findAllLienForCertification("123456");
+        List<Lien> lienList = lienService.findAllLienForCertificationUtilisateur_Externe("123456");
 
         assertEquals(0,lienList.size());
     }
