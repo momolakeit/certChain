@@ -5,10 +5,9 @@ import com.momo.certChain.model.CreatedLien;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.model.dto.request.CreateLienDTO;
-import com.momo.certChain.model.dto.request.CreatePropriaitaireLienDTO;
+import com.momo.certChain.model.dto.request.CreateProprietaireLienDTO;
 import com.momo.certChain.model.dto.response.CreatedLienDTO;
 import com.momo.certChain.services.CertificationService;
-import com.sun.mail.iap.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -62,9 +61,9 @@ public class CertificationController extends BaseController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_STUDENT')")
-    @PostMapping("/createPropriaitaireLien")
-    public ResponseEntity createPropriaitaireLien(@RequestBody CreatePropriaitaireLienDTO createPropriaitaireLienDTO) throws ParseException {
-        certificationService.createPropriaitaireLien(createPropriaitaireLienDTO.getCertificationId(),createPropriaitaireLienDTO.getCertificationPassword(),createPropriaitaireLienDTO.getCertEncKey());
+    @PostMapping("/createProprietaireLien")
+    public ResponseEntity createPropriaitaireLien(@RequestBody CreateProprietaireLienDTO createProprietaireLienDTO) throws ParseException {
+        certificationService.createProprietaireLien(createProprietaireLienDTO.getCertificationId(), createProprietaireLienDTO.getCertificationPassword(), createProprietaireLienDTO.getCertEncKey());
 
         return ResponseEntity.ok().build();
     }

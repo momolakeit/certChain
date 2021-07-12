@@ -140,7 +140,7 @@ public class CertificationService {
         return createdLien;
     }
 
-    public void createPropriaitaireLien(String certificateId,String userPassword,String certEncKey) throws ParseException {
+    public void createProprietaireLien(String certificateId,String userPassword,String certEncKey) throws ParseException {
         Certification certification = findCertification(certificateId);
 
         doUserHasAccessToCertification(certification);
@@ -241,6 +241,6 @@ public class CertificationService {
     }
 
     private void creerLienDaccesAuCertificatPourEleve(String password, Certification certification, String certEncKey) throws ParseException {
-        lienService.createLienAccesPourPropriataireCertificat(password,certEncKey, certification);
+        lienService.createLienAccesPourProprietaireCertificat(password,certEncKey, certification);
     }
 }

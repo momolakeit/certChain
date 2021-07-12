@@ -4,7 +4,7 @@ import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.jwt.JwtProvider;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.request.CreateLienDTO;
-import com.momo.certChain.model.dto.request.CreatePropriaitaireLienDTO;
+import com.momo.certChain.model.dto.request.CreateProprietaireLienDTO;
 import com.momo.certChain.repositories.LienRepository;
 import com.momo.certChain.repositories.UserRepository;
 import com.momo.certChain.services.CertificationService;
@@ -101,9 +101,9 @@ class CertificationControllerTest {
     public void testCreatePropriaitaireLien() throws Exception {
         uploadEncryptedCertificate();
         Student student = createUserWithCertification();
-        mockMvc.perform(MockMvcRequestBuilders.post("/certification/createPropriaitaireLien")
+        mockMvc.perform(MockMvcRequestBuilders.post("/certification/createProprietaireLien")
                 .header("Authorization", jwtProvider.generate(student))
-                .content(objectMapper.writeValueAsString(new CreatePropriaitaireLienDTO(student.getCertifications().get(0).getId(),"password",encKey)))
+                .content(objectMapper.writeValueAsString(new CreateProprietaireLienDTO(student.getCertifications().get(0).getId(),"password",encKey)))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -113,9 +113,9 @@ class CertificationControllerTest {
     public void testcreatePropriaitaireUserNotOwnerOfCertificateLien() throws Exception {
         uploadEncryptedCertificate();
         Student student = createUserWithCertification();
-        mockMvc.perform(MockMvcRequestBuilders.post("/certification/createPropriaitaireLien")
+        mockMvc.perform(MockMvcRequestBuilders.post("/certification/createProprietaireLien")
                 .header("Authorization", jwtProvider.generate(student))
-                .content(objectMapper.writeValueAsString(new CreatePropriaitaireLienDTO("123456","password",encKey)))
+                .content(objectMapper.writeValueAsString(new CreateProprietaireLienDTO("123456","password",encKey)))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());

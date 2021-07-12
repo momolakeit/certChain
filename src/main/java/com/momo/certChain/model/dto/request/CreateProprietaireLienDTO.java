@@ -11,7 +11,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreatePropriaitaireLienDTO {
+public class CreateProprietaireLienDTO {
 
     private String certificationId;
 

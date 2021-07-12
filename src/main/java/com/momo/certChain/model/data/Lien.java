@@ -33,7 +33,7 @@ public class Lien {
 
 
     public enum Type {
-        UTILISATEUR_EXTERNE, PROPRIAITAIRE_CERTIFICAT;
+        UTILISATEUR_EXTERNE, PROPRIETAIRE_CERTIFICAT;
     }
 
 }

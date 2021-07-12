@@ -90,7 +90,7 @@ class LienServiceTest {
         when(encryptionService.encryptData(anyString(), anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
         when(lienRepository.save(any(Lien.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-        CreatedLien createdLien = lienService.createLienAccesPourPropriataireCertificat(userPassword,encKeyToEncrypt, TestUtils.createCertification());
+        CreatedLien createdLien = lienService.createLienAccesPourProprietaireCertificat(userPassword,encKeyToEncrypt, TestUtils.createCertification());
 
 
         Lien lien = createdLien.getLien();
@@ -99,7 +99,7 @@ class LienServiceTest {
         assertEquals(encKeyToEncrypt, lien.getCertificateEncKey());
         assertEquals(dateFin, lien.getDateExpiration());
         assertEquals(userPassword, createdLien.getGeneratedPassword());
-        assertEquals(Lien.Type.PROPRIAITAIRE_CERTIFICAT,lien.getType());
+        assertEquals(Lien.Type.PROPRIETAIRE_CERTIFICAT,lien.getType());
         TestUtils.assertCertification(lien.getCertification());
     }
 

@@ -369,9 +369,9 @@ class CertificationServiceTest {
         when(headerCatcherService.getUserId()).thenReturn("123456");
         when(userService.getUser(anyString())).thenReturn(createStudentWithCertification(certificateId));
 
-        certificationService.createPropriaitaireLien(certificateId, userPassword, certEncKey);
+        certificationService.createProprietaireLien(certificateId, userPassword, certEncKey);
 
-        verify(lienService, times(1)).createLienAccesPourPropriataireCertificat(userPasswordCaptor.capture(), encryptionPrivateKeyCaptor.capture(), certificationArgumentCaptor.capture());
+        verify(lienService, times(1)).createLienAccesPourProprietaireCertificat(userPasswordCaptor.capture(), encryptionPrivateKeyCaptor.capture(), certificationArgumentCaptor.capture());
 
         TestUtils.assertCertification(certificationArgumentCaptor.getValue());
         assertEquals(userPassword, userPasswordCaptor.getValue());
@@ -390,7 +390,7 @@ class CertificationServiceTest {
         when(userService.getUser(anyString())).thenReturn(createStudentWithCertification("654321"));
 
         Assertions.assertThrows(CannotAccessCertificateException.class,()->{
-            certificationService.createPropriaitaireLien(certificateId, userPassword, certEncKey);
+            certificationService.createProprietaireLien(certificateId, userPassword, certEncKey);
         });
 
     }

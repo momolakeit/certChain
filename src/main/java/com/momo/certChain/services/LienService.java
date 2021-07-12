@@ -10,7 +10,6 @@ import com.momo.certChain.model.dto.LienDTO;
 import com.momo.certChain.repositories.LienRepository;
 import com.momo.certChain.services.security.EncryptionService;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -38,8 +37,8 @@ public class LienService {
         return getCreatedLien(encKey, date, titre, certification, generatedPassword,Lien.Type.UTILISATEUR_EXTERNE);
     }
 
-    public CreatedLien createLienAccesPourPropriataireCertificat(String userPassword, String encKey, Certification certification) throws ParseException {
-        return getCreatedLien(encKey, new SimpleDateFormat("dd/MM/yyyy").parse("31/12/9999"), "", certification, userPassword,Lien.Type.PROPRIAITAIRE_CERTIFICAT);
+    public CreatedLien createLienAccesPourProprietaireCertificat(String userPassword, String encKey, Certification certification) throws ParseException {
+        return getCreatedLien(encKey, new SimpleDateFormat("dd/MM/yyyy").parse("31/12/9999"), "", certification, userPassword,Lien.Type.PROPRIETAIRE_CERTIFICAT);
     }
 
     public Lien getLien(String lienId, String password) {

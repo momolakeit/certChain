@@ -48,7 +48,7 @@ class LienRepositoryTest {
     public void findAllByCertificationIdAndTypePropriataireExterne(){
         createLienTypePropriataireWithCertification(certification);
 
-        List<Lien> lienList = lienRepository.findLienByCertificationIdAndType(certification.getId(),Lien.Type.PROPRIAITAIRE_CERTIFICAT);
+        List<Lien> lienList = lienRepository.findLienByCertificationIdAndType(certification.getId(),Lien.Type.PROPRIETAIRE_CERTIFICAT);
 
         assertEquals(1,lienList.size());
     }
@@ -81,6 +81,6 @@ class LienRepositoryTest {
     }
 
     private void createLienTypePropriataireWithCertification(Certification certification) {
-        lienRepository.save(createLienWithCertification(certification,Lien.Type.PROPRIAITAIRE_CERTIFICAT));
+        lienRepository.save(createLienWithCertification(certification,Lien.Type.PROPRIETAIRE_CERTIFICAT));
     }
 }
