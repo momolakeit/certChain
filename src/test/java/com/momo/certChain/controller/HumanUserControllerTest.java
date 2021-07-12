@@ -66,7 +66,7 @@ class HumanUserControllerTest {
 
     @Test
     public void modifyPasswordTest() throws Exception {
-        ModifyPasswordDTO modifyPasswordDTO = new ModifyPasswordDTO(student.getId(),"password","newPassword","newPassword","encKey");
+        ModifyPasswordDTO modifyPasswordDTO = new ModifyPasswordDTO(student.getId(),"password","newPassword","newPassword");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/humanUser/modifyPassword")
             .content(objectMapper.writeValueAsString(modifyPasswordDTO))
@@ -77,7 +77,7 @@ class HumanUserControllerTest {
 
     @Test
     public void modifyWrongOldPasswordTest() throws Exception {
-        ModifyPasswordDTO modifyPasswordDTO = new ModifyPasswordDTO(student.getId(),"badPassword","newPassword","newPassword","encKey");
+        ModifyPasswordDTO modifyPasswordDTO = new ModifyPasswordDTO(student.getId(),"badPassword","newPassword","newPassword");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/humanUser/modifyPassword")
                 .content(objectMapper.writeValueAsString(modifyPasswordDTO))
@@ -88,7 +88,7 @@ class HumanUserControllerTest {
 
     @Test
     public void modifyPasswordNotMatchingPasswordTest() throws Exception {
-        ModifyPasswordDTO modifyPasswordDTO = new ModifyPasswordDTO(student.getId(),"password","newPassword","newPassword2","encKey");
+        ModifyPasswordDTO modifyPasswordDTO = new ModifyPasswordDTO(student.getId(),"password","newPassword","newPassword2");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/humanUser/modifyPassword")
                 .content(objectMapper.writeValueAsString(modifyPasswordDTO))

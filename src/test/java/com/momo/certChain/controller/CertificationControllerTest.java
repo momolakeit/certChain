@@ -4,6 +4,7 @@ import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.jwt.JwtProvider;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.request.CreateLienDTO;
+import com.momo.certChain.model.dto.request.CreatePropriaitaireLienDTO;
 import com.momo.certChain.repositories.LienRepository;
 import com.momo.certChain.repositories.UserRepository;
 import com.momo.certChain.services.CertificationService;
@@ -70,7 +71,6 @@ class CertificationControllerTest {
 
     private final String lienTitre = "Entrevue IBM";
 
-
     private final Long anneeEnMilliseconde = 31536000000L;
 
     @BeforeEach
@@ -95,6 +95,30 @@ class CertificationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testCreatePropriaitaireLien() throws Exception {
+        uploadEncryptedCertificate();
+        Student student = createUserWithCertification();
+        mockMvc.perform(MockMvcRequestBuilders.post("/certification/createPropriaitaireLien")
+                .header("Authorization", jwtProvider.generate(student))
+                .content(objectMapper.writeValueAsString(new CreatePropriaitaireLienDTO(student.getCertifications().get(0).getId(),"password",encKey)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testcreatePropriaitaireUserNotOwnerOfCertificateLien() throws Exception {
+        uploadEncryptedCertificate();
+        Student student = createUserWithCertification();
+        mockMvc.perform(MockMvcRequestBuilders.post("/certification/createPropriaitaireLien")
+                .header("Authorization", jwtProvider.generate(student))
+                .content(objectMapper.writeValueAsString(new CreatePropriaitaireLienDTO("123456","password",encKey)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
 

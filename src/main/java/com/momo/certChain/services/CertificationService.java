@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -139,6 +140,14 @@ public class CertificationService {
         return createdLien;
     }
 
+    public void createPropriaitaireLien(String certificateId,String userPassword,String certEncKey) throws ParseException {
+        Certification certification = findCertification(certificateId);
+
+        doUserHasAccessToCertification(certification);
+
+        creerLienDaccesAuCertificatPourEleve(userPassword,certification,certEncKey);
+    }
+
     public Certification saveCertificationWithSalt(Certification certification) {
         if (Objects.isNull(certification.getSalt())) {
             certification.setSalt(encryptionService.generateSalt());
@@ -229,5 +238,9 @@ public class CertificationService {
         if (Objects.nonNull(certification.getStudent()) || Objects.nonNull(certification.getLiens())) {
             throw new ValidationException("la certification ne peux pas contenir d'élève ou de lien");
         }
+    }
+
+    private void creerLienDaccesAuCertificatPourEleve(String password, Certification certification, String certEncKey) throws ParseException {
+        lienService.createLienAccesPourPropriataireCertificat(password,certEncKey, certification);
     }
 }

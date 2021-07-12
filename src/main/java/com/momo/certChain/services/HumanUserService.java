@@ -6,11 +6,13 @@ import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.PasswordNotMatchingException;
 import com.momo.certChain.mapping.EmployeeMapper;
 import com.momo.certChain.mapping.StudentMapper;
+import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Employee;
 import com.momo.certChain.model.data.HumanUser;
 import com.momo.certChain.model.data.Student;
 import com.momo.certChain.model.dto.HumanUserDTO;
 import com.momo.certChain.repositories.HumanUserRepository;
+import com.momo.certChain.services.authentification.AuthService;
 import com.momo.certChain.services.messaging.MessageService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -35,14 +37,14 @@ public class HumanUserService {
 
     private final UserService userService;
 
-    private final LienService lienService;
-
-    public HumanUserService(HumanUserRepository humanUserRepository, MessageService messageService, PasswordEncoder passwordEncoder, UserService userService,LienService lienService) {
+    public HumanUserService(HumanUserRepository humanUserRepository,
+                            MessageService messageService,
+                            PasswordEncoder passwordEncoder,
+                            UserService userService) {
         this.humanUserRepository = humanUserRepository;
         this.messageService = messageService;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
-        this.lienService = lienService;
     }
 
     //todo tester le cas ou on lance la custom messaging exception
@@ -54,19 +56,18 @@ public class HumanUserService {
         }catch (MessagingException | IOException e) {
             throw new CustomMessagingException();
         }
+
         return (HumanUser) userService.createUser(humanUser);
     }
 
     //set up confirmer password dans le backend aussi pour securite accrue
 
-    public HumanUser modifyPassword(String uuid, String oldPassword, String password, String passwordConfirmation,String certEncKey) throws ParseException {
+    public HumanUser modifyPassword(String uuid, String oldPassword, String password, String passwordConfirmation){
         HumanUser user = (HumanUser) userService.getUser(uuid);
 
         verifyPasswordConditions(oldPassword, password, passwordConfirmation, user);
 
         encodeUserPassword(user, password);
-
-        creerLienDaccesAuCertificatPourEleve(password, user,certEncKey);
 
         return saveUser(user);
     }
@@ -101,17 +102,13 @@ public class HumanUserService {
         String generatedPassword = RandomStringUtils.randomAlphanumeric(11);
 
         humanUser.setPasswordResseted(false);
+
         encodeUserPassword(humanUser, generatedPassword);
+
         return generatedPassword;
     }
 
     private void encodeUserPassword(HumanUser humanUser, String password) {
         humanUser.setPassword(passwordEncoder.encode(password));
-    }
-
-    private void creerLienDaccesAuCertificatPourEleve(String password, HumanUser user,String certEncKey) throws ParseException {
-        if(user instanceof  Student){
-            lienService.createLienAccesPourPropriataireCertificat(password,certEncKey, ((Student) user).getCertifications().get(0));
-        }
     }
 }

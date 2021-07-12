@@ -20,12 +20,11 @@ public class HumanUserController extends BaseController {
     }
 
     @PostMapping("/modifyPassword")
-    public HumanUserDTO modifyPassword(@RequestBody ModifyPasswordDTO modifyPasswordDTO) throws ParseException {
+    public HumanUserDTO modifyPassword(@RequestBody ModifyPasswordDTO modifyPasswordDTO){
         HumanUser humanUser = humanUserService.modifyPassword(modifyPasswordDTO.getUuid(),
                 modifyPasswordDTO.getOldPassword(),
                 modifyPasswordDTO.getPassword(),
-                modifyPasswordDTO.getPasswordConfirmation(),
-                modifyPasswordDTO.getCertificateEncKey());
+                modifyPasswordDTO.getPasswordConfirmation());
         return humanUserService.toDTO(humanUser);
     }
 }

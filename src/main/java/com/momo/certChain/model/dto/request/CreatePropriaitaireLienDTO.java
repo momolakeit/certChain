@@ -5,13 +5,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ModifyPasswordDTO {
-    private String uuid ;
-    private String oldPassword;
-    private String password;
-    private String passwordConfirmation;
+public class CreatePropriaitaireLienDTO {
+
+    private String certificationId;
+
+    private String certificationPassword;
+
+    private String certEncKey;
+
 }

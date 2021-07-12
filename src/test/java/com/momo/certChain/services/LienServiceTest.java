@@ -75,6 +75,7 @@ class LienServiceTest {
         assertEquals(encKeyToEncrypt, lien.getCertificateEncKey());
         assertEquals(dateFin, lien.getDateExpiration());
         assertEquals(newEncKey, createdLien.getGeneratedPassword());
+        assertEquals(Lien.Type.UTILISATEUR_EXTERNE,lien.getType());
         TestUtils.assertCertification(lien.getCertification());
     }
 
@@ -98,6 +99,7 @@ class LienServiceTest {
         assertEquals(encKeyToEncrypt, lien.getCertificateEncKey());
         assertEquals(dateFin, lien.getDateExpiration());
         assertEquals(userPassword, createdLien.getGeneratedPassword());
+        assertEquals(Lien.Type.PROPRIAITAIRE_CERTIFICAT,lien.getType());
         TestUtils.assertCertification(lien.getCertification());
     }
 

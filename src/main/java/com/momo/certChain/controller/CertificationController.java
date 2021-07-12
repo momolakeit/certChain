@@ -5,11 +5,15 @@ import com.momo.certChain.model.CreatedLien;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.model.dto.request.CreateLienDTO;
+import com.momo.certChain.model.dto.request.CreatePropriaitaireLienDTO;
 import com.momo.certChain.model.dto.response.CreatedLienDTO;
 import com.momo.certChain.services.CertificationService;
+import com.sun.mail.iap.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.text.ParseException;
 
 
 @RestController
@@ -30,6 +34,7 @@ public class CertificationController extends BaseController {
         return certificationService.toDTO(certification);
     }
 
+    //endpoint pas utiliser mais garder quand meme en cas de rollback de stratégie par rapport au lien
     @GetMapping("/fetchCertificate/{certificateId}/{key}")
     public CertificationDTO getUploadedCertificationWithPrivateKey(@PathVariable String certificateId, @PathVariable String key) throws Exception {
         Certification certification = certificationService.getUploadedCertificationWithPrivateKey(certificateId, key);
@@ -54,6 +59,14 @@ public class CertificationController extends BaseController {
         Certification certification = certificationService.payCertificate(certId);
 
         return certificationService.toDTO(certification);
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_STUDENT')")
+    @PostMapping("/createPropriaitaireLien")
+    public ResponseEntity createPropriaitaireLien(@RequestBody CreatePropriaitaireLienDTO createPropriaitaireLienDTO) throws ParseException {
+        certificationService.createPropriaitaireLien(createPropriaitaireLienDTO.getCertificationId(),createPropriaitaireLienDTO.getCertificationPassword(),createPropriaitaireLienDTO.getCertEncKey());
+
+        return ResponseEntity.ok().build();
     }
 
 

@@ -77,6 +77,9 @@ class CertificationServiceTest {
     @Captor
     private ArgumentCaptor<String> saltArgumentCaptor;
 
+    @Captor
+    private ArgumentCaptor<String> userPasswordCaptor;
+
     @BeforeEach
     public void init() throws IOException {
         createListOfSignatures();
@@ -252,7 +255,7 @@ class CertificationServiceTest {
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
         when(headerCatcherService.getUserId()).thenReturn(certification.getStudent().getId());
 
-        Assertions.assertThrows(CannotAccessCertificateException.class,()->{
+        Assertions.assertThrows(CannotAccessCertificateException.class, () -> {
             certificationService.payCertificate("123456");
         });
 
@@ -356,6 +359,42 @@ class CertificationServiceTest {
         TestUtils.assertLien(certificationArgumentCaptor.getValue().getLiens().get(0));
     }
 
+    @Test
+    public void createPropriaitaireLienTest() throws Exception {
+        String certificateId = "123456";
+        String userPassword = "password";
+        String certEncKey = "certEncKey";
+
+        when(certificationRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createCertification()));
+        when(headerCatcherService.getUserId()).thenReturn("123456");
+        when(userService.getUser(anyString())).thenReturn(createStudentWithCertification(certificateId));
+
+        certificationService.createPropriaitaireLien(certificateId, userPassword, certEncKey);
+
+        verify(lienService, times(1)).createLienAccesPourPropriataireCertificat(userPasswordCaptor.capture(), encryptionPrivateKeyCaptor.capture(), certificationArgumentCaptor.capture());
+
+        TestUtils.assertCertification(certificationArgumentCaptor.getValue());
+        assertEquals(userPassword, userPasswordCaptor.getValue());
+        assertEquals(certEncKey, encryptionPrivateKeyCaptor.getValue());
+
+    }
+
+    @Test
+    public void createPropriaitaireLienUserNotAllowedAtCertificateTest() {
+        String certificateId = "123456";
+        String userPassword = "password";
+        String certEncKey = "certEncKey";
+
+        when(certificationRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createCertification()));
+        when(headerCatcherService.getUserId()).thenReturn("123456");
+        when(userService.getUser(anyString())).thenReturn(createStudentWithCertification("654321"));
+
+        Assertions.assertThrows(CannotAccessCertificateException.class,()->{
+            certificationService.createPropriaitaireLien(certificateId, userPassword, certEncKey);
+        });
+
+    }
+
 
     private List<Signature> createListOfSignatures() throws IOException {
         List<Signature> signatureList = new ArrayList<>();
@@ -399,4 +438,5 @@ class CertificationServiceTest {
 
         return certification;
     }
+
 }

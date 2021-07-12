@@ -52,9 +52,6 @@ class HumanUserServiceTest {
     @Captor
     private ArgumentCaptor<String> passwordCaptor;
 
-    @Captor
-    private ArgumentCaptor<String> lienEncKeyCaptor;
-
     MockedStatic<RandomStringUtils> randomStringUtilsMockedStatic;
 
     @BeforeEach
@@ -140,7 +137,6 @@ class HumanUserServiceTest {
         String passwordConfirmation = "salut";
         String oldPassword = "password";
         String id = "123456";
-        String certEncKey = "certKey";
         Student student = TestUtils.createStudent();
         student.setCertifications(Collections.singletonList(TestUtils.createCertification()));
 
@@ -149,13 +145,9 @@ class HumanUserServiceTest {
         when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
         when(passwordEncoder.encode(anyString())).thenReturn(encodedString);
 
-        HumanUser user = humanUserService.modifyPassword(id, oldPassword, password, passwordConfirmation, certEncKey);
-
-        verify(lienService,times(1)).createLienAccesPourPropriataireCertificat(passwordCaptor.capture(),lienEncKeyCaptor.capture(),any(Certification.class));
+        HumanUser user = humanUserService.modifyPassword(id, oldPassword, password, passwordConfirmation);
 
         assertEquals(encodedString, user.getPassword());
-        assertEquals(password,passwordCaptor.getValue());
-        assertEquals(certEncKey,lienEncKeyCaptor.getValue());
     }
 
     @Test
@@ -166,7 +158,7 @@ class HumanUserServiceTest {
         when(userService.getUser(anyString())).thenReturn(student);
 
         Assertions.assertThrows(PasswordNotMatchingException.class, () -> {
-            humanUserService.modifyPassword("123456", "password", "salut", "mec", "certKey");
+            humanUserService.modifyPassword("123456", "password", "salut", "mec");
         });
     }
 
@@ -178,7 +170,7 @@ class HumanUserServiceTest {
         when(userService.getUser(anyString())).thenReturn(student);
 
         Assertions.assertThrows(BadPasswordException.class, () -> {
-            humanUserService.modifyPassword("123456", "password", "salut", "mec", "certKey");
+            humanUserService.modifyPassword("123456", "password", "salut", "mec");
         });
     }
 
