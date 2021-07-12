@@ -4,7 +4,6 @@ import com.momo.certChain.model.data.HumanUser;
 import com.momo.certChain.model.dto.HumanUserDTO;
 import com.momo.certChain.model.dto.request.ModifyPasswordDTO;
 import com.momo.certChain.services.HumanUserService;
-import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
