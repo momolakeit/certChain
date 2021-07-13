@@ -56,6 +56,10 @@ public class LienService {
         return lienRepository.findLienByCertificationIdAndType(certId, Type.UTILISATEUR_EXTERNE);
     }
 
+    public List<Lien> findAllLienForCertificationProprietaire_Certificat(String certId) {
+        return lienRepository.findLienByCertificationIdAndType(certId, Type.PROPRIETAIRE_CERTIFICAT);
+    }
+
     public LienDTO toDTO(Lien lien) {
         return LienMapper.instance.toDTO(lien);
     }

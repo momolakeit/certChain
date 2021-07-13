@@ -18,8 +18,16 @@ public class LienController extends BaseController {
     }
 
     @GetMapping("/findAllByCertification/{certificationId}")
-    public List<LienDTO> getUser(@PathVariable String certificationId) {
+    public List<LienDTO> getAllLienForCertificate(@PathVariable String certificationId) {
         return lienService.findAllLienForCertificationUtilisateur_Externe(certificationId)
+                .stream()
+                .map(lienService::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/findAllByCertificationProprietaire/{certificationId}")
+    public List<LienDTO> getAllLienForCertificateProprietaire(@PathVariable String certificationId) {
+        return lienService.findAllLienForCertificationProprietaire_Certificat(certificationId)
                 .stream()
                 .map(lienService::toDTO)
                 .collect(Collectors.toList());

@@ -48,9 +48,9 @@ class LienControllerTest {
     public void init() {
         certification = certificationRepository.save(new Certification());
 
-        createLienWithCertification();
+        createLienWithCertification(Type.UTILISATEUR_EXTERNE);
 
-        createLienWithCertification();
+        createLienWithCertification(Type.UTILISATEUR_EXTERNE);
 
         mockMvc = MockMvcBuilders.standaloneSetup(lienController).build();
     }
@@ -63,11 +63,20 @@ class LienControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    public void fetchAllLienProprietaireForCertification() throws Exception {
+        createLienWithCertification(Type.PROPRIETAIRE_CERTIFICAT);
+        mockMvc.perform(MockMvcRequestBuilders.get("/lien/findAllByCertificationProprietaire/{certificationId}", certification.getId())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 
-    private void createLienWithCertification() {
+
+    private void createLienWithCertification(Type type) {
         Lien lien = new Lien();
         lien.setCertification(certification);
-        lien.setType(Type.UTILISATEUR_EXTERNE);
+        lien.setType(type);
         lienRepository.save(lien);
     }
 }

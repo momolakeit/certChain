@@ -116,7 +116,7 @@ class LienServiceTest {
 
     @Test
     public void findAllLienByCertId() {
-        when(lienRepository.findLienByCertificationIdAndType(anyString(), any(Type.class))).thenReturn(Arrays.asList(TestUtils.createLien(), TestUtils.createLien()));
+        when(lienRepository.findLienByCertificationIdAndType(anyString(), eq(Type.UTILISATEUR_EXTERNE))).thenReturn(Arrays.asList(TestUtils.createLien(), TestUtils.createLien()));
 
         List<Lien> lienList = lienService.findAllLienForCertificationUtilisateur_Externe("123456");
 
@@ -125,12 +125,31 @@ class LienServiceTest {
 
     @Test
     public void findAllLienByCertIdNoLien() {
-        when(lienRepository.findLienByCertificationIdAndType(anyString(), any(Type.class))).thenReturn(Collections.emptyList());
+        when(lienRepository.findLienByCertificationIdAndType(anyString(), eq(Type.UTILISATEUR_EXTERNE))).thenReturn(Collections.emptyList());
 
         List<Lien> lienList = lienService.findAllLienForCertificationUtilisateur_Externe("123456");
 
         assertEquals(0, lienList.size());
     }
+
+    @Test
+    public void findAllLienForProprietaireByCertId() {
+        when(lienRepository.findLienByCertificationIdAndType(anyString(), eq(Type.PROPRIETAIRE_CERTIFICAT))).thenReturn(Arrays.asList(TestUtils.createLien(), TestUtils.createLien()));
+
+        List<Lien> lienList = lienService.findAllLienForCertificationProprietaire_Certificat("123456");
+
+        assertEquals(2, lienList.size());
+    }
+
+    @Test
+    public void findAllLienForProprietaireByCertIdNoLien() {
+        when(lienRepository.findLienByCertificationIdAndType(anyString(), eq(Type.PROPRIETAIRE_CERTIFICAT))).thenReturn(Collections.emptyList());
+
+        List<Lien> lienList = lienService.findAllLienForCertificationProprietaire_Certificat("123456");
+
+        assertEquals(0, lienList.size());
+    }
+
 
     @Test
     public void testGetLien() {
