@@ -1,5 +1,6 @@
 package com.momo.certChain.controller;
 
+import com.momo.certChain.model.Type;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Lien;
 import com.momo.certChain.repositories.CertificationRepository;
@@ -66,7 +67,7 @@ class LienControllerTest {
     private void createLienWithCertification() {
         Lien lien = new Lien();
         lien.setCertification(certification);
-        lien.setType(Lien.Type.UTILISATEUR_EXTERNE);
+        lien.setType(Type.UTILISATEUR_EXTERNE);
         lienRepository.save(lien);
     }
 }

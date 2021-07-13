@@ -1,5 +1,6 @@
 package com.momo.certChain.model.data;
 
+import com.momo.certChain.model.Type;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
@@ -30,10 +31,5 @@ public class Lien {
 
     @Enumerated(EnumType.STRING)
     private Type type;
-
-
-    public enum Type {
-        UTILISATEUR_EXTERNE, PROPRIETAIRE_CERTIFICAT;
-    }
 
 }

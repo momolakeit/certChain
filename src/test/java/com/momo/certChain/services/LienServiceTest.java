@@ -4,6 +4,7 @@ import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.model.CreatedLien;
+import com.momo.certChain.model.Type;
 import com.momo.certChain.model.data.Lien;
 import com.momo.certChain.repositories.LienRepository;
 import com.momo.certChain.services.security.EncryptionService;
@@ -75,7 +76,7 @@ class LienServiceTest {
         assertEquals(encKeyToEncrypt, lien.getCertificateEncKey());
         assertEquals(dateFin, lien.getDateExpiration());
         assertEquals(newEncKey, createdLien.getGeneratedPassword());
-        assertEquals(Lien.Type.UTILISATEUR_EXTERNE,lien.getType());
+        assertEquals(Type.UTILISATEUR_EXTERNE,lien.getType());
         TestUtils.assertCertification(lien.getCertification());
     }
 
@@ -99,7 +100,7 @@ class LienServiceTest {
         assertEquals(encKeyToEncrypt, lien.getCertificateEncKey());
         assertEquals(dateFin, lien.getDateExpiration());
         assertEquals(userPassword, createdLien.getGeneratedPassword());
-        assertEquals(Lien.Type.PROPRIETAIRE_CERTIFICAT,lien.getType());
+        assertEquals(Type.PROPRIETAIRE_CERTIFICAT,lien.getType());
         TestUtils.assertCertification(lien.getCertification());
     }
 
@@ -115,7 +116,7 @@ class LienServiceTest {
 
     @Test
     public void findAllLienByCertId() {
-        when(lienRepository.findLienByCertificationIdAndType(anyString(), any(Lien.Type.class))).thenReturn(Arrays.asList(TestUtils.createLien(), TestUtils.createLien()));
+        when(lienRepository.findLienByCertificationIdAndType(anyString(), any(Type.class))).thenReturn(Arrays.asList(TestUtils.createLien(), TestUtils.createLien()));
 
         List<Lien> lienList = lienService.findAllLienForCertificationUtilisateur_Externe("123456");
 
@@ -124,7 +125,7 @@ class LienServiceTest {
 
     @Test
     public void findAllLienByCertIdNoLien() {
-        when(lienRepository.findLienByCertificationIdAndType(anyString(), any(Lien.Type.class))).thenReturn(Collections.emptyList());
+        when(lienRepository.findLienByCertificationIdAndType(anyString(), any(Type.class))).thenReturn(Collections.emptyList());
 
         List<Lien> lienList = lienService.findAllLienForCertificationUtilisateur_Externe("123456");
 

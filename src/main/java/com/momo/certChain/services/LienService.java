@@ -4,6 +4,7 @@ import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.mapping.LienMapper;
 import com.momo.certChain.model.CreatedLien;
+import com.momo.certChain.model.Type;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Lien;
 import com.momo.certChain.model.dto.LienDTO;
@@ -34,11 +35,11 @@ public class LienService {
 
         String generatedPassword = RandomStringUtils.randomAlphanumeric(11);
 
-        return getCreatedLien(encKey, date, titre, certification, generatedPassword,Lien.Type.UTILISATEUR_EXTERNE);
+        return getCreatedLien(encKey, date, titre, certification, generatedPassword,Type.UTILISATEUR_EXTERNE);
     }
 
     public CreatedLien createLienAccesPourProprietaireCertificat(String userPassword, String encKey, Certification certification) throws ParseException {
-        return getCreatedLien(encKey, new SimpleDateFormat("dd/MM/yyyy").parse("31/12/9999"), "", certification, userPassword,Lien.Type.PROPRIETAIRE_CERTIFICAT);
+        return getCreatedLien(encKey, new SimpleDateFormat("dd/MM/yyyy").parse("31/12/9999"), "", certification, userPassword,Type.PROPRIETAIRE_CERTIFICAT);
     }
 
     public Lien getLien(String lienId, String password) {
@@ -52,14 +53,14 @@ public class LienService {
     }
 
     public List<Lien> findAllLienForCertificationUtilisateur_Externe(String certId) {
-        return lienRepository.findLienByCertificationIdAndType(certId, Lien.Type.UTILISATEUR_EXTERNE);
+        return lienRepository.findLienByCertificationIdAndType(certId, Type.UTILISATEUR_EXTERNE);
     }
 
     public LienDTO toDTO(Lien lien) {
         return LienMapper.instance.toDTO(lien);
     }
 
-    private Lien createLien(String encKey, String generatedPassword, String salt, Date date, String titre, Certification certification, Lien.Type type) {
+    private Lien createLien(String encKey, String generatedPassword, String salt, Date date, String titre, Certification certification, Type type) {
         Lien lien = new Lien();
         lien.setSalt(salt);
         lien.setCertificateEncKey(encryptionService.encryptData(generatedPassword, encKey, salt));
@@ -81,7 +82,7 @@ public class LienService {
     }
 
 
-    private CreatedLien getCreatedLien(String encKey, Date date, String titre, Certification certification, String generatedPassword,Lien.Type type) {
+    private CreatedLien getCreatedLien(String encKey, Date date, String titre, Certification certification, String generatedPassword,Type type) {
         String salt = encryptionService.generateSalt();
 
         Lien lien = saveLien(createLien(encKey, generatedPassword, salt, date, titre, certification,type));

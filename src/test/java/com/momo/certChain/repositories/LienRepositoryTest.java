@@ -1,5 +1,6 @@
 package com.momo.certChain.repositories;
 
+import com.momo.certChain.model.Type;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Lien;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +39,7 @@ class LienRepositoryTest {
 
     @Test
     public void findAllByCertificationId(){
-        List<Lien> lienList = lienRepository.findLienByCertificationIdAndType(certification.getId(),Lien.Type.UTILISATEUR_EXTERNE);
+        List<Lien> lienList = lienRepository.findLienByCertificationIdAndType(certification.getId(), Type.UTILISATEUR_EXTERNE);
 
         assertEquals(2,lienList.size());
     }
@@ -48,7 +49,7 @@ class LienRepositoryTest {
     public void findAllByCertificationIdAndTypePropriataireExterne(){
         createLienTypePropriataireWithCertification(certification);
 
-        List<Lien> lienList = lienRepository.findLienByCertificationIdAndType(certification.getId(),Lien.Type.PROPRIETAIRE_CERTIFICAT);
+        List<Lien> lienList = lienRepository.findLienByCertificationIdAndType(certification.getId(),Type.PROPRIETAIRE_CERTIFICAT);
 
         assertEquals(1,lienList.size());
     }
@@ -57,19 +58,19 @@ class LienRepositoryTest {
     public void findAllByCertificationIdCleanTableLienNoData(){
         lienRepository.deleteAll();
 
-        List<Lien> lienList = lienRepository.findLienByCertificationIdAndType(certification.getId(),Lien.Type.UTILISATEUR_EXTERNE);
+        List<Lien> lienList = lienRepository.findLienByCertificationIdAndType(certification.getId(),Type.UTILISATEUR_EXTERNE);
 
         assertEquals(0,lienList.size());
     }
 
     @Test
     public void findAllByCertificationNoLienForData(){
-        List<Lien> lienList = lienRepository.findLienByCertificationIdAndType("123456",Lien.Type.UTILISATEUR_EXTERNE);
+        List<Lien> lienList = lienRepository.findLienByCertificationIdAndType("123456",Type.UTILISATEUR_EXTERNE);
 
         assertEquals(0,lienList.size());
     }
 
-    private Lien createLienWithCertification(Certification certification,Lien.Type type) {
+    private Lien createLienWithCertification(Certification certification,Type type) {
         Lien lien = new Lien();
         lien.setCertification(certification);
         lien.setType(type);
@@ -77,10 +78,10 @@ class LienRepositoryTest {
     }
 
     private void createLienTypeUtilisateurExterneWithCertification(Certification certification) {
-        lienRepository.save(createLienWithCertification(certification,Lien.Type.UTILISATEUR_EXTERNE));
+        lienRepository.save(createLienWithCertification(certification,Type.UTILISATEUR_EXTERNE));
     }
 
     private void createLienTypePropriataireWithCertification(Certification certification) {
-        lienRepository.save(createLienWithCertification(certification,Lien.Type.PROPRIETAIRE_CERTIFICAT));
+        lienRepository.save(createLienWithCertification(certification,Type.PROPRIETAIRE_CERTIFICAT));
     }
 }

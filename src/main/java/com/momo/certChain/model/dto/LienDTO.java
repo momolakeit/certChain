@@ -1,5 +1,6 @@
 package com.momo.certChain.model.dto;
 
+import com.momo.certChain.model.Type;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
@@ -21,5 +22,6 @@ public class LienDTO {
     private Date dateExpiration;
 
     private CertificationDTO certification;
-    
+
+    private Type type;
 }
