@@ -355,6 +355,28 @@ class CertificationServiceTest {
         String generatedPasswordResponse = certificationService.createLien("123456", "password", TestUtils.createLien().getTitre(), new Date()).getGeneratedPassword();
 
         verify(certificationRepository).save(certificationArgumentCaptor.capture());
+        verify(lienService,times(0)).getLien(anyString(),anyString());
+
+        assertEquals(generatedLienPassword, generatedPasswordResponse);
+        TestUtils.assertLien(certificationArgumentCaptor.getValue().getLiens().get(0));
+    }
+
+    @Test
+    public void createLienUtiliserLienProprietaireTest() throws Exception {
+        String generatedLienPassword = "generatedPassword";
+
+        Certification certification = TestUtils.createCertification();
+        certification.setLiens(new ArrayList<>(Collections.singletonList(createProprioLien())));
+
+        when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
+        when(contractServiceImpl.getCertificate(anyString(), anyString(), any(ECKeyPair.class), anyString(), anyString())).thenReturn(TestUtils.createCertification());
+        when(lienService.createLien(anyString(), any(Date.class), anyString(), any(Certification.class))).thenReturn(new CreatedLien(TestUtils.createLien(), generatedLienPassword));
+        when(lienService.getLien(anyString(),any())).thenReturn(TestUtils.createLien());
+
+        String generatedPasswordResponse = certificationService.createLien("123456", "password", TestUtils.createLien().getTitre(), new Date()).getGeneratedPassword();
+
+        verify(certificationRepository).save(certificationArgumentCaptor.capture());
+        verify(lienService,times(1)).getLien(anyString(),anyString());
 
         assertEquals(generatedLienPassword, generatedPasswordResponse);
         TestUtils.assertLien(certificationArgumentCaptor.getValue().getLiens().get(0));

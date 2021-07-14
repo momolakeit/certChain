@@ -15,6 +15,7 @@ import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.request.HeaderCatcherService;
 import com.momo.certChain.services.security.EncryptionService;
 import com.momo.certChain.utils.ListUtils;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.ECKeyPair;
@@ -84,6 +85,7 @@ public class CertificationService {
 
     private List<Signature> createSignatures(Certification certification) {
         List<Signature> signatures = new ArrayList<>();
+
         for (Signature signature : certification.getSignatures()) {
             signatures.add(signatureService.createSignature(signature.getAuthorName()));
         }
@@ -130,6 +132,8 @@ public class CertificationService {
     public CreatedLien createLien(String certificateId, String certificatePassword, String titre, Date dateExpiration) throws Exception {
         Certification certification = findCertification(certificateId);
 
+        certificatePassword = getCertificatePasswordFromLien(certificatePassword, certification);
+
         //permet de s'assurer qu'on a le bon password
         getUploadedCertification(certification, certificatePassword);
 
@@ -161,8 +165,11 @@ public class CertificationService {
 
     public void forgetCertificate(String uuid) {
         Certification certification = findCertification(uuid);
+
         doUserHasAccessToCertification(certification);
+
         certification.setSalt(null);
+
         saveCertification(certification);
     }
 
@@ -179,9 +186,11 @@ public class CertificationService {
 
     private Certification findCertification(String uuid) {
         Certification certification = findCertificateWithoutSalt(uuid);
+
         if (Objects.isNull(certification.getSalt())) {
             throw new UserForgottenException();
         }
+
         return certification;
     }
 
@@ -249,17 +258,26 @@ public class CertificationService {
     }
 
     private void verifierSiCertificatPossedeLienProprio(Certification certification) {
-        Lien lien = null;
+        if (Objects.nonNull(findProprietaireLien(certification))) {
+            throw new ValidationException("Le certificat a un mot de passe");
+        }
+    }
 
+    private Lien findProprietaireLien(Certification certification) {
         if (Objects.nonNull(certification.getLiens())) {
-            lien = certification.getLiens().stream()
+            return certification.getLiens().stream()
                     .filter(x -> x.getType() == Type.PROPRIETAIRE_CERTIFICAT)
                     .findFirst()
                     .orElse(null);
         }
+        return null;
+    }
 
+    private String getCertificatePasswordFromLien(String certificatePassword, Certification certification) {
+        Lien lien = findProprietaireLien(certification);
         if (Objects.nonNull(lien)) {
-            throw new ValidationException("Le certificat a un mot de passe");
+            certificatePassword = lienService.getLien(lien.getId(), certificatePassword).getCertificateEncKey();
         }
+        return certificatePassword;
     }
 }
