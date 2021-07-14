@@ -2,6 +2,7 @@ package com.momo.certChain.controller;
 
 import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.jwt.JwtProvider;
+import com.momo.certChain.model.Type;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.request.CreateLienDTO;
 import com.momo.certChain.model.dto.request.CreateProprietaireLienDTO;
@@ -28,8 +29,10 @@ import org.web3j.crypto.ECKeyPair;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -81,7 +84,7 @@ class CertificationControllerTest {
     @Test
     public void testGetCertificationWithLien() throws Exception {
         uploadEncryptedCertificate();
-        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{certificateId}/{lienId}/{key}", studentCertification.getId(), createLien().getId(), lienEncKey)
+        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{certificateId}/{lienId}/{key}", studentCertification.getId(), createLien(Type.UTILISATEUR_EXTERNE).getId(), lienEncKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -110,6 +113,25 @@ class CertificationControllerTest {
     }
 
     @Test
+    public void testCreatePropriaitaireUserAldreadyHasLien() throws Exception {
+        uploadEncryptedCertificate();
+
+        Student student = createUserWithCertification();
+        List<Lien> lienList = new ArrayList<>();
+        lienList.add(createLien(Type.PROPRIETAIRE_CERTIFICAT));
+
+        student.getCertifications().get(0).setLiens(lienList);
+        userRepository.save(student);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/certification/createProprietaireLien")
+                .header("Authorization", jwtProvider.generate(student))
+                .content(objectMapper.writeValueAsString(new CreateProprietaireLienDTO(student.getCertifications().get(0).getId(),"password",encKey)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void testcreatePropriaitaireUserNotOwnerOfCertificateLien() throws Exception {
         uploadEncryptedCertificate();
         Student student = createUserWithCertification();
@@ -125,7 +147,7 @@ class CertificationControllerTest {
     @Test
     public void testGetCertificationWrongKey() throws Exception {
         uploadEncryptedCertificate();
-        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{certificateId}/{lienId}/{key}", studentCertification.getId(), createLien().getId(), "encKey")
+        mockMvc.perform(MockMvcRequestBuilders.get("/certification/fetchCertificate/{certificateId}/{lienId}/{key}", studentCertification.getId(), createLien(Type.UTILISATEUR_EXTERNE).getId(), "encKey")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -231,10 +253,11 @@ class CertificationControllerTest {
 
     }
 
-    private Lien createLien() {
+    private Lien createLien(Type type) {
         Lien lien = new Lien();
         lien.setSalt(encryptionService.generateSalt());
         lien.setCertificateEncKey(encryptionService.encryptData(lienEncKey, encKey, lien.getSalt()));
+        lien.setType(type);
         return lienRepository.save(lien);
     }
 
@@ -247,7 +270,7 @@ class CertificationControllerTest {
 
     private Student createUserWithCertification() {
         Student student = new Student();
-        student.setCertifications(Collections.singletonList(createCertification()));
+        student.setCertifications(new ArrayList<>(Collections.singletonList(createCertification())));
         return userRepository.save(student);
     }
 

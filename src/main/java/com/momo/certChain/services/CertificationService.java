@@ -7,6 +7,7 @@ import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.mapping.CertificationMapper;
 import com.momo.certChain.mapping.SignatureMapper;
 import com.momo.certChain.model.CreatedLien;
+import com.momo.certChain.model.Type;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.CertificationDTO;
 import com.momo.certChain.repositories.CertificationRepository;
@@ -105,6 +106,7 @@ public class CertificationService {
 
         saveCertification(CertificationMapper.instance.stripValuesToSave(studentCertification));
     }
+
     public CertificationDTO toDTO(Certification certification) {
         return CertificationMapper.instance.toDTO(certification);
     }
@@ -140,12 +142,14 @@ public class CertificationService {
         return createdLien;
     }
 
-    public void createProprietaireLien(String certificateId,String userPassword,String certEncKey) throws ParseException {
+    public void createProprietaireLien(String certificateId, String userPassword, String certEncKey) throws ParseException {
         Certification certification = findCertification(certificateId);
 
         doUserHasAccessToCertification(certification);
 
-        creerLienDaccesAuCertificatPourEleve(userPassword,certification,certEncKey);
+        verifierSiCertificatPossedeLienProprio(certification);
+
+        creerLienDaccesAuCertificatPourEleve(userPassword, certification, certEncKey);
     }
 
     public Certification saveCertificationWithSalt(Certification certification) {
@@ -241,6 +245,21 @@ public class CertificationService {
     }
 
     private void creerLienDaccesAuCertificatPourEleve(String password, Certification certification, String certEncKey) throws ParseException {
-        lienService.createLienAccesPourProprietaireCertificat(password,certEncKey, certification);
+        lienService.createLienAccesPourProprietaireCertificat(password, certEncKey, certification);
+    }
+
+    private void verifierSiCertificatPossedeLienProprio(Certification certification) {
+        Lien lien = null;
+
+        if (Objects.nonNull(certification.getLiens())) {
+            lien = certification.getLiens().stream()
+                    .filter(x -> x.getType() == Type.PROPRIETAIRE_CERTIFICAT)
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        if (Objects.nonNull(lien)) {
+            throw new ValidationException("Le certificat a un mot de passe");
+        }
     }
 }

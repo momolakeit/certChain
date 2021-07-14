@@ -5,6 +5,7 @@ import com.momo.certChain.exception.CannotAccessCertificateException;
 import com.momo.certChain.exception.UserForgottenException;
 import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.model.CreatedLien;
+import com.momo.certChain.model.Type;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Lien;
 import com.momo.certChain.model.data.Signature;
@@ -380,6 +381,26 @@ class CertificationServiceTest {
     }
 
     @Test
+    public void createPropriaitaireLienCertificatPossedeLienProprioDejaTest() throws Exception {
+        String certificateId = "123456";
+        String userPassword = "password";
+        String certEncKey = "certEncKey";
+
+        Certification certification = TestUtils.createCertification();
+        certification.setLiens(Collections.singletonList(createProprioLien()));
+
+        when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
+        when(headerCatcherService.getUserId()).thenReturn("123456");
+        when(userService.getUser(anyString())).thenReturn(createStudentWithCertification(certificateId));
+
+        Assertions.assertThrows(ValidationException.class,()->{
+            certificationService.createProprietaireLien(certificateId, userPassword, certEncKey);
+        });
+
+
+    }
+
+    @Test
     public void createPropriaitaireLienUserNotAllowedAtCertificateTest() {
         String certificateId = "123456";
         String userPassword = "password";
@@ -437,6 +458,12 @@ class CertificationServiceTest {
         certification.setId(certId);
 
         return certification;
+    }
+
+    private Lien createProprioLien(){
+        Lien lien = TestUtils.createLien();
+        lien.setType(Type.PROPRIETAIRE_CERTIFICAT);
+        return lien;
     }
 
 }
