@@ -362,27 +362,6 @@ class CertificationServiceTest {
     }
 
     @Test
-    public void createLienUtiliserLienProprietaireTest() throws Exception {
-        String generatedLienPassword = "generatedPassword";
-
-        Certification certification = TestUtils.createCertification();
-        certification.setLiens(new ArrayList<>(Collections.singletonList(createProprioLien())));
-
-        when(certificationRepository.findById(anyString())).thenReturn(Optional.of(certification));
-        when(contractServiceImpl.getCertificate(anyString(), anyString(), any(ECKeyPair.class), anyString(), anyString())).thenReturn(TestUtils.createCertification());
-        when(lienService.createLien(anyString(), any(Date.class), anyString(), any(Certification.class))).thenReturn(new CreatedLien(TestUtils.createLien(), generatedLienPassword));
-        when(lienService.getLien(anyString(),any())).thenReturn(TestUtils.createLien());
-
-        String generatedPasswordResponse = certificationService.createLien("123456", "password", TestUtils.createLien().getTitre(), new Date()).getGeneratedPassword();
-
-        verify(certificationRepository).save(certificationArgumentCaptor.capture());
-        verify(lienService,times(1)).getLien(anyString(),anyString());
-
-        assertEquals(generatedLienPassword, generatedPasswordResponse);
-        TestUtils.assertLien(certificationArgumentCaptor.getValue().getLiens().get(0));
-    }
-
-    @Test
     public void createPropriaitaireLienTest() throws Exception {
         String certificateId = "123456";
         String userPassword = "password";
@@ -391,6 +370,7 @@ class CertificationServiceTest {
         when(certificationRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createCertification()));
         when(headerCatcherService.getUserId()).thenReturn("123456");
         when(userService.getUser(anyString())).thenReturn(createStudentWithCertification(certificateId));
+        when(lienService.createLienAccesPourProprietaireCertificat(anyString(),anyString(),any(Certification.class))).thenReturn(new CreatedLien(TestUtils.createLien(),userPassword));
 
         certificationService.createProprietaireLien(certificateId, userPassword, certEncKey);
 
@@ -399,6 +379,29 @@ class CertificationServiceTest {
         TestUtils.assertCertification(certificationArgumentCaptor.getValue());
         assertEquals(userPassword, userPasswordCaptor.getValue());
         assertEquals(certEncKey, encryptionPrivateKeyCaptor.getValue());
+
+    }
+
+    @Test
+    public void createPropriaitaireLienSassurerDavoirLienDansCertificatTest() throws Exception {
+        String certificateId = "123456";
+        String userPassword = "password";
+        String certEncKey = "certEncKey";
+
+        when(certificationRepository.findById(anyString())).thenReturn(Optional.of(TestUtils.createCertification()));
+        when(headerCatcherService.getUserId()).thenReturn("123456");
+        when(userService.getUser(anyString())).thenReturn(createStudentWithCertification(certificateId));
+        when(lienService.createLienAccesPourProprietaireCertificat(anyString(),anyString(),any(Certification.class))).thenReturn(new CreatedLien(TestUtils.createLien(),userPassword));
+
+        certificationService.createProprietaireLien(certificateId, userPassword, certEncKey);
+
+        verify(certificationRepository,times(1)).save(certificationArgumentCaptor.capture());
+
+
+        Certification certification = certificationArgumentCaptor.getValue();
+
+        TestUtils.assertCertification(certification);
+        TestUtils.assertLien(certification.getLiens().get(0));
 
     }
 

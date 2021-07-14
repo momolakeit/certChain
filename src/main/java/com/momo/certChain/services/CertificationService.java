@@ -254,7 +254,11 @@ public class CertificationService {
     }
 
     private void creerLienDaccesAuCertificatPourEleve(String password, Certification certification, String certEncKey) throws ParseException {
-        lienService.createLienAccesPourProprietaireCertificat(password, certEncKey, certification);
+        CreatedLien createdLien = lienService.createLienAccesPourProprietaireCertificat(password, certEncKey, certification);
+
+        certification.setLiens(ListUtils.ajouterObjectAListe(createdLien.getLien(), certification.getLiens()));
+
+        saveCertification(certification);
     }
 
     private void verifierSiCertificatPossedeLienProprio(Certification certification) {
