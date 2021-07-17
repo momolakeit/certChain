@@ -1,9 +1,6 @@
 package com.momo.certChain.services;
 
-import com.momo.certChain.exception.BadPasswordException;
-import com.momo.certChain.exception.CustomMessagingException;
-import com.momo.certChain.exception.ObjectNotFoundException;
-import com.momo.certChain.exception.PasswordNotMatchingException;
+import com.momo.certChain.exception.*;
 import com.momo.certChain.mapping.EmployeeMapper;
 import com.momo.certChain.mapping.StudentMapper;
 import com.momo.certChain.model.data.Certification;
@@ -51,18 +48,18 @@ public class HumanUserService {
     public HumanUser createHumanUser(HumanUser humanUser) {
         String generatedPassword = createPasswordForUser(humanUser);
 
-        try{
-            messageService.sendUserCreatedEmail(humanUser,generatedPassword);
-        }catch (MessagingException | IOException e) {
+        try {
+            messageService.sendUserCreatedEmail(humanUser, generatedPassword);
+        } catch (MessagingException | IOException e) {
             throw new CustomMessagingException();
         }
 
-        return (HumanUser) userService.createUser(humanUser);
+        return createUser(humanUser);
     }
 
-    //set up confirmer password dans le backend aussi pour securite accrue
 
-    public HumanUser modifyPassword(String uuid, String oldPassword, String password, String passwordConfirmation){
+    //set up confirmer password dans le backend aussi pour securite accrue
+    public HumanUser modifyPassword(String uuid, String oldPassword, String password, String passwordConfirmation) {
         HumanUser user = (HumanUser) userService.getUser(uuid);
 
         verifyPasswordConditions(oldPassword, password, passwordConfirmation, user);
@@ -73,27 +70,27 @@ public class HumanUserService {
     }
 
     //todo test that
-    public HumanUserDTO toDTO (HumanUser humanUser){
-        if(humanUser instanceof Student){
+
+    public HumanUserDTO toDTO(HumanUser humanUser) {
+        if (humanUser instanceof Student) {
             return StudentMapper.instance.toDTO((Student) humanUser);
-        }
-        else if (humanUser instanceof Employee){
+        } else if (humanUser instanceof Employee) {
             return EmployeeMapper.instance.toDTO((Employee) humanUser);
         }
         throw new ClassCastException();
 
     }
 
-    public HumanUser saveUser(HumanUser user){
+    public HumanUser saveUser(HumanUser user) {
         return humanUserRepository.save(user);
     }
 
     private void verifyPasswordConditions(String oldPassword, String password, String passwordConfirmation, HumanUser user) {
-        if(!passwordEncoder.matches(oldPassword, user.getPassword())){
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new BadPasswordException();
         }
 
-        if(!password.equals(passwordConfirmation)){
+        if (!password.equals(passwordConfirmation)) {
             throw new PasswordNotMatchingException();
         }
     }
@@ -110,5 +107,27 @@ public class HumanUserService {
 
     private void encodeUserPassword(HumanUser humanUser, String password) {
         humanUser.setPassword(passwordEncoder.encode(password));
+    }
+
+    private HumanUser createUser(HumanUser humanUser) {
+        try {
+            return (HumanUser) userService.createUser(humanUser);
+
+        } catch (ValidationException e) {
+            if (humanUser instanceof Student) {
+                return ajouterCertificatAStudentExistant((Student) humanUser);
+            } else {
+                throw e;
+            }
+
+        }
+    }
+
+    private HumanUser ajouterCertificatAStudentExistant(Student student) {
+        Student studentEntity = (Student) userService.findUserByEmail(student.getUsername());
+
+        studentEntity.getCertifications().add(student.getCertifications().get(0));
+
+        return (HumanUser) userService.saveUser(studentEntity);
     }
 }

@@ -12,6 +12,7 @@ import com.momo.certChain.model.data.User;
 import com.momo.certChain.model.dto.UserDTO;
 import com.momo.certChain.repositories.UserRepository;
 import com.momo.certChain.services.request.HeaderCatcherService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,8 +35,12 @@ public class UserService {
             findUserByEmail(user.getUsername());
             throw new ValidationException("Un utilisateur avec ce courriel existe déja");
         } catch (ObjectNotFoundException objectNotFoundException) {
-            return userRepository.save(user);
+            return saveUser(user);
         }
+    }
+
+    public User saveUser(User user) {
+        return userRepository.save(user);
     }
 
     public User getUser(String id) {

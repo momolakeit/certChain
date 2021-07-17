@@ -4,12 +4,14 @@ import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.exception.BadPasswordException;
 import com.momo.certChain.exception.CustomMessagingException;
 import com.momo.certChain.exception.PasswordNotMatchingException;
+import com.momo.certChain.exception.ValidationException;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.EmployeesDTO;
 import com.momo.certChain.model.dto.StudentDTO;
 import com.momo.certChain.repositories.HumanUserRepository;
 import com.momo.certChain.services.messaging.MessageServiceImpl;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.mail.MessagingException;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -84,6 +87,30 @@ class HumanUserServiceTest {
     }
 
     @Test
+    public void createStudentUserAlreadyPresentTest() throws MessagingException, IOException {
+        Student studentEntity = createStudentWithCertification();
+        Student student = createStudentWithCertification();
+        String password = "password";
+
+        randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
+        when(userService.createUser(any(User.class))).thenThrow(new ValidationException("message"));
+        when(userService.findUserByEmail(anyString())).thenReturn(studentEntity);
+        when(userService.saveUser(any(User.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        Student returnValue = (Student) humanUserService.createHumanUser(student);
+
+        verify(messageServiceImpl, times(1)).sendUserCreatedEmail(any(HumanUser.class), passwordCaptor.capture());
+
+        assertEquals(password, passwordCaptor.getValue());
+        assertFalse(returnValue.isPasswordResseted());
+
+        TestUtils.assertCertification(returnValue.getCertifications().get(0));
+        assertEquals(2, returnValue.getCertifications().size());
+    }
+
+
+    @Test
     public void createEmployeeUserTest() throws MessagingException, IOException {
         Employee employe = TestUtils.createEmploye();
         String password = "password";
@@ -101,6 +128,22 @@ class HumanUserServiceTest {
         TestUtils.assertBaseUser(returnValue);
         TestUtils.assertInstitution(returnValue.getInstitution());
     }
+
+    @Test
+    public void createEmployeeUserAlreadyPresentTest() throws MessagingException, IOException {
+        Employee employee = TestUtils.createEmploye();
+        String password = "password";
+
+        randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
+        when(userService.createUser(any(User.class))).thenThrow(new ValidationException("message"));
+        when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        Assertions.assertThrows(ValidationException.class, () -> {
+            humanUserService.createHumanUser(employee);
+        });
+
+    }
+
 
     @Test
     public void createStudentUserThrowMessagingExceptionTest() throws MessagingException, IOException {
@@ -137,8 +180,7 @@ class HumanUserServiceTest {
         String passwordConfirmation = "salut";
         String oldPassword = "password";
         String id = "123456";
-        Student student = TestUtils.createStudent();
-        student.setCertifications(Collections.singletonList(TestUtils.createCertification()));
+        Student student = createStudentWithCertification();
 
         when(humanUserRepository.save(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(userService.getUser(anyString())).thenReturn(student);
@@ -198,4 +240,10 @@ class HumanUserServiceTest {
         assertEquals(employeeDTO.getPrenom(), employee.getPrenom());
     }
 
+
+    public Student createStudentWithCertification() {
+        Student studentEntity = TestUtils.createStudent();
+        studentEntity.setCertifications(new ArrayList<>(Collections.singletonList(TestUtils.createCertification())));
+        return studentEntity;
+    }
 }
