@@ -15,9 +15,7 @@ import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.request.HeaderCatcherService;
 import com.momo.certChain.services.security.EncryptionService;
 import com.momo.certChain.utils.ListUtils;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
 
@@ -30,7 +28,6 @@ import java.util.stream.Collectors;
 
 
 @Service
-@Transactional
 public class CertificationService {
 
     private final CertificationRepository certificationRepository;

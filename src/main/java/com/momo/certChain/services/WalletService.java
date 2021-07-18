@@ -4,7 +4,6 @@ import com.momo.certChain.model.data.InstitutionWallet;
 import com.momo.certChain.repositories.WalletRepository;
 import com.momo.certChain.services.security.EncryptionService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.*;
 import org.web3j.utils.Numeric;
 
@@ -13,7 +12,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
 @Service
-@Transactional
 public class WalletService {
 
     private final WalletRepository walletRepository;

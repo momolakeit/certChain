@@ -3,10 +3,8 @@ package com.momo.certChain.services;
 import com.momo.certChain.model.data.Address;
 import com.momo.certChain.repositories.AddressRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 public class AddressService {
 
     private final AddressRepository addressRepository;

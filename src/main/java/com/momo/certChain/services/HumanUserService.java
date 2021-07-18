@@ -3,27 +3,20 @@ package com.momo.certChain.services;
 import com.momo.certChain.exception.*;
 import com.momo.certChain.mapping.EmployeeMapper;
 import com.momo.certChain.mapping.StudentMapper;
-import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Employee;
 import com.momo.certChain.model.data.HumanUser;
 import com.momo.certChain.model.data.Student;
 import com.momo.certChain.model.dto.HumanUserDTO;
 import com.momo.certChain.repositories.HumanUserRepository;
-import com.momo.certChain.services.authentification.AuthService;
 import com.momo.certChain.services.messaging.MessageService;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
-import java.text.ParseException;
-import java.util.List;
 
 @Service
-@Transactional
 public class HumanUserService {
 
     private final HumanUserRepository humanUserRepository;

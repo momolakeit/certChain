@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import java.util.List;
 
@@ -12,6 +13,6 @@ import java.util.List;
 @Getter
 @Setter
 public class Student extends HumanUser {
-    @OneToMany(cascade = CascadeType.PERSIST,orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<Certification> certifications;
 }

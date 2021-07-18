@@ -10,19 +10,15 @@ import com.momo.certChain.repositories.InstitutionRepository;
 import com.momo.certChain.services.blockChain.ContractService;
 import com.momo.certChain.services.excel.ExcelService;
 import com.momo.certChain.services.messaging.MessageService;
-import com.momo.certChain.services.security.EncryptionService;
 import com.momo.certChain.services.security.KeyPairService;
 import com.momo.certChain.utils.ListUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.ECKeyPair;
 
 import javax.mail.MessagingException;
-import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -31,7 +27,6 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-@Transactional
 public class InstitutionService {
 
     private final InstitutionRepository institutionRepository;

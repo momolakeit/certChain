@@ -12,14 +12,9 @@ import com.momo.certChain.model.data.User;
 import com.momo.certChain.model.dto.UserDTO;
 import com.momo.certChain.repositories.UserRepository;
 import com.momo.certChain.services.request.HeaderCatcherService;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Objects;
 
 @Service
-@Transactional
 public class UserService {
     private final UserRepository userRepository;
 
