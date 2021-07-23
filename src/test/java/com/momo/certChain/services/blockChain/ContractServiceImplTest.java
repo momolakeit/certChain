@@ -5,6 +5,7 @@ import com.momo.certChain.Utils.TestUtils;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Student;
 import com.momo.certChain.services.blockChain.contract.SavingDiploma;
+import com.momo.certChain.services.feign.GasCalculatorService;
 import com.momo.certChain.services.security.EncryptionService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,6 +59,9 @@ class ContractServiceImplTest {
     private EncryptionService encryptionService;
 
     @Mock
+    private GasCalculatorService gasCalculatorService;
+
+    @Mock
     private Web3j web3j;
 
     @Captor
@@ -74,7 +78,7 @@ class ContractServiceImplTest {
 
     @BeforeEach
     public void init() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
-        contractServiceImpl = new ContractServiceImpl(new ObjectMapper(), encryptionService,web3j, BigInteger.valueOf(500000000L),BigInteger.valueOf(900000L),80001L);
+        contractServiceImpl = new ContractServiceImpl(new ObjectMapper(), encryptionService, web3j, gasCalculatorService, BigInteger.valueOf(500000000L), BigInteger.valueOf(900000L), 80001L);
 
         credentialsMockedStatic = mockStatic(Credentials.class);
         credentialsMockedStatic.when(() -> Credentials.create(any(ECKeyPair.class))).thenReturn(credentials);
@@ -107,11 +111,11 @@ class ContractServiceImplTest {
 
         when(savingDiploma.get(anyString())).thenReturn(remoteFunctionCall);
         when(remoteFunctionCall.send()).thenReturn(new ObjectMapper().writeValueAsString(certification));
-        when(encryptionService.decryptDataForCertificate(anyString(),anyString(),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
+        when(encryptionService.decryptDataForCertificate(anyString(), anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
         savingDiplomaMockedStatic.when(() -> SavingDiploma.load(anyString(), any(Web3j.class), any(FastRawTransactionManager.class), any(StaticGasProvider.class))).thenReturn(savingDiploma);
 
 
-        Certification returnValueCertification = contractServiceImpl.getCertificate("uuid", "address", ecKeyPair,"privateKey","salt");
+        Certification returnValueCertification = contractServiceImpl.getCertificate("uuid", "address", ecKeyPair, "privateKey", "salt");
 
         assertNotNull(returnValueCertification);
         TestUtils.assertCertification(certification);
@@ -126,10 +130,10 @@ class ContractServiceImplTest {
 
         when(savingDiploma.addCertificate(anyString(), anyString())).thenReturn(remoteFunctionCall);
         when(encryptionService.encryptData(anyString(), anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
-        savingDiplomaMockedStatic.when(() -> SavingDiploma.load(anyString(),any(Web3j.class), any(FastRawTransactionManager.class), any(StaticGasProvider.class))).thenReturn(savingDiploma);
+        savingDiplomaMockedStatic.when(() -> SavingDiploma.load(anyString(), any(Web3j.class), any(FastRawTransactionManager.class), any(StaticGasProvider.class))).thenReturn(savingDiploma);
 
 
-        contractServiceImpl.uploadCertificate(certification, "address", ecKeyPair,"");
+        contractServiceImpl.uploadCertificate(certification, "address", ecKeyPair, "");
         verify(savingDiploma).addCertificate(certificateIdCaptor.capture(), certificateJsonCaptor.capture());
         String returnId = certificateIdCaptor.getValue();
 

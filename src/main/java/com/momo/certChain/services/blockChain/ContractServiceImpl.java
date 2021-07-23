@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.momo.certChain.mapping.SimpleCertificationMapper;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.services.blockChain.contract.SavingDiploma;
+import com.momo.certChain.services.feign.GasCalculatorService;
 import com.momo.certChain.services.security.EncryptionService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +26,8 @@ public class ContractServiceImpl implements ContractService {
 
     private final EncryptionService encryptionService;
 
+    private final GasCalculatorService gasCalculatorService;
+
     private final Web3j web3j;
 
     private final BigInteger gasPrice;
@@ -36,12 +39,14 @@ public class ContractServiceImpl implements ContractService {
     public ContractServiceImpl(ObjectMapper objectMapper,
                                EncryptionService encryptionService,
                                Web3j web3j,
+                               GasCalculatorService gasCalculatorService,
                                @Value("${blockchain.gasPrice}") BigInteger gasPrice,
                                @Value("${blockchain.gasLimit}") BigInteger gasLimit,
                                @Value("${blockchain.chainID}") Long chainID) {
         this.objectMapper = objectMapper;
         this.encryptionService = encryptionService;
         this.web3j = web3j;
+        this.gasCalculatorService = gasCalculatorService;
         this.gasPrice = gasPrice;
         this.gasLimit = gasLimit;
         this.chainID = chainID;
@@ -86,6 +91,6 @@ public class ContractServiceImpl implements ContractService {
     }
 
     public StaticGasProvider getStaticGasProvider() {
-        return new StaticGasProvider(gasPrice,gasLimit);
+        return new StaticGasProvider(gasCalculatorService.getFastGasPrice(),gasCalculatorService.getGasLimit());
     }
 }
