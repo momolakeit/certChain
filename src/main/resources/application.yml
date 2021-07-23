@@ -24,8 +24,11 @@ front-end-url: "http://localhost:4200"
 
 blockchain:
   ethereum:
-    inputUrl : "http://localhost:7545"
+    inputUrl : TO_BE_OVERRIDDEN
   privateKey : TO_BE_OVERRIDDEN
+  gasLimit: 0
+  gasPrice: 0
+  chainID: 0
 
 
 security:

@@ -5,13 +5,15 @@ import com.momo.certChain.mapping.SimpleCertificationMapper;
 import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.services.blockChain.contract.SavingDiploma;
 import com.momo.certChain.services.security.EncryptionService;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.protocol.Web3j;
-import org.web3j.tx.Contract;
-import org.web3j.tx.ManagedTransaction;
+import org.web3j.tx.FastRawTransactionManager;
+import org.web3j.tx.gas.StaticGasProvider;
 
 import java.math.BigInteger;
 
@@ -25,14 +27,28 @@ public class ContractServiceImpl implements ContractService {
 
     private final Web3j web3j;
 
-    public ContractServiceImpl(ObjectMapper objectMapper, EncryptionService encryptionService, Web3j web3j) {
+    private final BigInteger gasPrice;
+
+    private final BigInteger gasLimit;
+
+    private final Long chainID;
+
+    public ContractServiceImpl(ObjectMapper objectMapper,
+                               EncryptionService encryptionService,
+                               Web3j web3j,
+                               @Value("${blockchain.gasPrice}") BigInteger gasPrice,
+                               @Value("${blockchain.gasLimit}") BigInteger gasLimit,
+                               @Value("${blockchain.chainID}") Long chainID) {
         this.objectMapper = objectMapper;
         this.encryptionService = encryptionService;
         this.web3j = web3j;
+        this.gasPrice = gasPrice;
+        this.gasLimit = gasLimit;
+        this.chainID = chainID;
     }
 
     public String uploadContract(ECKeyPair ecKeyPair) throws Exception {
-        SavingDiploma savingDiploma = SavingDiploma.deploy(web3j, getCredentialsFromPrivateKey(ecKeyPair), BigInteger.ZERO, Contract.GAS_LIMIT).send();
+        SavingDiploma savingDiploma = SavingDiploma.deploy(web3j, getFastRawTransactionManager(ecKeyPair), getStaticGasProvider()).send();
         return savingDiploma.getContractAddress();
     }
 
@@ -47,7 +63,6 @@ public class ContractServiceImpl implements ContractService {
     }
 
     public void uploadCertificate(Certification certification, String address, ECKeyPair ecKeyPair,String encryptionKey) throws Exception {
-
         SavingDiploma savingDiploma = getUploadedContract(address, ecKeyPair);
 
         String certificateJson = objectMapper.writeValueAsString(SimpleCertificationMapper.instance.toSimple(certification));
@@ -59,10 +74,18 @@ public class ContractServiceImpl implements ContractService {
     }
 
     private SavingDiploma getUploadedContract(String address, ECKeyPair ecKeyPair) {
-        return SavingDiploma.load(address, web3j, getCredentialsFromPrivateKey(ecKeyPair), ManagedTransaction.GAS_PRICE, Contract.GAS_LIMIT);
+        return SavingDiploma.load(address, web3j, getFastRawTransactionManager(ecKeyPair),getStaticGasProvider());
     }
 
     private Credentials getCredentialsFromPrivateKey(ECKeyPair ecKeyPair) {
         return Credentials.create(ecKeyPair);
+    }
+
+    public FastRawTransactionManager getFastRawTransactionManager(ECKeyPair ecKeyPair) {
+        return new FastRawTransactionManager(web3j, getCredentialsFromPrivateKey(ecKeyPair), chainID);
+    }
+
+    public StaticGasProvider getStaticGasProvider() {
+        return new StaticGasProvider(gasPrice,gasLimit);
     }
 }

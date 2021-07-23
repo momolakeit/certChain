@@ -21,7 +21,11 @@ import org.web3j.crypto.Keys;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.RemoteCall;
 import org.web3j.protocol.core.RemoteFunctionCall;
+import org.web3j.tx.FastRawTransactionManager;
+import org.web3j.tx.gas.StaticGasProvider;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -36,9 +40,7 @@ class ContractServiceImplTest {
 
     private ContractServiceImpl contractServiceImpl;
 
-    private String privateKey = "privateKey";
-
-    private String contractAddress = "contractAddress";
+    private final String contractAddress = "contractAddress";
 
     @Mock
     private SavingDiploma savingDiploma;
@@ -72,7 +74,7 @@ class ContractServiceImplTest {
 
     @BeforeEach
     public void init() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
-        contractServiceImpl = new ContractServiceImpl(new ObjectMapper(), encryptionService,web3j);
+        contractServiceImpl = new ContractServiceImpl(new ObjectMapper(), encryptionService,web3j, BigInteger.valueOf(500000000L),BigInteger.valueOf(900000L),80001L);
 
         credentialsMockedStatic = mockStatic(Credentials.class);
         credentialsMockedStatic.when(() -> Credentials.create(any(ECKeyPair.class))).thenReturn(credentials);
@@ -92,7 +94,7 @@ class ContractServiceImplTest {
         when(remoteCall.send()).thenReturn(savingDiploma);
 
         savingDiplomaMockedStatic = mockStatic(SavingDiploma.class);
-        savingDiplomaMockedStatic.when(() -> SavingDiploma.deploy(any(), any(Credentials.class), any(), any())).thenReturn(remoteCall);
+        savingDiplomaMockedStatic.when(() -> SavingDiploma.deploy(any(Web3j.class), any(FastRawTransactionManager.class), any(StaticGasProvider.class))).thenReturn(remoteCall);
 
         String returncontractAdress = contractServiceImpl.uploadContract(ecKeyPair);
         assertEquals(contractAddress, returncontractAdress);
@@ -106,7 +108,7 @@ class ContractServiceImplTest {
         when(savingDiploma.get(anyString())).thenReturn(remoteFunctionCall);
         when(remoteFunctionCall.send()).thenReturn(new ObjectMapper().writeValueAsString(certification));
         when(encryptionService.decryptDataForCertificate(anyString(),anyString(),anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
-        savingDiplomaMockedStatic.when(() -> SavingDiploma.load(any(), any(), any(Credentials.class), any(), any())).thenReturn(savingDiploma);
+        savingDiplomaMockedStatic.when(() -> SavingDiploma.load(anyString(), any(Web3j.class), any(FastRawTransactionManager.class), any(StaticGasProvider.class))).thenReturn(savingDiploma);
 
 
         Certification returnValueCertification = contractServiceImpl.getCertificate("uuid", "address", ecKeyPair,"privateKey","salt");
@@ -124,7 +126,7 @@ class ContractServiceImplTest {
 
         when(savingDiploma.addCertificate(anyString(), anyString())).thenReturn(remoteFunctionCall);
         when(encryptionService.encryptData(anyString(), anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
-        savingDiplomaMockedStatic.when(() -> SavingDiploma.load(any(), any(), any(Credentials.class), any(), any())).thenReturn(savingDiploma);
+        savingDiplomaMockedStatic.when(() -> SavingDiploma.load(anyString(),any(Web3j.class), any(FastRawTransactionManager.class), any(StaticGasProvider.class))).thenReturn(savingDiploma);
 
 
         contractServiceImpl.uploadCertificate(certification, "address", ecKeyPair,"");
