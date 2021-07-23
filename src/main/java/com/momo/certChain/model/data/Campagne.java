@@ -23,7 +23,7 @@ public class Campagne {
 
     private boolean runned;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<HumanUser> studentList;
 
     @ManyToOne
