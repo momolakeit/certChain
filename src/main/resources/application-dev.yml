@@ -9,6 +9,4 @@ spring:
 blockchain:
   ethereum:
     inputUrl : https://speedy-nodes-nyc.moralis.io/b38206bb455593d951dbf660/polygon/mumbai
-  gasLimit: 900000
-  gasPrice: 5000000000
   chainID: 80001

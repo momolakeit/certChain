@@ -183,7 +183,7 @@ public class InstitutionService {
     private void checkIfInstitutionApproved(Institution institution) {
         if (!activeProfiles.contains("local")) {
             if (!institution.isApprouved()) {
-                //throw new ValidationException("L'institution n'est pas encore approuvé par l'admin");
+                throw new ValidationException("L'institution n'est pas encore approuvé par l'admin");
             }
         }
     }

@@ -30,25 +30,17 @@ public class ContractServiceImpl implements ContractService {
 
     private final Web3j web3j;
 
-    private final BigInteger gasPrice;
-
-    private final BigInteger gasLimit;
-
     private final Long chainID;
 
     public ContractServiceImpl(ObjectMapper objectMapper,
                                EncryptionService encryptionService,
                                Web3j web3j,
                                GasCalculatorService gasCalculatorService,
-                               @Value("${blockchain.gasPrice}") BigInteger gasPrice,
-                               @Value("${blockchain.gasLimit}") BigInteger gasLimit,
                                @Value("${blockchain.chainID}") Long chainID) {
         this.objectMapper = objectMapper;
         this.encryptionService = encryptionService;
         this.web3j = web3j;
         this.gasCalculatorService = gasCalculatorService;
-        this.gasPrice = gasPrice;
-        this.gasLimit = gasLimit;
         this.chainID = chainID;
     }
 

@@ -78,7 +78,10 @@ class ContractServiceImplTest {
 
     @BeforeEach
     public void init() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
-        contractServiceImpl = new ContractServiceImpl(new ObjectMapper(), encryptionService, web3j, gasCalculatorService, BigInteger.valueOf(500000000L), BigInteger.valueOf(900000L), 80001L);
+        contractServiceImpl = new ContractServiceImpl(new ObjectMapper(), encryptionService, web3j, gasCalculatorService, 80001L);
+
+        when(gasCalculatorService.getFastGasPrice()).thenReturn(BigInteger.TEN);
+        when(gasCalculatorService.getGasLimit()).thenReturn(BigInteger.TEN);
 
         credentialsMockedStatic = mockStatic(Credentials.class);
         credentialsMockedStatic.when(() -> Credentials.create(any(ECKeyPair.class))).thenReturn(credentials);
