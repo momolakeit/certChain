@@ -170,6 +170,10 @@ public class CertificationService {
         saveCertification(certification);
     }
 
+    public void deleteCertification(Certification certification){
+        certificationRepository.delete(certification);
+    }
+
     public Certification payCertificate(String certId) {
         Certification certification = findCertificateWithoutSalt(certId);
 

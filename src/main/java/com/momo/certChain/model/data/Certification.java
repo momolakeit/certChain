@@ -33,6 +33,9 @@ public class Certification {
     @ManyToOne
     private Student student;
 
+    @ManyToOne
+    private Campagne campagne;
+
     @OneToOne
     private ImageFile universityLogo;
 

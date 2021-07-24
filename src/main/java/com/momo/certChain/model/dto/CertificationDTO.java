@@ -26,6 +26,8 @@ public class CertificationDTO {
 
     private ImageFileDTO universityStamp;
 
+    private CampagneDTO campagne;
+
     private List<SignatureDTO> signatures;
 
     private List<LienDTO> liens;

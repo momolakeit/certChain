@@ -55,7 +55,7 @@ public class CampagneService {
 
         isUserAllowedToRunCampagne(campagne);
 
-        uploadCertificatesToBlockChain(campagne.getStudentList(), campagne.getInstitution(), walletPassword);
+        uploadCertificatesToBlockChain(campagne.getCertifications(), campagne.getInstitution(), walletPassword);
 
         campagne.setRunned(true);
 
@@ -67,7 +67,7 @@ public class CampagneService {
 
         studentList.forEach(student -> setCertificationValues(student, dateExpiration));
 
-        campagne.setStudentList(ListUtils.ajouterListAListe(saveUsers(studentList), campagne.getStudentList()));
+        campagne.setCertifications(ListUtils.ajouterListAListe(getListDesNouveauxCertificatsPourLaCampagne(studentList, campagne), campagne.getCertifications()));
         campagne.setInstitution(institution);
 
         return saveCampagne(campagne);
@@ -85,28 +85,26 @@ public class CampagneService {
         return campagneRepository.save(campagne);
     }
 
-    private void uploadCertificatesToBlockChain(List<HumanUser> studentList, Institution institution, String walletPassword) throws Exception {
+    private void uploadCertificatesToBlockChain(List<Certification> certifications, Institution institution, String walletPassword) throws Exception {
         ECKeyPair keyPair = keyPairService.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
                 institution.getInstitutionWallet().getPublicKey(),
                 institution.getInstitutionWallet().getSalt(),
                 walletPassword);
 
-        for (HumanUser humanUser : studentList) {
+        for (Certification certification : certifications) {
             String generatedString = RandomStringUtils.randomAlphanumeric(11);
-            Student student = (Student) humanUser;
-
-            messageService.sendCertificatePrivateKey(humanUser, generatedString);
-
-            Certification certification = student.getCertifications().get(0);
 
             if (certification.isPayed()) {
+                messageService.sendCertificatePrivateKey(certification.getStudent(), generatedString);
+
                 certificationService.uploadCertificationToBlockChain(certification,
                         institution.getCertificationTemplate(),
                         institution.getContractAddress(),
                         keyPair,
                         generatedString);
             } else {
-                student.getCertifications().remove(certification);
+                //todo s'assurer qu'on delete le certificat dans les tests
+                certificationService.deleteCertification(certification);
             }
         }
     }
@@ -152,4 +150,20 @@ public class CampagneService {
             throw new AuthorizationException("Vous ne pouvez pas rouler cette campagne");
         }
     }
+
+    private List<Certification> getListDesNouveauxCertificatsPourLaCampagne(List<HumanUser> studentList, Campagne campagne) {
+        return saveUsers(studentList).stream()
+                .map(humanUser -> ((Student) humanUser).getCertifications())
+                .flatMap(List::stream)
+                .filter(certification -> Objects.isNull(certification.getCampagne()))
+                .map(certification -> ajouterCertificationACampagne(certification, campagne))
+                .collect(Collectors.toList());
+    }
+
+    private Certification ajouterCertificationACampagne(Certification certification, Campagne campagne) {
+        certification.setCampagne(campagne);
+        return certification;
+    }
+
+
 }

@@ -134,16 +134,16 @@ class CampagneServiceTest {
 
     @Test
     public void runCampagneHalfUsersPayed() throws Exception {
-        int nbDeStudents = 100;
-        int halfStudents = nbDeStudents / 2;
+        int nbDeCertificat = 100;
+        int halfCertificat = nbDeCertificat / 2;
         String randomString = "random";
 
 
         Institution institution = createInstitutionWithWallet();
 
         Campagne campagne = getCampagne(institution);
-        campagne.setStudentList(initStudentsList(halfStudents, true));
-        campagne.getStudentList().addAll(initStudentsList(halfStudents, false));
+        campagne.setCertifications(initCertificationList(halfCertificat, true));
+        campagne.getCertifications().addAll(initCertificationList(halfCertificat, false));
 
         when(keyPairService.createKeyPair(anyString(), anyString(), anyString(), anyString())).thenReturn(TestUtils.createKeyPair(institution.getInstitutionWallet().getPrivateKey(),
                 institution.getInstitutionWallet().getPublicKey()));
@@ -153,11 +153,12 @@ class CampagneServiceTest {
 
         campagneService.runCampagne(campagne.getId(), "walletPassword");
 
-        verify(certificationService, times(halfStudents)).uploadCertificationToBlockChain(studentCertificateArgumentCaptor.capture(),
+        verify(certificationService, times(halfCertificat)).uploadCertificationToBlockChain(studentCertificateArgumentCaptor.capture(),
                 institutionTemplateCertificateArgumentCaptor.capture(),
                 addressArgumentCaptor.capture(),
                 KeyPairArgumentCaptor.capture(),
                 encKeyPrivateKeyCaptor.capture());
+        verify(certificationService,times(halfCertificat)).deleteCertification(any(Certification.class));
 
         List<Certification> studentsCertifications = studentCertificateArgumentCaptor.getAllValues();
         List<Certification> institutionCertificationTemplates = institutionTemplateCertificateArgumentCaptor.getAllValues();
@@ -276,26 +277,25 @@ class CampagneServiceTest {
 
 
     @Test
-    public void createCampagne() {
+    public void createCampagne() throws IOException {
         int nbDeStudents = 100;
-        List<HumanUser> listeOfStudents = initStudentsList(nbDeStudents, false);
+
+        List<HumanUser> students = initStudentList(nbDeStudents,false);
         String campagneName = "Genie informatique concordia";
 
         when(campagneRepository.save(any(Campagne.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(humanUserService.createHumanUser(any(HumanUser.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-        Campagne campagne = campagneService.createCampagne(listeOfStudents, campagneName, TestUtils.createInstitution(), new Date(dateLong));
+        Campagne campagne = campagneService.createCampagne(students, campagneName, TestUtils.createInstitution(), new Date(dateLong));
 
         assertEquals(campagneName, campagne.getName());
-        assertEquals(nbDeStudents, campagne.getStudentList().size());
+        assertEquals(nbDeStudents, campagne.getCertifications().size());
         assertEquals(new Date(dateLong), campagne.getDate());
-        for (HumanUser humanUser : campagne.getStudentList()) {
-            Student student = (Student) humanUser;
-            TestUtils.assertBaseUser(student);
-            TestUtils.assertCertification(student.getCertifications().get(0));
-            TestUtils.assertBaseUser(student.getCertifications().get(0).getStudent());
+        for (Certification certification: campagne.getCertifications()) {
+            assertNotNull(campagne.getCertifications());
+            TestUtils.assertBaseUser(certification.getStudent());
+            TestUtils.assertCertification(certification);
         }
-        ;
     }
 
     @Test
@@ -316,25 +316,34 @@ class CampagneServiceTest {
         });
     }
 
-    private List<HumanUser> initStudentsList(int nbDeStudents, boolean isPayed) {
-        List<HumanUser> students = new ArrayList<>();
+    private List<Certification> initCertificationList(int nbDeStudents, boolean isPayed) {
+        List<Certification> certifications = new ArrayList<>();
         for (int i = 0; i < nbDeStudents; i++) {
-            Student singleStudent = TestUtils.createStudent();
-            singleStudent.setCertifications(new ArrayList<>(Arrays.asList(createCertificationWithPayedStatus(isPayed))));
-            students.add(singleStudent);
+            certifications.add(createCertificationWithPayedStatus(isPayed));
         }
-        return students;
+        return certifications;
+    }
+
+
+    private List<HumanUser> initStudentList(int nbDeStudents, boolean isPayed) {
+        List<HumanUser> studentList = new ArrayList<>();
+        for (int i = 0; i < nbDeStudents; i++) {
+            Student student = TestUtils.createStudent();
+            student.setCertifications(Collections.singletonList(createCertificationWithPayedStatus(isPayed)));
+            studentList.add(student);
+        }
+        return studentList;
     }
 
     private Campagne createCampagneWithPayedCertificates(int nbDeStudents, Institution institution) {
         Campagne campagne = getCampagne(institution);
-        campagne.setStudentList(initStudentsList(nbDeStudents, true));
+        campagne.setCertifications(initCertificationList(nbDeStudents, true));
         return campagne;
     }
 
     private Campagne createCampagneWithNotPayedCertificates(int nbDeStudents, Institution institution) {
         Campagne campagne = getCampagne(institution);
-        campagne.setStudentList(initStudentsList(nbDeStudents, false));
+        campagne.setCertifications(initCertificationList(nbDeStudents, false));
         return campagne;
     }
 

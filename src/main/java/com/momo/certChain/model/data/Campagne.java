@@ -23,8 +23,8 @@ public class Campagne {
 
     private boolean runned;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    private List<HumanUser> studentList;
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<Certification> certifications;
 
     @ManyToOne
     private Institution institution;

@@ -18,7 +18,7 @@ public class CampagneDTO {
 
     private boolean runned;
 
-    private List<HumanUserDTO> studentList;
+    private List<CertificationDTO> certifications;
 
     private InstitutionDTO institution;
 

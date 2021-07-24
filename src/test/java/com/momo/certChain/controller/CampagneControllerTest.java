@@ -75,14 +75,14 @@ class CampagneControllerTest {
     public void init() throws Exception {
         mockMvc = MockMvcBuilders.standaloneSetup(campagneController).build();
 
-        List<HumanUser> students = userRepository.saveAll(Arrays.asList(createStudent(), createStudent()));
+        List<Certification> certifications = certificationRepository.saveAll(Arrays.asList(createCertification(),createCertification()));
 
         institution = (Institution) userRepository.findById(initEnvService.initEnv()).get();
 
         jwt = jwtProvider.generate(institution);
 
         Campagne campagne = TestUtils.createCampagne();
-        campagne.setStudentList(students);
+        campagne.setCertifications(certifications);
         campagne.setInstitution(institution);
 
         campagneId = campagneRepository.save(campagne).getId();
@@ -151,12 +151,6 @@ class CampagneControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
-    }
-
-    private Student createStudent() {
-        Student student = SimpleStudentMapper.instance.toSimple(TestUtils.createStudent());
-        student.setCertifications(Collections.singletonList(createCertification()));
-        return student;
     }
 
     private Certification createCertification() {
