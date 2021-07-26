@@ -185,6 +185,10 @@ public class CertificationService {
 
     }
 
+    public Certification saveCertification(Certification certification) {
+        return certificationRepository.save(certification);
+    }
+
     private Certification findCertification(String uuid) {
         Certification certification = findCertificateWithoutSalt(uuid);
 
@@ -197,10 +201,6 @@ public class CertificationService {
 
     private Certification findCertificateWithoutSalt(String uuid) {
         return certificationRepository.findById(uuid).orElseThrow(this::certificationNotFound);
-    }
-
-    private Certification saveCertification(Certification certification) {
-        return certificationRepository.save(certification);
     }
 
     private ObjectNotFoundException certificationNotFound() {

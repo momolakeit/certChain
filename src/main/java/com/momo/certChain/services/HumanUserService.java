@@ -3,6 +3,7 @@ package com.momo.certChain.services;
 import com.momo.certChain.exception.*;
 import com.momo.certChain.mapping.EmployeeMapper;
 import com.momo.certChain.mapping.StudentMapper;
+import com.momo.certChain.model.data.Certification;
 import com.momo.certChain.model.data.Employee;
 import com.momo.certChain.model.data.HumanUser;
 import com.momo.certChain.model.data.Student;
@@ -10,6 +11,7 @@ import com.momo.certChain.model.dto.HumanUserDTO;
 import com.momo.certChain.repositories.HumanUserRepository;
 import com.momo.certChain.services.messaging.MessageService;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,14 +29,18 @@ public class HumanUserService {
 
     private final UserService userService;
 
+    private final CertificationService certificationService;
+
     public HumanUserService(HumanUserRepository humanUserRepository,
                             MessageService messageService,
                             PasswordEncoder passwordEncoder,
-                            UserService userService) {
+                            UserService userService,
+                            CertificationService certificationService) {
         this.humanUserRepository = humanUserRepository;
         this.messageService = messageService;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
+        this.certificationService = certificationService;
     }
 
     //todo tester le cas ou on lance la custom messaging exception
@@ -119,7 +125,11 @@ public class HumanUserService {
     private HumanUser ajouterCertificatAStudentExistant(Student student) {
         Student studentEntity = (Student) userService.findUserByEmail(student.getUsername());
 
-        studentEntity.getCertifications().add(student.getCertifications().get(0));
+        Certification certification = student.getCertifications().get(0);
+
+        certification.setStudent(studentEntity);
+
+        studentEntity.getCertifications().add(certificationService.saveCertification(certification));
 
         return (HumanUser) userService.saveUser(studentEntity);
     }

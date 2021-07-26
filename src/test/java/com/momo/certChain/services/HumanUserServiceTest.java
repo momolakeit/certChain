@@ -47,6 +47,9 @@ class HumanUserServiceTest {
     private MessageServiceImpl messageServiceImpl;
 
     @Mock
+    private CertificationService certificationService;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @Mock
@@ -97,6 +100,7 @@ class HumanUserServiceTest {
         when(userService.findUserByEmail(anyString())).thenReturn(studentEntity);
         when(userService.saveUser(any(User.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(certificationService.saveCertification(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         Student returnValue = (Student) humanUserService.createHumanUser(student);
 

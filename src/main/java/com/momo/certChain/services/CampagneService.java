@@ -92,9 +92,9 @@ public class CampagneService {
                 walletPassword);
 
         for (Certification certification : certifications) {
-            String generatedString = RandomStringUtils.randomAlphanumeric(11);
 
             if (certification.isPayed()) {
+                String generatedString = RandomStringUtils.randomAlphanumeric(11);
                 messageService.sendCertificatePrivateKey(certification.getStudent(), generatedString);
 
                 certificationService.uploadCertificationToBlockChain(certification,
@@ -103,7 +103,6 @@ public class CampagneService {
                         keyPair,
                         generatedString);
             } else {
-                //todo s'assurer qu'on delete le certificat dans les tests
                 certificationService.deleteCertification(certification);
             }
         }

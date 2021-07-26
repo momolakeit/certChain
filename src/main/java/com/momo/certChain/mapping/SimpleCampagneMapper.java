@@ -16,6 +16,8 @@ public interface SimpleCampagneMapper {
     @Mapping(target = "institution",ignore = true)
     CampagneDTO toDTO (Campagne campagne);
 
+    Campagne toSimple(Campagne campagne);
+
     @Mapping(target = "id",ignore = true)
     @Mapping(target = "certifications",ignore = true)
     @Mapping(target = "institution",ignore = true)
