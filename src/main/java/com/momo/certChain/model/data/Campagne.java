@@ -23,7 +23,7 @@ public class Campagne {
 
     private boolean runned;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany
     private List<Certification> certifications;
 
     @ManyToOne

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -76,12 +77,14 @@ class HumanUserServiceTest {
         String password = "password";
 
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
+        when(humanUserRepository.findByUsername(anyString())).thenReturn(Optional.empty());
         when(userService.createUser(any(User.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         Student returnValue = (Student) humanUserService.createHumanUser(student);
 
         verify(messageServiceImpl, times(1)).sendUserCreatedEmail(any(HumanUser.class), passwordCaptor.capture());
+        verify(userService, times(1)).createUser(any(User.class));
 
         assertEquals(password, passwordCaptor.getValue());
         assertFalse(returnValue.isPasswordResseted());
@@ -96,8 +99,7 @@ class HumanUserServiceTest {
         String password = "password";
 
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
-        when(userService.createUser(any(User.class))).thenThrow(new ValidationException("message"));
-        when(userService.findUserByEmail(anyString())).thenReturn(studentEntity);
+        when(humanUserRepository.findByUsername(anyString())).thenReturn(Optional.of(studentEntity));
         when(userService.saveUser(any(User.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(certificationService.saveCertification(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
@@ -105,6 +107,7 @@ class HumanUserServiceTest {
         Student returnValue = (Student) humanUserService.createHumanUser(student);
 
         verify(messageServiceImpl, times(1)).sendUserCreatedEmail(any(HumanUser.class), passwordCaptor.capture());
+        verify(userService, times(0)).createUser(any(User.class));
 
         assertEquals(password, passwordCaptor.getValue());
         assertFalse(returnValue.isPasswordResseted());
@@ -126,6 +129,8 @@ class HumanUserServiceTest {
 
         Employee returnValue = (Employee) humanUserService.createHumanUser(employe);
         verify(messageServiceImpl, times(1)).sendUserCreatedEmail(any(HumanUser.class), passwordCaptor.capture());
+        verify(userService, times(1)).createUser(any(User.class));
+
 
         assertEquals(password, passwordCaptor.getValue());
         assertFalse(returnValue.isPasswordResseted());
@@ -142,7 +147,8 @@ class HumanUserServiceTest {
         when(userService.createUser(any(User.class))).thenThrow(new ValidationException("message"));
         when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-        Assertions.assertThrows(ValidationException.class, () -> {
+
+        Assertions.assertThrows(ValidationException.class,()->{
             humanUserService.createHumanUser(employee);
         });
 

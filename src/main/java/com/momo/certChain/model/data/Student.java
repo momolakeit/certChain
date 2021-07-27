@@ -13,6 +13,6 @@ import java.util.List;
 @Getter
 @Setter
 public class Student extends HumanUser {
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<Certification> certifications;
 }

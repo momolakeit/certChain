@@ -6,8 +6,10 @@ import com.momo.certChain.model.data.Signature;
 import com.momo.certChain.model.dto.SignatureDTO;
 import com.momo.certChain.repositories.SignatureRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class SignatureService {
 
     private final SignatureRepository signatureRepository;

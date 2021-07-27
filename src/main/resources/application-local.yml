@@ -10,10 +10,3 @@ spring:
 blockchain:
   ethereum:
     inputUrl : "http://localhost:7545"
-
-
-logging:
-  level:
-    org:
-      hibernate:
-        SQL: DEBUG

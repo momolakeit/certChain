@@ -15,6 +15,7 @@ import com.momo.certChain.utils.ListUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.ECKeyPair;
 
@@ -27,6 +28,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
+@Transactional
 public class InstitutionService {
 
     private final InstitutionRepository institutionRepository;

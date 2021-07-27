@@ -14,6 +14,7 @@ import com.momo.certChain.utils.ListUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.ECKeyPair;
 
 import java.util.Date;
@@ -22,6 +23,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class CampagneService {
 
     private final CertificationService certificationService;

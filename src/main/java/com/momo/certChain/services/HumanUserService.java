@@ -14,11 +14,15 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
+@Transactional
 public class HumanUserService {
 
     private final HumanUserRepository humanUserRepository;
@@ -109,28 +113,21 @@ public class HumanUserService {
     }
 
     private HumanUser createUser(HumanUser humanUser) {
-        try {
+
+        Optional<HumanUser> humanUserOptional = humanUserRepository.findByUsername(humanUser.getUsername());
+
+        if (humanUserOptional.isPresent() && humanUserOptional.get() instanceof Student) {
+            return ajouterCertificatAStudentExistant((Student) humanUserOptional.get(), ((Student) humanUser).getCertifications().get(0));
+        } else {
             return (HumanUser) userService.createUser(humanUser);
-
-        } catch (ValidationException e) {
-            if (humanUser instanceof Student) {
-                return ajouterCertificatAStudentExistant((Student) humanUser);
-            } else {
-                throw e;
-            }
-
         }
     }
 
-    private HumanUser ajouterCertificatAStudentExistant(Student student) {
-        Student studentEntity = (Student) userService.findUserByEmail(student.getUsername());
+    private HumanUser ajouterCertificatAStudentExistant(Student student, Certification certification) {
+        certification.setStudent(student);
 
-        Certification certification = student.getCertifications().get(0);
+        student.getCertifications().add(certificationService.saveCertification(certification));
 
-        certification.setStudent(studentEntity);
-
-        studentEntity.getCertifications().add(certificationService.saveCertification(certification));
-
-        return (HumanUser) userService.saveUser(studentEntity);
+        return (HumanUser) userService.saveUser(student);
     }
 }

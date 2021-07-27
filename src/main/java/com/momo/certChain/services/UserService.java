@@ -13,8 +13,13 @@ import com.momo.certChain.model.dto.UserDTO;
 import com.momo.certChain.repositories.UserRepository;
 import com.momo.certChain.services.request.HeaderCatcherService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
+@Transactional
 public class UserService {
     private final UserRepository userRepository;
 
@@ -26,12 +31,14 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        try {
-            findUserByEmail(user.getUsername());
+        Optional<User> userEntity = findByUsername(user.getUsername());
+
+        userEntity.ifPresent(x->{
             throw new ValidationException("Un utilisateur avec ce courriel existe déja");
-        } catch (ObjectNotFoundException objectNotFoundException) {
-            return saveUser(user);
-        }
+        });
+
+        return saveUser(user);
+
     }
 
     public User saveUser(User user) {
@@ -60,6 +67,10 @@ public class UserService {
     }
 
     public User findUserByEmail(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new ObjectNotFoundException("L'utilisateur avec ce courriel n'existe pas"));
+        return findByUsername(username).orElseThrow(() -> new ObjectNotFoundException("L'utilisateur avec ce courriel n'existe pas"));
+    }
+
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 }

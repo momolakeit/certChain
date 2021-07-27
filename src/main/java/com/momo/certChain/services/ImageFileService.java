@@ -4,8 +4,10 @@ import com.momo.certChain.exception.ObjectNotFoundException;
 import com.momo.certChain.model.data.ImageFile;
 import com.momo.certChain.repositories.ImageFileRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class ImageFileService {
 
     private final ImageFileRepository imageFileRepository;

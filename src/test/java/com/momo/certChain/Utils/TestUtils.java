@@ -10,6 +10,7 @@ import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -201,6 +202,7 @@ public class TestUtils {
         campagne.setId(id);
         campagne.setName(campagneName);
         campagne.setDate(new Date(System.currentTimeMillis()));
+        campagne.setCertifications(new ArrayList<>());
         return campagne;
     }
 

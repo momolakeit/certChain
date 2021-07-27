@@ -42,9 +42,9 @@ public class Certification {
     @OneToOne
     private ImageFile universityStamp;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany
     private List<Signature> signatures;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany
     private List<Lien> liens;
 }
