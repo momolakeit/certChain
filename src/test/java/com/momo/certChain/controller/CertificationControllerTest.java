@@ -6,6 +6,7 @@ import com.momo.certChain.model.Type;
 import com.momo.certChain.model.data.*;
 import com.momo.certChain.model.dto.request.CreateLienDTO;
 import com.momo.certChain.model.dto.request.CreateProprietaireLienDTO;
+import com.momo.certChain.repositories.CertificationRepository;
 import com.momo.certChain.repositories.LienRepository;
 import com.momo.certChain.repositories.UserRepository;
 import com.momo.certChain.services.CertificationService;
@@ -58,6 +59,9 @@ class CertificationControllerTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CertificationRepository certificationRepository;
 
     @Autowired
     private JwtProvider jwtProvider;
@@ -277,7 +281,8 @@ class CertificationControllerTest {
     private Certification createCertification() {
         studentCertification = TestUtils.createCertification();
         studentCertification.setId(null);
+        studentCertification.getStudent().setId(null);
         studentCertification.setSalt(KeyGenerators.string().generateKey());
-        return studentCertification;
+        return  studentCertification;
     }
 }

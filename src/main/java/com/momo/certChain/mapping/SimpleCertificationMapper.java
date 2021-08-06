@@ -12,10 +12,12 @@ public interface SimpleCertificationMapper {
     SimpleCertificationMapper instance = Mappers.getMapper(SimpleCertificationMapper.class);
 
     @Mapping(target = "institution",ignore = true)
+    @Mapping(target = "campagne",ignore = true)
     Certification toSimple (Certification certification);
 
     @Mapping(target = "institution",ignore = true)
     @Mapping(target = "liens",ignore = true)
+    @Mapping(target = "campagne",ignore = true)
     CertificationDTO toDTO (Certification certification);
 
 }

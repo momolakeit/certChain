@@ -156,6 +156,7 @@ class CampagneControllerTest {
     private Certification createCertification() {
         Certification certification = TestUtils.createCertification();
         certification.setId(null);
+        certification.getStudent().setId(null);
         certification.setPayed(true);
         certification.setSalt(salt);
         return certificationRepository.save(certification);

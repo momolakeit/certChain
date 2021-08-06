@@ -30,7 +30,7 @@ public class Certification {
     @ManyToOne
     private Institution institution;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Student student;
 
     @ManyToOne
