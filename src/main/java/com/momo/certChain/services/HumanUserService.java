@@ -47,21 +47,9 @@ public class HumanUserService {
         this.certificationService = certificationService;
     }
 
-    //todo tester le cas ou on lance la custom messaging exception
-    public HumanUser createHumanUser(HumanUser humanUser) {
-        String generatedPassword = createPasswordForUser(humanUser);
-
-        try {
-            messageService.sendUserCreatedEmail(humanUser, generatedPassword);
-        } catch (MessagingException | IOException e) {
-            throw new CustomMessagingException();
-        }
-
-        return createUser(humanUser);
-    }
-
 
     //set up confirmer password dans le backend aussi pour securite accrue
+
     public HumanUser modifyPassword(String uuid, String oldPassword, String password, String passwordConfirmation) {
         HumanUser user = (HumanUser) userService.getUser(uuid);
 
@@ -73,6 +61,17 @@ public class HumanUserService {
     }
 
     //todo test that
+    public HumanUser createHumanUser(HumanUser humanUser) {
+
+        Optional<HumanUser> humanUserOptional = humanUserRepository.findByUsername(humanUser.getUsername());
+
+        if (humanUserOptional.isPresent() && humanUserOptional.get() instanceof Student) {
+            return ajouterCertificatAStudentExistant((Student) humanUserOptional.get(), ((Student) humanUser).getCertifications().get(0));
+        } else {
+            sendEmailMessage(humanUser);
+            return (HumanUser) userService.createUser(humanUser);
+        }
+    }
 
     public HumanUserDTO toDTO(HumanUser humanUser) {
         if (humanUser instanceof Student) {
@@ -112,14 +111,13 @@ public class HumanUserService {
         humanUser.setPassword(passwordEncoder.encode(password));
     }
 
-    private HumanUser createUser(HumanUser humanUser) {
+    private void sendEmailMessage(HumanUser humanUser) {
+        String generatedPassword = createPasswordForUser(humanUser);
 
-        Optional<HumanUser> humanUserOptional = humanUserRepository.findByUsername(humanUser.getUsername());
-
-        if (humanUserOptional.isPresent() && humanUserOptional.get() instanceof Student) {
-            return ajouterCertificatAStudentExistant((Student) humanUserOptional.get(), ((Student) humanUser).getCertifications().get(0));
-        } else {
-            return (HumanUser) userService.createUser(humanUser);
+        try {
+            messageService.sendUserCreatedEmail(humanUser, generatedPassword);
+        } catch (MessagingException | IOException e) {
+            throw new CustomMessagingException();
         }
     }
 

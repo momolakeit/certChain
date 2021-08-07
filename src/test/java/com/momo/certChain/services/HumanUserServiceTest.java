@@ -11,7 +11,6 @@ import com.momo.certChain.model.dto.StudentDTO;
 import com.momo.certChain.repositories.HumanUserRepository;
 import com.momo.certChain.services.messaging.MessageServiceImpl;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -101,15 +100,12 @@ class HumanUserServiceTest {
         randomStringUtilsMockedStatic.when(() -> RandomStringUtils.randomAlphanumeric(11)).thenReturn(password);
         when(humanUserRepository.findByUsername(anyString())).thenReturn(Optional.of(studentEntity));
         when(userService.saveUser(any(User.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        when(passwordEncoder.encode(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(certificationService.saveCertification(any(Certification.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         Student returnValue = (Student) humanUserService.createHumanUser(student);
 
-        verify(messageServiceImpl, times(1)).sendUserCreatedEmail(any(HumanUser.class), passwordCaptor.capture());
         verify(userService, times(0)).createUser(any(User.class));
 
-        assertEquals(password, passwordCaptor.getValue());
         assertFalse(returnValue.isPasswordResseted());
 
         TestUtils.assertCertification(returnValue.getCertifications().get(0));
