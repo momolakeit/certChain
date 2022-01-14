@@ -1,5 +1,5 @@
 # certChain
-Built with spring boot and Web3j
+Built with Spring Boot and Web3j
 
 ## Product description
 
